@@ -1,34 +1,46 @@
-import React from 'react'
-import { Routes, Route, Link } from 'react-router-dom'
-import LoginPage from './components/Login/LoginPage'
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 
-import './index.css';
+import LoginPage from "./components/Login/LoginPage";
 
+import Sidebar from "./components/Layout/sidePar";
 
+import HomePage from "./components/page/home/homePage";
+import VolintersPage from "./components/page/volinterr/volintersPage";
+import OrdersPage from "./components/page/orders/orders";
+import FrazzenPage from "./components/page/frazzening/frazingPage";
+import BlackListPage from "./components/page/blackList/blackListPage";
 
+import "./index.css";
 
-
-export default function App({toggleMode, mode}){
- 
+export default function App({ toggleMode, mode }) {
   return (
-    <>
-    
-       <Routes>
-{/* =========NO-Token =========*/}
+    <Routes>
+      {/* صفحة تسجيل الدخول */}
+      <Route path="/login" element={<LoginPage />} />
 
-     <Route path="/" element={<LoginPage />} />
+      {/* Layout فيه Sidebar */}
+      <Route
+        path="/"
+        element={<Sidebar toggleMode={toggleMode} mode={mode} />}
+      >
+        {/* الصفحة الافتراضية */}
+        <Route index element={<Navigate to="home" replace />} />
 
- <Route path="/login" element={<LoginPage />} />
-{/* =========NO-Token =========*/}
+        {/* الصفحات */}
+        <Route path="home" element={<HomePage />} />
 
+        <Route
+          path="volunteers"
+          element={<VolintersPage />}
+        />
 
-{/* =========requiredToken =========*/}
+        <Route path="orders" element={<OrdersPage />} />
 
+        <Route path="frazing" element={<FrazzenPage />} />
 
-       
-     
-</Routes> 
-
-    </>
-  )
+        <Route path="black" element={<BlackListPage />} />
+      </Route>
+    </Routes>
+  );
 }
