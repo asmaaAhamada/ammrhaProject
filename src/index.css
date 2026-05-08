@@ -1,0 +1,10 @@
+/* 1. تعريف الخط - يجب أن يكون خارج أي أقواس أخرى */
+@font-face {
+  font-family:'Tajawal'; /* سمّه اسماً مميزاً لتعرف أنه المحمل محلياً */
+  src: url("./assets/Tajawal/Tajawal-Bold.ttf") format("truetype");
+  
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Tajawal', sans-serif !important;
+}
+/* 2. تطبيق الخط على كل العناصر */
