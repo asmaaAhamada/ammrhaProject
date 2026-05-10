@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HashRouter } from 'react-router-dom'
+import "antd/dist/reset.css";
 import { Provider } from 'react-redux'
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
 import App from './App'
@@ -39,6 +40,7 @@ function Main() {
 
 button: mode === 'light' ? blue4 : blue5,
 button1: mode === 'light' ? blue1 :light_blue,
+button2: mode === 'light' ? mainColor :light_blue,
 
 more: mode === 'light' ? blue1 : darkblack,
 moreborder: mode === 'light' ? blue1 : darkgray,

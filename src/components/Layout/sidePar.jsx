@@ -127,19 +127,21 @@ export default function Sidebar({ toggleMode, mode }) {
     mb: 1,
     borderRadius: "14px",
     minHeight: 30,
-
+boxShadow: location.pathname === item.path
+  ? "0 4px 12px rgba(43, 127, 255, 0.2)"
+  : "none",
     display: "flex",
     alignItems: "center",
     gap: 2, // المسافة بين الأيقونة والكلمة
 
     color:
       location.pathname === item.path
-        ? blue1
+        ? theme.palette.primary.text3
         : darkgray,
 
     backgroundColor:
       location.pathname === item.path
-        ? mainColor
+        ? theme.palette.primary.button2
         : "transparent",
 
     "&:hover": {
@@ -152,7 +154,7 @@ export default function Sidebar({ toggleMode, mode }) {
     sx={{
       color:
         location.pathname === item.path
-          ? blue1
+          ? theme.palette.primary.text3
           : darkgray,
 
       minWidth: "unset", // إزالة العرض الافتراضي
