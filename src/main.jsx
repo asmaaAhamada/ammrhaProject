@@ -4,7 +4,7 @@ import { HashRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
 import App from './App'
-import { blue, card, darkblack, blue1, darkcard, darkgray, darkwhite, gray1, gray2, gray3, gray4, lightgray, lighttext, mainColor, textheder, white, gray, blue2, gray11, gray13, black, blue4, blue5 } from './style/color-main/color'
+import { blue, card, darkblack, blue1, darkcard, darkgray, darkwhite, gray1, gray2, gray3, gray4, lightgray, lighttext, mainColor, textheder, white, gray, blue2, gray11, gray13, black, blue4, blue5, light_blue } from './style/color-main/color'
 
 function Main() {
 
@@ -38,9 +38,11 @@ function Main() {
 
 
 button: mode === 'light' ? blue4 : blue5,
+button1: mode === 'light' ? blue1 :light_blue,
+
 more: mode === 'light' ? blue1 : darkblack,
 moreborder: mode === 'light' ? blue1 : darkgray,
-chip: mode === 'light' ? gray2 : gray1,
+chip: mode === 'light' ? black : gray4,
         drower: mode === 'light' ?  blue : mainColor ,
 logo:mode  === 'light' ? blue1 : 'rgba(19, 41, 106, 0.68)',
 card:mode  === 'light' ? card : darkcard,
@@ -55,6 +57,7 @@ imagcard:mode  === 'light' ? white : lightgray,
     contrastText:mode === 'light' ?'#ffffffff' : '#000000',
     text4:mode === 'light' ? black : lightgray,
     text3:mode === 'light' ? blue1 : lightgray,
+    
 
     // لون النص على الأزرار
   },

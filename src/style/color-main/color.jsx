@@ -10,7 +10,6 @@ export const gray3='rgba(98, 116, 142, 1)'
 export const gray5='rgba(202, 213, 226, 1)'
 
 
-
 export const card ='rgba(248, 250, 252, 1)'
 export const darkcard ='rgba(15, 33, 85, 1)'
 
@@ -20,6 +19,9 @@ export const darkwhite = 'rgba(248, 250, 252, 1)';
 export const darkblack = ' rgb(235, 239, 245)';
 
 //new
+export const light_blue='rgba(59, 133, 254, 1)'
+
+
 export const blue1 ='rgba(19, 41, 106, 1)'
 export const blue2 ='rgba(8, 16, 42, 1)'
 export const blue3 ='rgba(81, 162, 255, 1)'
