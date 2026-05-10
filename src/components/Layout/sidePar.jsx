@@ -19,7 +19,8 @@ import { useTheme } from "@mui/material/styles";
 
 import MenuIcon from "@mui/icons-material/Menu";
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
-import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';import SettingsIcon from "@mui/icons-material/Settings";
+import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
+import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AssignmentTurnedInOutlinedIcon from '@mui/icons-material/AssignmentTurnedInOutlined';
 import  ReportIcon  from "../../assets/icons/Icon.svg?react";

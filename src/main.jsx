@@ -4,7 +4,7 @@ import { HashRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
 import App from './App'
-import { blue, card, darkblack, blue1, darkcard, darkgray, darkwhite, gray1, gray2, gray3, gray4, lightgray, lighttext, mainColor, textheder, white, gray, blue2, gray11, gray13 } from './style/color-main/color'
+import { blue, card, darkblack, blue1, darkcard, darkgray, darkwhite, gray1, gray2, gray3, gray4, lightgray, lighttext, mainColor, textheder, white, gray, blue2, gray11, gray13, black, blue4, blue5 } from './style/color-main/color'
 
 function Main() {
 
@@ -34,14 +34,16 @@ function Main() {
                 Appar2: mode === 'light' ? white :  blue2 ,
 
     text:mode === 'light' ? gray2 : gray4,//لون التنقلات عالناف
-button: mode === 'light' ? mainColor : gray11,
+
+
+
+button: mode === 'light' ? blue4 : blue5,
 more: mode === 'light' ? blue1 : darkblack,
 moreborder: mode === 'light' ? blue1 : darkgray,
 chip: mode === 'light' ? gray2 : gray1,
-        drower: mode === 'light' ?  blue1 : mainColor ,
+        drower: mode === 'light' ?  blue : mainColor ,
 logo:mode  === 'light' ? blue1 : 'rgba(19, 41, 106, 0.68)',
 card:mode  === 'light' ? card : darkcard,
-textheadr:mode  === 'light' ? textheder : darkgray,//الكلام يلي مكتوب على من نحن
 
 imagecard:mode  === 'light' ? mainColor : blue1,
 imagcard:mode  === 'light' ? white : lightgray,
@@ -51,8 +53,8 @@ imagcard:mode  === 'light' ? white : lightgray,
 
     // أزرق رئيسي لللايت، أزرق فاتح للدارك
     contrastText:mode === 'light' ?'#ffffffff' : '#000000',
-    text4:mode === 'light' ? white : lighttext,
-    text3:mode === 'light' ? gray4 : blue,
+    text4:mode === 'light' ? black : lightgray,
+    text3:mode === 'light' ? blue1 : lightgray,
 
     // لون النص على الأزرار
   },
@@ -61,7 +63,7 @@ imagcard:mode  === 'light' ? white : lightgray,
     default: mode === 'light' ? gray4 : gray1, // الأبيض لللايت، الأسود للدارك
   },
   text: {
-    primary: mode === 'light' ?'rgba(113, 127, 166, 1)':'rgba(161, 169, 195, 1)' ,
+    primary: mode === 'light' ?lightgray : black ,
     secondary: mode === 'light' ? darkblack : darkgray, 
     textcard:mode  === 'light' ? blue1 : darkgray,
         textc:mode  === 'light' ? blue1 : lighttext,

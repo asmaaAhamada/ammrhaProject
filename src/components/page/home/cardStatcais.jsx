@@ -1,17 +1,44 @@
-import { Box, Grid, Card, Typography } from "@mui/material";
-import HomeIcon from "@mui/icons-material/Home";
-import StarIcon from "@mui/icons-material/Star";
-import SettingsIcon from "@mui/icons-material/Settings";
-import PersonIcon from "@mui/icons-material/Person";
+import { Box, Grid, Card, Typography, IconButton } from "@mui/material";
+import  FrazingIcon  from "../../../assets/icons/UserGear.svg?react";
+import { babyblue, babyPink, babyyallow, blue3, blue4, Pink, yallow } from "../../../style/color-main/color";
+import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
+import EventBusyOutlinedIcon from '@mui/icons-material/EventBusyOutlined';
+import { useTheme } from "@mui/material/styles";
+import QueryBuilderOutlinedIcon from '@mui/icons-material/QueryBuilderOutlined';
 
-const items = [
-  { icon: <HomeIcon />, title: "العنوان الأول", subtitle: "الوصف الأول" },
-  { icon: <StarIcon />, title: "العنوان الثاني", subtitle: "الوصف الثاني" },
-  { icon: <SettingsIcon />, title: "العنوان الثالث", subtitle: "الوصف الثالث" },
-  { icon: <PersonIcon />, title: "العنوان الرابع", subtitle: "الوصف الرابع" },
-];
 
 export default function Cards() {
+    const theme= useTheme()
+    const items = [
+  {
+    icon: <PeopleOutlinedIcon />,
+    title: "إجمالي المتطوعين",
+    subtitle: "000",
+    bg: babyblue,
+    iconColor: blue3,
+  },
+  {
+    icon: <EventBusyOutlinedIcon />,
+    title: "القائمة السوداء",
+    subtitle: "33",
+    bg: babyPink,
+    iconColor: Pink,
+  },
+  {
+    icon: <QueryBuilderOutlinedIcon />,
+    title: "الطلبات المعلقة",
+    subtitle: "33",
+    bg: babyyallow,
+    iconColor: yallow,
+  },
+  {
+    icon: <FrazingIcon sx={{fontSize:'36px'}}/>,
+    title: "المجمدين",
+    subtitle: "488",
+    bg:  theme.palette.primary.button,
+    iconColor: theme.palette.primary.drower,
+  },
+];
   return (
     <Box sx={{ p: 2 }}>
       <Grid container spacing={2} justifyContent="center">
@@ -19,9 +46,9 @@ export default function Cards() {
           <Grid
             item
             key={index}
-            xs={12}   // موبايل: كارد واحد
-            sm={6}    // تابلت: كاردين
-            md={3}    // لابتوب: 4 كروت
+            xs={12}
+            sm={6}
+            md={3}
             sx={{
               display: "flex",
               justifyContent: "center",
@@ -29,28 +56,42 @@ export default function Cards() {
           >
             <Card
               sx={{
-                width: '275px',
-                height: '137px',
+                        backgroundColor: theme.palette.primary.Appar2,
+
+                width: "275px",
+                height: "137px",
                 display: "flex",
                 alignItems: "center",
-                padding: 2,
+                justifyContent: "space-between",
                 borderRadius: 3,
+                px: 2,
               }}
             >
-              {/* Icon left */}
-              <Box sx={{ marginRight: 2, display: "flex", alignItems: "center" }}>
-                {item.icon}
-              </Box>
-
-              {/* Text right */}
-              <Box sx={{ textAlign: "left" }}>
-                <Typography variant="subtitle1" fontWeight="bold">
+              {/* Text */}
+              <Box  >
+                <Typography variant="subtitle1" fontWeight="bold" sx={{fontSize:'16px',color: theme.palette.primary.text3}}>
                   {item.title}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+
+                <Typography  sx={{fontSize:'36px',color: theme.palette.primary.text4}}>
                   {item.subtitle}
                 </Typography>
               </Box>
+
+              {/* Icon Button */}
+              <IconButton
+                sx={{
+                  width: '60px',
+                  height: '60px',
+                  backgroundColor: item.bg,borderRadius:'14px',
+                  color: item.iconColor,
+                  "&:hover": {
+                    backgroundColor: item.bg,
+                  },
+                }}
+              >
+                {item.icon}
+              </IconButton>
             </Card>
           </Grid>
         ))}
