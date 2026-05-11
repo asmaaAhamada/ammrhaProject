@@ -47,7 +47,7 @@ moreborder: mode === 'light' ? blue1 : darkgray,
 chip: mode === 'light' ? black : gray4,
         drower: mode === 'light' ?  blue : mainColor ,
 logo:mode  === 'light' ? blue1 : 'rgba(19, 41, 106, 0.68)',
-card:mode  === 'light' ? card : darkcard,
+card:mode  === 'light' ?darkcard : blue4 ,
 
 imagecard:mode  === 'light' ? mainColor : blue1,
 imagcard:mode  === 'light' ? white : lightgray,

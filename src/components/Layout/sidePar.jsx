@@ -36,6 +36,7 @@ import image from "../../assets/image/logo/logo.jpg";
 
 import TopBar from "./TopBar";
 import LogoHeader from "./logoHeader";
+import UserMenuSection from "../user/usersection";
 
 export default function Sidebar({ toggleMode, mode }) {
   const theme = useTheme();
@@ -104,7 +105,9 @@ export default function Sidebar({ toggleMode, mode }) {
         height: "100%",
         backgroundColor: theme.palette.primary.Appar,
         color: mainColor,
-        direction: "rtl",
+        direction: "rtl",display: "flex", // تحويل الحاوية لـ Flex
+        flexDirection: "column", // ترتيب العناصر عمودياً
+        justifyContent: "space-between",
       }}
     >
       {/* اللوجو */}
@@ -176,7 +179,11 @@ boxShadow: location.pathname === item.path
 </ListItemButton>
   ))}
 </List>
-    </Box>
+         {/* هنا نضع الكود الذي صممناه سابقاً */}
+         <UserMenuSection /> 
+         
+       </Box>
+
   );
 
   return (
