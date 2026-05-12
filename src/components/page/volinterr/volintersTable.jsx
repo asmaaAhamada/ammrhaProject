@@ -1,14 +1,24 @@
+// VolunteersTable.jsx
+
 import React from "react";
-import { useTheme } from "@mui/material/styles";
 import { Table, Avatar, Space, Tooltip } from "antd";
+import { useTheme } from "@mui/material/styles";
+import { Button } from "@mui/material";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+
 import BlockIcon from "../../../assets/icons/block.svg?react";
 import FrazenIcon from "../../../assets/icons/frazen.svg?react";
-import { babygreen, white, yallow } from "../../../style/color-main/color";
-import { Button } from "@mui/material";
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-export default function VolunteersTable() {
+
+import {
+  babygreen,
+  white,
+  yallow,
+} from "../../../style/color-main/color";
+
+export default function VolunteersTable({ topContent }) {
   const theme = useTheme();
 
+  // ================= DATA =================
   const data = [
     {
       key: "1",
@@ -30,26 +40,17 @@ export default function VolunteersTable() {
       rank: "فضي",
       status: "مجمّد",
     },
-    {
-      key: "3",
-      name: "خالد يوسف",
-      avatar: "https://i.pravatar.cc/150?img=8",
-      department: "العلاقات",
-      points: 410,
-      hours: 180,
-      rank: "بلاتيني",
-      status: "نشط",
-    },
   ];
 
+  // ================= COLUMNS =================
   const columns = [
     {
-      title: "اسم المتطوع ↓",
+      title: "اسم المتطوع",
       dataIndex: "name",
       key: "name",
-      fixed: 'left', // تثبيت العمود عند السكرول في الموبايل
-      width: 150,    // عرض ثابت لضمان الوضوح
-      sorter: (a, b) => a.name.localeCompare(b.name),
+      fixed: "left",
+      width: 180,
+
       render: (_, record) => (
         <Space>
           <Avatar src={record.avatar} />
@@ -57,56 +58,70 @@ export default function VolunteersTable() {
         </Space>
       ),
     },
+
     {
       title: "القسم",
       dataIndex: "department",
       key: "department",
       width: 120,
     },
+
     {
       title: "إجمالي النقاط",
       dataIndex: "points",
       key: "points",
       width: 120,
     },
+
     {
-      title: "الساعات ↓",
+      title: "الساعات",
       dataIndex: "hours",
       key: "hours",
       width: 100,
-      sorter: (a, b) => a.hours - b.hours,
+
       render: (hours) => (
-        <span style={{ color: babygreen, fontWeight: 600 }}>
+        <span
+          style={{
+            color: babygreen,
+            fontWeight: 600,
+          }}
+        >
           {hours}
         </span>
       ),
     },
+
     {
       title: "الرتبة",
       dataIndex: "rank",
       key: "rank",
       width: 100,
     },
+
     {
       title: "الحالة",
       dataIndex: "status",
       key: "status",
       width: 120,
+
       render: (status) => {
         const isActive = status === "نشط";
+
         return (
           <span
             style={{
               display: "inline-block",
               padding: "4px 12px",
               borderRadius: "12px",
-              border: `1px solid ${isActive ? babygreen : yallow}`,
+              border: `1px solid ${
+                isActive ? babygreen : yallow
+              }`,
               color: isActive ? babygreen : yallow,
               backgroundColor: isActive
                 ? "rgba(5, 223, 114, 0.08)"
                 : "rgba(255, 152, 0, 0.08)",
               fontWeight: 600,
-              whiteSpace: "nowrap", // منع النص من النزول لسطر جديد
+              whiteSpace: "nowrap",
             }}
           >
             {status}
@@ -114,118 +129,106 @@ export default function VolunteersTable() {
         );
       },
     },
+
     {
       title: "إجراءات",
       key: "actions",
-      fixed: 'right', // تثبيت الأزرار جهة اليمين (أو اليسار حسب اتجاه اللغة)
-      width: 150,
+      fixed: "right",
+      width: 180,
+
       render: () => (
         <Space size="middle">
-           <Tooltip title="عرض">
-            <Button size="small" sx={{ minWidth: 'auto' }}><VisibilityOutlinedIcon sx={{color:theme.palette.primary.card}} /></Button>
+          <Tooltip title="عرض">
+            <Button
+              size="small"
+              sx={{ minWidth: "auto" }}
+            >
+              <VisibilityOutlinedIcon
+                sx={{
+                  color: theme.palette.primary.card,
+                }}
+              />
+            </Button>
           </Tooltip>
+
           <Tooltip title="تجميد">
-            <Button size="small" sx={{ minWidth: 'auto' }}><FrazenIcon /></Button>
+            <Button
+              size="small"
+              sx={{ minWidth: "auto" }}
+            >
+              <FrazenIcon />
+            </Button>
           </Tooltip>
+
           <Tooltip title="حظر">
-            <Button size="small" color="error" sx={{ minWidth: 'auto' }}><BlockIcon width={20} height={20} /></Button>
+            <Button
+              size="small"
+              color="error"
+              sx={{ minWidth: "auto" }}
+            >
+              <BlockIcon width={20} height={20} />
+            </Button>
           </Tooltip>
-         
         </Space>
       ),
     },
   ];
 
-  
-    // داخل VolunteersTable.js
-return (
-  // أضفنا max-width و overflowX لضمان عدم خروج الجدول عن النص
-  <div style={{ 
-    padding: "10px", 
-    width: "100%", 
-    maxWidth: "100vw", // يضمن عدم تجاوز عرض الشاشة
-    overflowX: "hidden", // يمنع السكرول الخارجي
-    boxSizing: "border-box" 
-  }}>
-    
-    <Button 
-      sx={{ 
-        backgroundColor: theme.palette.primary.button1,
-        color: white,
-        borderRadius: '12px',
-        width: { xs: '100%', sm: '245px' }, 
-        height: { xs: '40px', md: '43px' },
-        marginBottom: '15px'         
-      }} 
+  // ================= RETURN =================
+  return (
+    <div
+      style={{
+        padding: "10px",
+        width: "100%",
+        maxWidth: "100vw",
+        overflowX: "hidden",
+        boxSizing: "border-box",
+      }}
     >
-      مشاهدة جميع المتطوعين
-    </Button>
+      {/* المحتوى العلوي */}
+      {topContent && (
+        <div style={{ marginBottom: "15px" }}>
+          {topContent}
+        </div>
+      )}
 
-    <Table
-      columns={columns}
-      dataSource={data}
-      pagination={false}
-      // تأكد أن العرض هنا لا يكسر التصميم
-      scroll={{ x: "max-content" }} // الأفضل استخدام max-content بدل رقم ثابت أحياناً
-     components={{
-
+      <Table
+        columns={columns}
+        dataSource={data}
+        pagination={false}
+        scroll={{ x: "max-content" }}
+        components={{
           header: {
-
             cell: (props) => (
-
               <th
-
                 {...props}
-
                 style={{
-
-                  backgroundColor: theme.palette.primary.button1,
-
+                  backgroundColor:
+                    theme.palette.primary.button1,
                   color: white,
-
                   padding: "12px 8px",
-
                   textAlign: "center",
-
                 }}
-    />
-
+              />
             ),
-
           },
 
           body: {
-
             cell: (props) => (
-
               <td
-
                 {...props}
-
                 style={{
-
-                  backgroundColor: theme.palette.primary.Appar2,
-
+                  backgroundColor:
+                    theme.palette.primary.Appar2,
                   color: theme.palette.primary.chip,
-
                   padding: "12px 8px",
-
                   textAlign: "center",
-
                 }}
-
               />
-
             ),
-
           },
-
         }}
-
       />
-
     </div>
-
   );
-
 }

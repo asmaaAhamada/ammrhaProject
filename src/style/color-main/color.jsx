@@ -39,6 +39,8 @@ export const gray1 ='rgb(28, 37, 52)'
 export const gray2 ='rgba(153, 161, 175, 1)'
 export const gray4 = 'rgba(232, 234, 241, 1)';
 export const gray6 ='rgba(28, 37, 52, 1)'
+export const gray7 ='rgba(213, 213, 213, 1)'
+export const gray8 ='rgba(170, 170, 170, 1)'
 export const babyPink ='rgba(229, 78, 86, 0.2)'
 export const Pink ='rgba(229, 78, 86, 1)'
 

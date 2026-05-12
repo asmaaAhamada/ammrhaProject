@@ -6,12 +6,12 @@ import LoginPage from "./components/Login/LoginPage";
 import Sidebar from "./components/Layout/sidePar";
 
 import HomePage from "./components/page/home/homePage";
-import VolintersPage from "./components/page/volinterr/volintersPage";
 import OrdersPage from "./components/page/orders/orders";
 import FrazzenPage from "./components/page/frazzening/frazingPage";
 import BlackListPage from "./components/page/blackList/blackListPage";
 
 import "./index.css";
+import Volunteerspage from "./components/page/volinterr/viewpage";
 
 export default function App({ toggleMode, mode }) {
   return (
@@ -32,7 +32,7 @@ export default function App({ toggleMode, mode }) {
 
         <Route
           path="volunteers"
-          element={<VolintersPage />}
+          element={<Volunteerspage />}
         />
 
         <Route path="orders" element={<OrdersPage />} />

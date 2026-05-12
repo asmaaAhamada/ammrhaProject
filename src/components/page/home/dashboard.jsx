@@ -9,7 +9,7 @@ import {
   Card,
 } from "@mui/material";
 import PlanStatcais from "./planstatcais";
-import VolnteersCard from "./volenterCard";
+import VolnteersCard from "../volinterr/volenterCard";
 
 
 

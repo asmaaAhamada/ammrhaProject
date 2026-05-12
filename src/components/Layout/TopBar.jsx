@@ -20,8 +20,8 @@ export default function TopBar(props) {
     <Box
       sx={{
         width: {
-          xs: "95%",
-          sm: "94%",
+          xs: "85%",
+          sm: "90%",
           md: "92%",               
 
           lg: "1050px",
