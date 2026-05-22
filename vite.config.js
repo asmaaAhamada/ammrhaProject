@@ -6,5 +6,13 @@ export default defineConfig({
   plugins: [
     react(),
     svgr(),
-  ],
+  ],test: {
+  globals: true,
+  environment: 'jsdom',
+  setupFiles: './src/test/setupTests.jsx',
+  alias: {
+    '\\.(svg)$': '/src/test/__mocks__/svgMock.jsx'
+  }
+
+}
 });

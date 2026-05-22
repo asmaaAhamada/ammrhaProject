@@ -60,7 +60,11 @@ export default function Sidebar({ toggleMode, mode }) {
       icon: <DashboardOutlinedIcon />,
       path: "/home",
     },
-
+ {
+      text: "الأخبار",
+      icon: <DashboardOutlinedIcon />,
+      path: "/News",
+    },
     {
       text: "المتطوعين",
       icon: <PeopleOutlinedIcon />,

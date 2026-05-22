@@ -12,6 +12,7 @@ import BlackListPage from "./components/page/blackList/blackListPage";
 
 import "./index.css";
 import Volunteerspage from "./components/page/volinterr/viewpage";
+import NeWsPage from "./components/page/News/NewsPage";
 
 export default function App({ toggleMode, mode }) {
   return (
@@ -34,6 +35,7 @@ export default function App({ toggleMode, mode }) {
           path="volunteers"
           element={<Volunteerspage />}
         />
+        <Route path="News" element={<NeWsPage />} />
 
         <Route path="orders" element={<OrdersPage />} />
 

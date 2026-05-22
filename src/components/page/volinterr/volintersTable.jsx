@@ -169,6 +169,29 @@ export default function VolunteersTable({ topContent }) {
               <BlockIcon width={20} height={20} />
             </Button>
           </Tooltip>
+           {/* نقل */}
+      <span
+        style={{
+          textDecoration: "underline",
+          cursor: "pointer",
+          fontWeight: 600,
+          color: theme.palette.primary.chip,
+        }}
+      >
+        نقل
+      </span>
+
+      {/* ترقية */}
+      <span
+        style={{
+          textDecoration: "underline",
+          cursor: "pointer",
+          fontWeight: 600,
+          color: babygreen,
+        }}
+      >
+        ترقية
+      </span>
         </Space>
       ),
     },
