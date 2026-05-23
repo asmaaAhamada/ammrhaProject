@@ -13,6 +13,7 @@ import BlackListPage from "./components/page/blackList/blackListPage";
 import "./index.css";
 import Volunteerspage from "./components/page/volinterr/viewpage";
 import NeWsPage from "./components/page/News/NewsPage";
+import NewsDetails from "./components/page/News/NewsDetails";
 
 export default function App({ toggleMode, mode }) {
   return (
@@ -36,7 +37,7 @@ export default function App({ toggleMode, mode }) {
           element={<Volunteerspage />}
         />
         <Route path="News" element={<NeWsPage />} />
-
+<Route path="News/:id" element={<NewsDetails />} />
         <Route path="orders" element={<OrdersPage />} />
 
         <Route path="frazing" element={<FrazzenPage />} />

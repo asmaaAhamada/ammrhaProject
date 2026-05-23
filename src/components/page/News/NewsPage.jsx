@@ -14,44 +14,14 @@ import AddIcon from "@mui/icons-material/Add";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
-import { white } from "../../../style/color-main/color";
+import { red1, white } from "../../../style/color-main/color";
+import { cardsData } from "./fakedata";
+import { useNavigate } from "react-router-dom";
 
-const cardsData = [
-  {
-    id: 1,
-    image:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-    date: "12 مايو 2026",
-    description:
-      "صورة طبيعية رائعة توضح جمال الجبال والبحيرات في الصباح الباكر.",
-  },
-  {
-    id: 2,
-    image:
-      "https://images.unsplash.com/photo-1493246507139-91e8fad9978e",
-    date: "18 مايو 2026",
-    description:
-      "منظر هادئ لغروب الشمس على الشاطئ مع ألوان دافئة ومريحة.",
-  },
-  {
-    id: 3,
-    image:
-      "https://images.unsplash.com/photo-1519389950473-47ba0277781c",
-    date: "20 مايو 2026",
-    description:
-      "بيئة عمل حديثة مناسبة للمشاريع التقنية والتصميم الإبداعي.",
-  },
-  {
-    id: 4,
-    image:
-      "https://images.unsplash.com/photo-1521737604893-d14cc237f11d",
-    date: "22 مايو 2026",
-    description:
-      "لقطة لفريق عمل أثناء اجتماع ومناقشة أفكار جديدة للمشروع.",
-  },
-];
 
 export default function NeWsPage() {
+      const navigate = useNavigate();
+
     const theme =useTheme()
   return (
     <Box
@@ -247,7 +217,7 @@ export default function NeWsPage() {
                       p: 0,
                       minWidth: "auto",
                       background: "transparent",
-                      color: "#d32f2f",
+                      color: red1,
                       textTransform: "none",
                       fontWeight: 500,
 
@@ -275,6 +245,8 @@ export default function NeWsPage() {
 
                  
                    <Button
+                     onClick={() => navigate(`/News/${card.id}`)}
+
                     startIcon={<VisibilityOutlinedIcon sx={{ml:1}} />}
                     sx={{
                       p: 0,
