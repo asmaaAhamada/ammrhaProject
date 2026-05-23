@@ -201,7 +201,7 @@ color:theme.palette.primary.text7, } }}
             color: white,
             fontWeight: 600,
             textTransform: "none",
-            borderRadius: "10px",
+            borderRadius: "12px",
           }}
         >
           إضافة
@@ -216,7 +216,7 @@ color:theme.palette.primary.text7, } }}
             color: theme.palette.primary.text3,
             fontWeight: 600,
             textTransform: "none",
-            borderRadius: "10px",
+            borderRadius: "12px",
           }}
         >
           إلغاء

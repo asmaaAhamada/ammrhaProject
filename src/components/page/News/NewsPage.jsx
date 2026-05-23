@@ -18,11 +18,13 @@ import { red1, white } from "../../../style/color-main/color";
 import { cardsData } from "./fakedata";
 import { useNavigate } from "react-router-dom";
 import AddNews from "./addNews";
+import EditNews from "./edit";
 
 
 export default function NeWsPage() {
     const [open, setOpen] = useState(false);
-
+const [openEdit, setOpenEdit] = useState(false);
+const [selectedCard, setSelectedCard] = useState(null);
       const navigate = useNavigate();
 
     const theme =useTheme()
@@ -231,6 +233,10 @@ onClick={() => setOpen(true)}
                   </Button>
 
                   <Button
+                   onClick={() => {
+    setSelectedCard(card);
+    setOpenEdit(true);
+  }}
                     startIcon={<EditOutlinedIcon sx={{ml:1}} />}
                     sx={{
                       p: 0,
@@ -271,6 +277,11 @@ onClick={() => setOpen(true)}
         ))}
       </Grid>
       <AddNews open={open} onClose={() => setOpen(false)} />
+        <EditNews
+  open={openEdit}
+  onClose={() => setOpenEdit(false)}
+  selectedCard={selectedCard}
+/>
     </Box>
   );
 }
