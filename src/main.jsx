@@ -42,15 +42,19 @@ button: mode === 'light' ? blue4 : gray11,
 button1: mode === 'light' ? blue1 :light_blue,
 button2: mode === 'light' ? mainColor :light_blue,
 button3: mode === 'light' ? gray8 :mainColor,
+inputt: mode === 'light' ? white : gray11,
 
 more: mode === 'light' ? blue1 : darkblack,
 moreborder: mode === 'light' ? gray7 : blue4,
 chip: mode === 'light' ? black : gray4,
         drower: mode === 'light' ?  blue : mainColor ,
+        imagecard1:mode  === 'light' ? mainColor : blue,
+
 logo:mode  === 'light' ? white : gray11,
 card:mode  === 'light' ?darkcard : blue4 ,
 
 imagecard:mode  === 'light' ? mainColor : blue1,
+
 imagcard:mode  === 'light' ? white : lightgray,
 
     main: mode === 'light' ?  'rgba(232, 234, 241, 1)' :  'rgba(8, 16, 42, 1)',
@@ -62,6 +66,7 @@ imagcard:mode  === 'light' ? white : lightgray,
     text3:mode === 'light' ? blue1 : lightgray,
     text5:mode === 'light' ? gray9 : blue4,
     text6:mode === 'light' ? black1 : lightgray,
+    text7:mode === 'light' ? lighttext : mainColor,
 
     // لون النص على الأزرار
   },

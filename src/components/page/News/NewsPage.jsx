@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import {
   Box,
@@ -17,9 +17,12 @@ import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined
 import { red1, white } from "../../../style/color-main/color";
 import { cardsData } from "./fakedata";
 import { useNavigate } from "react-router-dom";
+import AddNews from "./addNews";
 
 
 export default function NeWsPage() {
+    const [open, setOpen] = useState(false);
+
       const navigate = useNavigate();
 
     const theme =useTheme()
@@ -79,7 +82,7 @@ export default function NeWsPage() {
 
   {/* زر إضافة خبر */}
   <Button
-
+onClick={() => setOpen(true)}
     variant="contained"
     sx={{
       width: {
@@ -267,6 +270,7 @@ export default function NeWsPage() {
           </Grid>
         ))}
       </Grid>
+      <AddNews open={open} onClose={() => setOpen(false)} />
     </Box>
   );
 }
