@@ -12,7 +12,8 @@ import {
   Button,
 } from "@mui/material";
 
-import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';import { useNavigate, useParams } from "react-router-dom";
+import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
+import { useNavigate, useParams } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 import { red1, white } from "../../../style/color-main/color";
 import { cardsData } from "./fakedata";
@@ -143,7 +144,7 @@ export default function NewsDetails() {
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "flex-start",
+                justifyContent: "flex-end",
                 gap: 2,
               }}
             >

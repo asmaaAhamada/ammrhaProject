@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 
 import {
   Box,
@@ -9,6 +9,7 @@ import {
   Button,
   Grid,
 } from "@mui/material";
+import NewsCard from "./NewsCard";
 import { useTheme } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
@@ -19,15 +20,30 @@ import { cardsData } from "./fakedata";
 import { useNavigate } from "react-router-dom";
 import AddNews from "./addNews";
 import EditNews from "./edit";
+import DeletNews from "./deletnew";
 
 
 export default function NeWsPage() {
     const [open, setOpen] = useState(false);
+        const [opendelet, setOpendelet] = useState(false);
+
 const [openEdit, setOpenEdit] = useState(false);
 const [selectedCard, setSelectedCard] = useState(null);
       const navigate = useNavigate();
 
     const theme =useTheme()
+    const handleEdit = useCallback((card) => {
+  setSelectedCard(card);
+  setOpenEdit(true);
+}, []);
+
+const handleDelete = useCallback((card) => {
+  setOpendelet(true);
+}, []);
+
+const handleView = useCallback((card) => {
+  navigate(`/News/${card.id}`);
+}, [navigate]);
   return (
     <Box
       sx={{
@@ -124,159 +140,20 @@ onClick={() => setOpen(true)}
 
       {/* الكاردات */}
       <Grid container spacing={3}>
-        {cardsData.map((card) => (
-          <Grid
-            item
-            key={card.id}
-            xs={12}
-            sm={12}
-            md={6}
-            lg={6}
-            display="flex"
-            justifyContent="center"
-          >
-            <Card
-              sx={{
-                        backgroundColor: theme.palette.primary.Appar2,
-
-                width: "100%",
-                maxWidth: "560px",
-                minHeight: "369px",
-                borderRadius: "16px",
-                overflow: "hidden",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              {/* الصورة */}
-              <CardMedia
-                component="img"
-                image={card.image}
-                alt="cover"
-                sx={{
-                  height: {
-                    xs: 180,
-                    sm: 200,
-                    md: 223,
-                  },
-                  objectFit: "cover",
-                }}
-              />
-
-              {/* المحتوى */}
-              <CardContent
-                sx={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  p: 2,
-                }}
-              >
-                <Box>
-                  {/* التاريخ */}
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: theme.palette.primary.text5,
-                      mb: 1,
-                      fontSize: "12px",
-                      fontWeight: 400,
-                    }}
-                  >
-                    {card.date}
-                  </Typography>
-
-                  {/* الوصف */}
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      fontSize: {
-                        xs: "13px",
-                        sm: "14px",
-                        md: "15px",
-                      },
-                      lineHeight: 1.7,
-                      color: theme.palette.primary.text6,
-                      wordBreak: "break-word",
-                    }}
-                  >
-                    {card.description}
-                  </Typography>
-                </Box>
-
-                {/* الأزرار */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mt: 3,
-                    flexWrap: "wrap",
-                    gap: 1,
-                  }}
-                >
-                  <Button
-                    startIcon={<DeleteOutlineOutlinedIcon sx={{ml:1}} />}
-                    sx={{
-                      p: 0,
-                      minWidth: "auto",
-                      background: "transparent",
-                      color: red1,
-                      textTransform: "none",
-                      fontWeight: 500,
-
-                     
-                    }}
-                  >
-                    حذف
-                  </Button>
-
-                  <Button
-                   onClick={() => {
-    setSelectedCard(card);
-    setOpenEdit(true);
-  }}
-                    startIcon={<EditOutlinedIcon sx={{ml:1}} />}
-                    sx={{
-                      p: 0,
-                      minWidth: "auto",
-                      background: "transparent",
-      color: theme.palette.primary.text3,
-                      textTransform: "none",
-                      fontWeight: 500,
-
-                     
-                    }}
-                  >
-                    تعديل
-                  </Button>
-
-                 
-                   <Button
-                     onClick={() => navigate(`/News/${card.id}`)}
-
-                    startIcon={<VisibilityOutlinedIcon sx={{ml:1}} />}
-                    sx={{
-                      p: 0,
-                      minWidth: "auto",
-                      background: "transparent",
-      color: theme.palette.primary.text3,
-                      textTransform: "none",
-                      fontWeight: 500,
-
-                    
-                    }}
-                  >
-                    مشاهدة
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+  {cardsData.map((card) => (
+    <NewsCard
+      key={card.id}
+      card={card}
+      theme={theme}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+      onView={handleView}
+    />
+  ))}
+</Grid>
       <AddNews open={open} onClose={() => setOpen(false)} />
+              <DeletNews open={opendelet} onClose={() => setOpendelet(false)} />
+
         <EditNews
   open={openEdit}
   onClose={() => setOpenEdit(false)}

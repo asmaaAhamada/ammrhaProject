@@ -6,7 +6,6 @@ import LoginPage from "./components/Login/LoginPage";
 import Sidebar from "./components/Layout/sidePar";
 
 import HomePage from "./components/page/home/homePage";
-import OrdersPage from "./components/page/orders/orders";
 import FrazzenPage from "./components/page/frazzening/frazingPage";
 import BlackListPage from "./components/page/blackList/blackListPage";
 
@@ -14,6 +13,7 @@ import "./index.css";
 import Volunteerspage from "./components/page/volinterr/viewpage";
 import NeWsPage from "./components/page/News/NewsPage";
 import NewsDetails from "./components/page/News/NewsDetails";
+import RequestsComponent from "./components/page/orders/orderpage";
 
 export default function App({ toggleMode, mode }) {
   return (
@@ -38,7 +38,7 @@ export default function App({ toggleMode, mode }) {
         />
         <Route path="News" element={<NeWsPage />} />
 <Route path="News/:id" element={<NewsDetails />} />
-        <Route path="orders" element={<OrdersPage />} />
+        <Route path="orders" element={<RequestsComponent />} />
 
         <Route path="frazing" element={<FrazzenPage />} />
 

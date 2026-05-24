@@ -52,6 +52,7 @@ chip: mode === 'light' ? black : gray4,
 
 logo:mode  === 'light' ? white : gray11,
 card:mode  === 'light' ?darkcard : blue4 ,
+card1:mode  === 'light' ?darkcard : light_blue ,
 
 imagecard:mode  === 'light' ? mainColor : blue1,
 
