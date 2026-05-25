@@ -19,6 +19,11 @@ export default function HomePage(){
               theme.palette.primary.button1,
             color: white,width:{xs:'200px',md:'245px'},height:{xs:'40px',md:'43px'}
 ,            borderRadius: "12px",mb:-1
+,
+  "&:hover": {
+    backgroundColor: theme.palette.primary.button1, // نفس اللون بدون تغيير
+    boxShadow: "none",
+  },
           }}
         >
           مشاهدة جميع المتطوعين

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Table, Avatar, Button, Space, Tag, Tooltip } from "antd";
+import { Table, Avatar, Space, Tag, Tooltip } from "antd";
 import { EyeOutlined, CalendarOutlined } from "@ant-design/icons";
 import FinishedInterviewsTable from "./InterviewsPage";
 import { useTheme } from "@mui/material/styles";
 
 import { white, babygreen, yallow } from "../../../style/color-main/color";
+import { Box, Button, Typography } from "@mui/material";
 
 const RequestsComponent = () => {
   const [view, setView] = useState("requests");
@@ -106,24 +107,52 @@ const RequestsComponent = () => {
         boxSizing: "border-box",
       }}
     >
+        
       {/* top button */}
       {view === "requests" && (
         <>
-          <div style={{ marginBottom: 15 }}>
+             <Box
+        sx={{
+          width: "100%",
+          minHeight: "36px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          mb: 3,
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: { xs: "14px", sm: "16px", md: "20px" },
+            fontWeight: 600,
+            color: theme.palette.primary.text3,
+          }}
+        >
+المقابلات قيد المراجعة         </Typography>
+
+        
             <Button
               onClick={() => setView("finished")}
-             style={{
-  width: "245px",
+             sx={{
+                            width: { xs: "150px", sm: "190px", md: "200px" },
+
+             fontSize: { xs: "12px", sm: "14px", md: "16px" },
+
   height: "43px",
   backgroundColor: theme.palette.primary.button1,
   color: white,
   borderRadius: "12px",
   fontWeight: 600,
+
+  "&:hover": {
+    backgroundColor: theme.palette.primary.button1, // نفس اللون بدون تغيير
+    boxShadow: "none",
+  },
 }}
             >
               عرض المقابلات المنتهية
             </Button>
-          </div>
+      </Box>
 
           <Table
             columns={columns}
