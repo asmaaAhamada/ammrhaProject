@@ -14,6 +14,7 @@ import Volunteerspage from "./components/page/volinterr/viewpage";
 import NeWsPage from "./components/page/News/NewsPage";
 import NewsDetails from "./components/page/News/NewsDetails";
 import RequestsComponent from "./components/page/orders/orderpage";
+import CriteriaPage from "./components/page/Criteria/CriteriaPage";
 
 export default function App({ toggleMode, mode }) {
   return (
@@ -43,6 +44,8 @@ export default function App({ toggleMode, mode }) {
         <Route path="frazing" element={<FrazzenPage />} />
 
         <Route path="black" element={<BlackListPage />} />
+                <Route path="Criteria" element={<CriteriaPage />} />
+
       </Route>
     </Routes>
   );

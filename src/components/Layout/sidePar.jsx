@@ -1,4 +1,12 @@
-import React, { useState } from "react";
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  memo,
+  lazy,
+  Suspense,
+} from "react";
+
 import {
   Box,
   Drawer,
@@ -14,185 +22,205 @@ import {
 } from "@mui/material";
 
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-
 import { useTheme } from "@mui/material/styles";
 
 import MenuIcon from "@mui/icons-material/Menu";
-import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
-import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
-import SettingsIcon from "@mui/icons-material/Settings";
-import LogoutIcon from "@mui/icons-material/Logout";
-import AssignmentTurnedInOutlinedIcon from '@mui/icons-material/AssignmentTurnedInOutlined';
-import  ReportIcon  from "../../assets/icons/Icon.svg?react";
-import  StatcsIcon  from "../../assets/icons/satists.svg?react";
-import  BlackIcon  from "../../assets/icons/CalendarSlash.svg?react";
-import  FrazingIcon  from "../../assets/icons/UserGear.svg?react";
-import  CheckIcon  from "../../assets/icons/reac.svg?react";
-import  ClassIcon  from "../../assets/icons/class.svg?react";
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 
-import { blue1, darkgray, mainColor } from "../../style/color-main/color";
+import ReportIcon from "../../assets/icons/Icon.svg?react";
+import BlackIcon from "../../assets/icons/CalendarSlash.svg?react";
+import FrazingIcon from "../../assets/icons/UserGear.svg?react";
+import CheckIcon from "../../assets/icons/reac.svg?react";
+import ClassIcon from "../../assets/icons/class.svg?react";
+import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 
-import image from "../../assets/image/logo/logo.jpg";
+import {
+  blue1,
+  darkgray,
+  mainColor,
+} from "../../style/color-main/color";
 
-import TopBar from "./TopBar";
 import LogoHeader from "./logoHeader";
-import UserMenuSection from "../user/usersection";
 
-export default function Sidebar({ toggleMode, mode }) {
+// LAZY LOADING
+const TopBar = lazy(() => import("./TopBar"));
+const UserMenuSection = lazy(() =>
+  import("../user/usersection")
+);
+
+// ================= MENU ITEMS =================
+
+const menuItems = [
+  {
+    text: "لوحة التحكم",
+    icon: <DashboardOutlinedIcon />,
+    path: "/home",
+  },
+  {
+    text: "الأخبار",
+    icon: <ReceiptLongOutlinedIcon />,
+    path: "/News",
+  },
+  {
+    text: "المتطوعين",
+    icon: <PeopleOutlinedIcon />,
+    path: "/volunteers",
+  },
+  {
+    text: "الطلبات",
+    icon: <ReportIcon />,
+    path: "/orders",
+  },
+  {
+    text: "الحسابات المجمدة",
+    icon: <FrazingIcon />,
+    path: "/frazing",
+  },
+  {
+    text: "القائمة السوداء",
+    icon: <BlackIcon />,
+    path: "/black",
+  },
+  {
+    text: "معايير التقييم",
+    icon: <CheckIcon />,
+    path: "/Criteria",
+  },
+  {
+    text: "لوحة الشرف",
+    icon: <ClassIcon />,
+    path: "/evalouit",
+  },
+];
+
+// ================= SIDEBAR ITEM =================
+
+const SidebarItem = memo(
+  ({ item, active, navigate, isDesktop, setMobileOpen, theme }) => {
+    return (
+      <ListItemButton
+        onClick={() => {
+          navigate(item.path);
+
+          if (!isDesktop) {
+            setMobileOpen(false);
+          }
+        }}
+        sx={{
+          mx: 1,
+          mb: 1,
+          borderRadius: "14px",
+          minHeight: 30,
+
+          boxShadow: active
+            ? "0 4px 12px rgba(43, 127, 255, 0.2)"
+            : "none",
+
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+
+          color: active
+            ? theme.palette.primary.text3
+            : darkgray,
+
+          backgroundColor: active
+            ? theme.palette.primary.button2
+            : "transparent",
+
+          "&:hover": {
+            backgroundColor: mainColor,
+            color: blue1,
+          },
+        }}
+      >
+        <ListItemIcon
+          sx={{
+            color: active
+              ? theme.palette.primary.text3
+              : darkgray,
+
+            minWidth: "unset",
+          }}
+        >
+          {item.icon}
+        </ListItemIcon>
+
+        <ListItemText
+          primary={item.text}
+          sx={{
+            margin: 0,
+          }}
+          primaryTypographyProps={{
+            fontSize: 15,
+            textAlign: "right",
+            fontWeight: 600,
+          }}
+        />
+      </ListItemButton>
+    );
+  }
+);
+
+// ================= MAIN COMPONENT =================
+
+function Sidebar({ toggleMode, mode }) {
   const theme = useTheme();
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // md وما فوق = لابتوب
-  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const isDesktop = useMediaQuery(
+    theme.breakpoints.up("md")
+  );
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+  // MEMOIZED TOGGLE
+  const handleDrawerToggle = useCallback(() => {
+    setMobileOpen((prev) => !prev);
+  }, []);
 
-  // عناصر التنقل
-  const menuItems = [
-    {
-      text: "لوحة التحكم",
-      icon: <DashboardOutlinedIcon />,
-      path: "/home",
-    },
- {
-      text: "الأخبار",
-      icon: <DashboardOutlinedIcon />,
-      path: "/News",
-    },
-    {
-      text: "المتطوعين",
-      icon: <PeopleOutlinedIcon />,
-      path: "/volunteers",
-    },
-
-    {
-      text: "الطلبات",
-      icon: <ReportIcon />,
-      path: "/orders",
-    },
-
-    {
-      text: "الحسابات المجمدة",
-      icon: <FrazingIcon />,
-      path: "/frazing",
-    },
-
-    {
-      text: "القائمة السوداء",
-      icon: <BlackIcon />,
-      path: "/black",
-    },
-    {
-      text: "معايير التقييم",
-      icon: <CheckIcon />,
-      path: "/evalouit",
-    },
-    {
-      text: "لوحة الشرف",
-      icon: <ClassIcon />,
-      path: "/evalouit",
-    },
-
-  ];
-
-  // محتوى السايدبار
+  // MEMOIZED DRAWER CONTENT
   const drawerContent = (
-    <Box
-      sx={{
-        width: "256px",
-        height: "100%",
-        backgroundColor: theme.palette.primary.Appar,
-        color: mainColor,
-        direction: "rtl",display: "flex", // تحويل الحاوية لـ Flex
-        flexDirection: "column", // ترتيب العناصر عمودياً
-        justifyContent: "space-between",
-      }}
-    >
-      {/* اللوجو */}
-      <LogoHeader/>
-
-      {/* القائمة */}
-<List sx={{ mt: 0 }}>
-  {menuItems.map((item, index) => (
-  <ListItemButton
-  key={index}
-  onClick={() => {
-    navigate(item.path);
-
-    if (!isDesktop) {
-      setMobileOpen(false);
-    }
-  }}
-  sx={{
-    mx: 1,
-    mb: 1,
-    borderRadius: "14px",
-    minHeight: 30,
-boxShadow: location.pathname === item.path
-  ? "0 4px 12px rgba(43, 127, 255, 0.2)"
-  : "none",
-    display: "flex",
-    alignItems: "center",
-    gap: 2, // المسافة بين الأيقونة والكلمة
-
-    color:
-      location.pathname === item.path
-        ? theme.palette.primary.text3
-        : darkgray,
-
-    backgroundColor:
-      location.pathname === item.path
-        ? theme.palette.primary.button2
-        : "transparent",
-
-    "&:hover": {
-      backgroundColor: mainColor,
-      color: blue1,
-    },
-  }}
->
-  <ListItemIcon
+  <Box
     sx={{
-      color:
-        location.pathname === item.path
-          ? theme.palette.primary.text3
-          : darkgray,
-
-      minWidth: "unset", // إزالة العرض الافتراضي
+      width: "256px",
+      height: "100%",
+      backgroundColor: theme.palette.primary.Appar,
+      color: mainColor,
+      direction: "rtl",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
     }}
   >
-    {item.icon}
-  </ListItemIcon>
+    <LogoHeader />
 
-  <ListItemText
-    primary={item.text}
-    sx={{
-      margin: 0, 
-    }}
-    primaryTypographyProps={{
-      fontSize: 15,textAlign:'right',
-      fontWeight: 600,
-    }}
-  />
-</ListItemButton>
-  ))}
-</List>
-         {/* هنا نضع الكود الذي صممناه سابقاً */}
-         <UserMenuSection /> 
-         
-       </Box>
+    <List sx={{ mt: 0 }}>
+      {menuItems.map((item, index) => (
+        <SidebarItem
+          key={index}
+          item={item}
+          active={location.pathname === item.path}
+          navigate={navigate}
+          isDesktop={isDesktop}
+          setMobileOpen={setMobileOpen}
+          theme={theme}
+        />
+      ))}
+    </List>
 
-  );
+    <Suspense fallback={null}>
+      <UserMenuSection />
+    </Suspense>
+  </Box>
+);
 
   return (
     <Box sx={{ display: "flex", direction: "rtl" }}>
-      {/* AppBar للموبايل فقط */}
+      {/* MOBILE APPBAR */}
       {!isDesktop && (
         <AppBar
           position="fixed"
@@ -211,14 +239,19 @@ boxShadow: location.pathname === item.path
               <MenuIcon />
             </IconButton>
 
-            <Typography sx={{ fontWeight: 600, mr: 3 }}>
+            <Typography
+              sx={{
+                fontWeight: 600,
+                mr: 3,
+              }}
+            >
               القائمة
             </Typography>
           </Toolbar>
         </AppBar>
       )}
 
-      {/* Sidebar ثابت للابتوب */}
+      {/* DESKTOP DRAWER */}
       {isDesktop ? (
         <Drawer
           variant="permanent"
@@ -237,7 +270,7 @@ boxShadow: location.pathname === item.path
           {drawerContent}
         </Drawer>
       ) : (
-        // Drawer للموبايل والتابليت
+        // MOBILE DRAWER
         <Drawer
           variant="temporary"
           anchor="right"
@@ -257,7 +290,7 @@ boxShadow: location.pathname === item.path
         </Drawer>
       )}
 
-      {/* محتوى الصفحة */}
+      {/* PAGE CONTENT */}
       <Box
         component="main"
         sx={{
@@ -266,10 +299,17 @@ boxShadow: location.pathname === item.path
           mt: { xs: 5, md: 0 },
         }}
       >
-        <TopBar toggleMode={toggleMode} mode={mode} />
+        <Suspense fallback={null}>
+          <TopBar
+            toggleMode={toggleMode}
+            mode={mode}
+          />
+        </Suspense>
 
         <Outlet />
       </Box>
     </Box>
   );
 }
+
+export default memo(Sidebar);

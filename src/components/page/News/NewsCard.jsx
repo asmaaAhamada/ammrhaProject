@@ -8,6 +8,7 @@ import {
   Button,
   Box,
   Grid,
+  
 } from "@mui/material";
 
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
@@ -15,6 +16,7 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 
 import { red1 } from "../../../style/color-main/color";
+import { Tooltip } from "antd";
 
 function NewsCard({
   card,
@@ -115,6 +117,8 @@ function NewsCard({
               gap: 1,
             }}
           >
+                        <Tooltip title="حذف الخبر">
+            
             <Button
               onClick={() => onDelete(card)}
               startIcon={<DeleteOutlineOutlinedIcon sx={{ ml: 1 }} />}
@@ -129,6 +133,8 @@ function NewsCard({
             >
               حذف
             </Button>
+</Tooltip>
+            <Tooltip title="تعديل الخبر">
 
             <Button
               onClick={() => onEdit(card)}
@@ -144,6 +150,8 @@ function NewsCard({
             >
               تعديل
             </Button>
+</Tooltip>
+            <Tooltip title="مشاهدة الخبر">
 
             <Button
               onClick={() => onView(card)}
@@ -159,6 +167,8 @@ function NewsCard({
             >
               مشاهدة
             </Button>
+            </Tooltip>
+
           </Box>
         </CardContent>
       </Card>

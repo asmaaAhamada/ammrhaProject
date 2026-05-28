@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { lazy, Suspense, useCallback, useState } from "react";
 
 import {
   Box,
@@ -18,9 +18,12 @@ import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined
 import { red1, white } from "../../../style/color-main/color";
 import { cardsData } from "./fakedata";
 import { useNavigate } from "react-router-dom";
-import AddNews from "./addNews";
-import EditNews from "./edit";
-import DeletNews from "./deletnew";
+
+
+//lazy-loading
+const AddNews = lazy(() => import("./addNews"));
+const EditNews = lazy(() => import("./edit"));
+const DeletNews = lazy(() => import("./deletnew"));
 
 
 export default function NeWsPage() {
@@ -151,14 +154,30 @@ onClick={() => setOpen(true)}
     />
   ))}
 </Grid>
-      <AddNews open={open} onClose={() => setOpen(false)} />
-              <DeletNews open={opendelet} onClose={() => setOpendelet(false)} />
+{/* //دعم لفكرة الليزي از لودنغ */}
+     <Suspense fallback={null}>
+  {open && (
+    <AddNews
+      open={open}
+      onClose={() => setOpen(false)}
+    />
+  )}
 
-        <EditNews
-  open={openEdit}
-  onClose={() => setOpenEdit(false)}
-  selectedCard={selectedCard}
-/>
+  {opendelet && (
+    <DeletNews
+      open={opendelet}
+      onClose={() => setOpendelet(false)}
+    />
+  )}
+
+  {openEdit && (
+    <EditNews
+      open={openEdit}
+      onClose={() => setOpenEdit(false)}
+      selectedCard={selectedCard}
+    />
+  )}
+</Suspense>
     </Box>
   );
 }
