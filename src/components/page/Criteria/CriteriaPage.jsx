@@ -10,12 +10,15 @@ import { white } from "../../../style/color-main/color";
 
 //lazy-loading
 const EditCriteriaModal = lazy(() => import("./editCriteria"));
-const CriteriaDetails = lazy(() => import("./delet"));
+const DeletCriteriaModal = lazy(() => import("./delet"));
+const AddCriteriaModal = lazy(() => import("./addCriteria"));
 
 const CriteriaPage = () => {
   const theme = useTheme();
 
   const [openEdit, setOpenEdit] = useState(false);
+    const [openAdd, setOpenAdd] = useState(false);
+
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedCriteria, setSelectedCriteria] = useState(null);
 
@@ -36,6 +39,9 @@ const CriteriaPage = () => {
     ],
     []
   );
+   const handleAdd= useCallback(() => {
+    setOpenAdd(true);
+  }, []);
 
   const handleEdit = useCallback((row) => {
     setSelectedCriteria(row);
@@ -149,6 +155,8 @@ const CriteriaPage = () => {
           </Typography>
 
           <Button
+          onClick={() => setOpenAdd(true)}
+
             variant="contained"
             sx={{
               width: {
@@ -235,9 +243,16 @@ const CriteriaPage = () => {
           />
         )}
 
+  {/* add Modal */}
+        {openAdd && (
+          <AddCriteriaModal
+            open={openAdd}
+            onClose={() => setOpenAdd(false)}
+          />
+        )}
         {/* Delete Modal */}
         {openDelete && (
-          <EditCriteriaModal
+          <DeletCriteriaModal
             open={openDelete}
             onClose={() => setOpenDelete(false)}
             selectedData={selectedCriteria}

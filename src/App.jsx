@@ -1,24 +1,32 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import "./index.css";
+
+
 
 import LoginPage from "./components/Login/LoginPage";
+import ComplaintsPage from "./components/page/Complaints/ComplaintsPage";
 
-import Sidebar from "./components/Layout/sidePar";
 
-import HomePage from "./components/page/home/homePage";
-import FrazzenPage from "./components/page/frazzening/frazingPage";
-import BlackListPage from "./components/page/blackList/blackListPage";
+//lazy
+const Sidebar = lazy(() => import("./components/Layout/sidePar"));
+const HomePage = lazy(() => import("./components/page/home/homePage"));
+const FrazzenPage = lazy(() => import("./components/page/frazzening/frazingPage"));
+const BlackListPage = lazy(() => import("./components/page/blackList/blackListPage"));
+const Volunteerspage = lazy(() => import("./components/page/volinterr/viewpage"));
 
-import "./index.css";
-import Volunteerspage from "./components/page/volinterr/viewpage";
-import NeWsPage from "./components/page/News/NewsPage";
-import NewsDetails from "./components/page/News/NewsDetails";
-import RequestsComponent from "./components/page/orders/orderpage";
-import CriteriaPage from "./components/page/Criteria/CriteriaPage";
-import SectionPage from "./components/page/Section/SectionPage";
+const NeWsPage = lazy(()=> import ("./components/page/News/NewsPage") )
+const NewsDetails = lazy(()=> import ("./components/page/News/NewsDetails") )
+const RequestsComponent = lazy(()=> import ("./components/page/orders/orderpage") )
+const SectionPage = lazy(()=> import ("./components/page/Section/SectionPage") )
+const CriteriaPage = lazy(()=> import ("./components/page/Criteria/CriteriaPage") )
+
+
 
 export default function App({ toggleMode, mode }) {
   return (
+          <Suspense fallback={null}>
+    
     <Routes>
       {/* صفحة تسجيل الدخول */}
       <Route path="/login" element={<LoginPage />} />
@@ -47,8 +55,10 @@ export default function App({ toggleMode, mode }) {
         <Route path="black" element={<BlackListPage />} />
                 <Route path="Criteria" element={<CriteriaPage />} />
                 <Route path="section" element={<SectionPage />} />
+                <Route path="Complaints" element={<ComplaintsPage />} />
 
       </Route>
     </Routes>
+    </Suspense>
   );
 }

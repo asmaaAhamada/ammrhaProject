@@ -27,13 +27,13 @@ import { useTheme } from "@mui/material/styles";
 import MenuIcon from "@mui/icons-material/Menu";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-
+import CreditCardOffOutlinedIcon from '@mui/icons-material/CreditCardOffOutlined';
 import ReportIcon from "../../assets/icons/Icon.svg?react";
-import BlackIcon from "../../assets/icons/CalendarSlash.svg?react";
 import FrazingIcon from "../../assets/icons/UserGear.svg?react";
 import CheckIcon from "../../assets/icons/reac.svg?react";
 import ClassIcon from "../../assets/icons/class.svg?react";
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
+import BlockIcon from "@mui/icons-material/Block";
 
 import {
   blue1,
@@ -78,13 +78,18 @@ const menuItems = [
     path: "/section",
   },
   {
+    text: "الشكاوي",
+    icon: <CreditCardOffOutlinedIcon />,
+    path: "/Complaints",
+  },
+  {
     text: "الحسابات المجمدة",
     icon: <FrazingIcon />,
     path: "/frazing",
   },
   {
     text: "القائمة السوداء",
-    icon: <BlackIcon />,
+    icon: <BlockIcon />,
     path: "/black",
   },
   {
@@ -265,11 +270,13 @@ function Sidebar({ toggleMode, mode }) {
             width: "256px",
             flexShrink: 0,
 
-            "& .MuiDrawer-paper": {
-              width: "256px",
-              boxSizing: "border-box",
-              border: "none",
-            },
+              "& .MuiDrawer-paper": {
+      width: 276,
+      height: "100vh",
+      backgroundColor: theme.palette.primary.Appar,
+      border: "none",
+      boxSizing: "border-box",
+    },
           }}
         >
           {drawerContent}
@@ -286,8 +293,11 @@ function Sidebar({ toggleMode, mode }) {
           }}
           sx={{
             "& .MuiDrawer-paper": {
-              width: "256px",
-              border: "none",
+              width: 276,
+      height: "100vh",
+              backgroundColor: theme.palette.primary.Appar,
+      border: "none",
+      boxSizing: "border-box",
             },
           }}
         >

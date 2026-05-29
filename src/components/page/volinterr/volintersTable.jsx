@@ -14,6 +14,7 @@ import {
   white,
   yallow,
 } from "../../../style/color-main/color";
+import VolunteersStatsCards from "./VolunteersStatsCards ";
 
 export default function VolunteersTable({ topContent }) {
   const theme = useTheme();
@@ -215,6 +216,7 @@ export default function VolunteersTable({ topContent }) {
         </div>
       )}
 
+<VolunteersStatsCards/>
       <Table
         columns={columns}
         dataSource={data}

@@ -83,7 +83,8 @@ export default function AddNews({ open, onClose }) {
           <TextField
             placeholder="ادخل اسم الخبر"
             fullWidth
-            inputProps={{ style: { textAlign: "right",backgroundColor: theme.palette.primary.inputt,
+            inputProps={{ style: { textAlign: "right",
+              backgroundColor: theme.palette.primary.inputt,
 color:theme.palette.primary.text7, } }}
           />
         </Box>

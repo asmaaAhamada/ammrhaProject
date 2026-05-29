@@ -11,33 +11,13 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useTheme } from "@mui/material/styles";
 import { white } from "../../../style/color-main/color";
 
-const EditCriteriaModal = ({ open, onClose, selectedData }) => {
+const AddCriteriaModal = ({ open, onClose}) => {
   const theme = useTheme();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    points: "",
-  });
+ 
 
-  useEffect(() => {
-    if (selectedData) {
-      setFormData({
-        name: selectedData.name || "",
-        points: selectedData.points || "",
-      });
-    }
-  }, [selectedData]);
+ 
 
-  const handleChange = (key, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-
-  const handleSubmit = () => {
-    console.log(formData);
-  };
 
   return (
     <Dialog
@@ -62,7 +42,7 @@ const EditCriteriaModal = ({ open, onClose, selectedData }) => {
           position: "relative",
         }}
       >
-        تعديل المعيار
+        إضافة المعيار
 
         <IconButton
           onClick={onClose}
@@ -80,9 +60,7 @@ const EditCriteriaModal = ({ open, onClose, selectedData }) => {
       <DialogContent>
         <TextField
           fullWidth
-          value={formData.name}
-          placeholder="تعديل اسم المعيار"
-          onChange={(e) => handleChange("name", e.target.value)}
+          placeholder="ادخل اسم المعيار"
           margin="normal"
           InputProps={{
             sx: {
@@ -99,9 +77,7 @@ const EditCriteriaModal = ({ open, onClose, selectedData }) => {
 
         <TextField
           fullWidth
-          value={formData.points}
           placeholder="عدد النقاط"
-          onChange={(e) => handleChange("points", e.target.value)}
           margin="normal"
           inputMode="numeric"
           InputProps={{
@@ -119,7 +95,6 @@ const EditCriteriaModal = ({ open, onClose, selectedData }) => {
         <Button
           fullWidth
           variant="contained"
-          onClick={handleSubmit}
           sx={{
             mt: 3,
             py: 1.2,
@@ -130,11 +105,12 @@ const EditCriteriaModal = ({ open, onClose, selectedData }) => {
             },
           }}
         >
-          حفظ التعديلات
+            إضافة
+           
         </Button>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default EditCriteriaModal;
+export default AddCriteriaModal;
