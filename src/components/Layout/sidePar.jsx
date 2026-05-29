@@ -73,6 +73,11 @@ const menuItems = [
     path: "/orders",
   },
   {
+    text: "الأقسام",
+    icon: <ReportIcon />,
+    path: "/section",
+  },
+  {
     text: "الحسابات المجمدة",
     icon: <FrazingIcon />,
     path: "/frazing",
@@ -187,7 +192,7 @@ function Sidebar({ toggleMode, mode }) {
   <Box
     sx={{
       width: "256px",
-      height: "100%",
+      height: "100vh",
       backgroundColor: theme.palette.primary.Appar,
       color: mainColor,
       direction: "rtl",

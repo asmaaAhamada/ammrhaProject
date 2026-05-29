@@ -29,7 +29,7 @@ export const blue4 ='rgba(161, 169, 195, 0.2)'
 export const blue5 ='rgba(59, 133, 254, 0.2)'
 
 export const babyblue ='rgba(43, 127, 255, 0.1)'
-
+export const baby_gray = 'rgba(136, 136, 136, 1)'
 export const gray11 ='rgba(113, 127, 166, 1)'
 export const gray12 ='rgba(74, 85, 101, 1)'
 export const gray13 ='rgba(246, 246, 246, 1)'
@@ -48,8 +48,9 @@ export const black ='rgba(44, 44, 44, 1)'
 export const black1= 'rgba(51, 51, 51, 1)'
 export const babyyallow ='rgba(255, 105, 0, 0.1)'
 export const yallow ='rgba(255, 137, 4, 1)'
-export const babygreen ='rgba(5, 223, 114, 1)'
+export const yallow1 = 'rgba(202, 138, 4, 1)'
 
+export const babygreen ='rgba(5, 223, 114, 1)'
 
 export const babyred ='rgba(255, 100, 107, 0.2)'
 export const red ='rgba(255, 100, 103, 1)'

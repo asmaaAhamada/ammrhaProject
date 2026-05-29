@@ -25,7 +25,7 @@ import { useTheme } from "@mui/material/styles";
 
 
 
-export default function DeletNews( {open,onClose}){
+export default function DeletSection( {open,onClose}){
         const theme =useTheme()
 
     return(
@@ -45,7 +45,7 @@ export default function DeletNews( {open,onClose}){
  direction: "rtl", fontSize: "24px", fontWeight: "700" ,                               backgroundColor: theme.palette.primary.Appar2,
  }}
           >
-            {"هل ترغب حقا بحذف هذا الخبر"}
+            {"هل ترغب حقا بحذف هذا القسم  "}
           </DialogTitle>
           <DialogContent sx={{backgroundColor: theme.palette.primary.Appar2,}}>
             <DialogContentText
