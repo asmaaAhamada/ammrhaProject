@@ -6,6 +6,7 @@ import "./index.css";
 
 import LoginPage from "./components/Login/LoginPage";
 import ComplaintsPage from "./components/page/Complaints/ComplaintsPage";
+import AnalysePage from "./components/page/analyse/analysePage";
 
 
 //lazy
@@ -56,6 +57,7 @@ export default function App({ toggleMode, mode }) {
                 <Route path="Criteria" element={<CriteriaPage />} />
                 <Route path="section" element={<SectionPage />} />
                 <Route path="Complaints" element={<ComplaintsPage />} />
+                <Route path="analyse" element={<AnalysePage />} />
 
       </Route>
     </Routes>

@@ -34,7 +34,7 @@ import CheckIcon from "../../assets/icons/reac.svg?react";
 import ClassIcon from "../../assets/icons/class.svg?react";
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import BlockIcon from "@mui/icons-material/Block";
-
+import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import {
   blue1,
   darkgray,
@@ -56,6 +56,11 @@ const menuItems = [
     text: "لوحة التحكم",
     icon: <DashboardOutlinedIcon />,
     path: "/home",
+  },
+  {
+    text: "التحليلات",
+    icon: <AssessmentOutlinedIcon />,
+    path: "/analyse",
   },
   {
     text: "الأخبار",
@@ -271,7 +276,7 @@ function Sidebar({ toggleMode, mode }) {
             flexShrink: 0,
 
               "& .MuiDrawer-paper": {
-      width: 276,
+      width: 266,
       height: "100vh",
       backgroundColor: theme.palette.primary.Appar,
       border: "none",
