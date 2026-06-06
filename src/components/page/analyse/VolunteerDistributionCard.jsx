@@ -2,10 +2,32 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { VictoryPie } from "victory";
+import { motion, animate, useMotionValue, useTransform } from "framer-motion";
+import { useEffect } from "react";
 
+
+function Counter({ value, delay = 0 }) {
+  const count = useMotionValue(0);
+
+  const rounded = useTransform(count, (latest) =>
+    Math.floor(latest)
+  );
+
+  useEffect(() => {
+    const controls = animate(count, value, {
+      duration: 2,
+      delay,
+      ease: "easeOut",
+    });
+
+    return () => controls.stop();
+  }, [value, delay]);
+
+  return <motion.span>{rounded}</motion.span>;
+}
 const VolunteerDistributionCard = () => {
   const theme = useTheme();
-
+const MotionBox = motion(Box);
   const data = [
     { x: "مفعلين", y: 55 },
     { x: "مجمدين", y: 25 },
@@ -16,7 +38,23 @@ const VolunteerDistributionCard = () => {
   const total = data.reduce((acc, item) => acc + item.y, 0);
 
   return (
-    <Box
+    <MotionBox
+  initial={{
+    opacity: 0,
+    x: 40,
+    scale: 0.9,
+  }}
+  whileInView={{
+    opacity: 1,
+    x: 0,
+    scale: 1,
+  }}
+  viewport={{ once: true }}
+  transition={{
+    duration: 0.8,
+    type: "spring",
+    stiffness: 120,
+  }}
       sx={{
         width: "100%", // تغييرها لـ 100% لتأخذ حجم الحاوية المخصصة لها من ChartsSection
         height: "347px",
@@ -36,7 +74,7 @@ const VolunteerDistributionCard = () => {
           fontWeight: 700,
           color: theme.palette.primary.text3,
           mb: 2,
-          textAlign: "center"
+          
         }}
       >
         توزيع المتطوعين
@@ -57,14 +95,39 @@ const VolunteerDistributionCard = () => {
           <Typography sx={{ fontSize: "12px", color: theme.palette.primary.text3, fontWeight: 500 }}>
             الإجمالي
           </Typography>
-          <Typography sx={{ fontSize: "20px", fontWeight: 700, color: theme.palette.primary.text3 }}>
-            {total}
-          </Typography>
+         <Typography
+  sx={{
+    fontSize: "20px",
+    fontWeight: 700,
+    color: theme.palette.primary.text3,
+  }}
+>
+  <Counter value={total} delay={0.8} />
+</Typography>
         </Box>
 
         {/* المخطط الدائري */}
-        <Box sx={{ width: "160px", height: "160px" }}>
-          <VictoryPie
+<MotionBox
+  initial={{
+    rotate: -170,
+    opacity: 0,
+    scale: 0.9,
+  }}
+  whileInView={{
+    rotate: 7,
+    opacity: 1,
+    scale: 1,
+  }}
+  viewport={{ once: true }}
+  transition={{
+    duration: 3,
+    ease: "easeOut",
+  }}
+  sx={{
+    width: "160px",
+    height: "160px",
+  }}
+>          <VictoryPie
             data={data}
             padAngle={2}
             innerRadius={55}
@@ -81,7 +144,7 @@ const VolunteerDistributionCard = () => {
               },
             }}
           />
-        </Box>
+        </MotionBox>
       </Box>
 
       {/* العناصر التوضيحية (Legend) بالأسفل */}
@@ -94,16 +157,32 @@ const VolunteerDistributionCard = () => {
           pt: 2,
         }}
       >
-        {data.map((item, index) => (
-          <Box key={item.x} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+{data.map((item, index) => (
+  <motion.div
+    key={item.x}
+    initial={{
+      opacity: 0,
+      y: 10,
+    }}
+    whileInView={{
+      opacity: 1,
+      y: 0,
+    }}
+    viewport={{ once: true }}
+    transition={{
+      delay: 1 + index * 0.15,
+    }}
+  >          <Box key={item.x} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
             <Box sx={{ width: 10, height: 10, borderRadius: "3px", backgroundColor: colors[index] }} />
             <Typography sx={{ fontSize: "11px", fontWeight: 500, color: "#4B5563" }}>
               {item.x} ({item.y}%)
             </Typography>
           </Box>
-        ))}
+            </motion.div>
+))
+        }
       </Box>
-    </Box>
+    </MotionBox>
   );
 };
 

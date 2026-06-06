@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Box, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 
@@ -6,10 +6,39 @@ import PendingActionsIcon from "@mui/icons-material/PendingActions";
 import GroupsIcon from "@mui/icons-material/Groups";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
+
 import { babygreen, blue3, yallow } from "../../../style/color-main/color";
+
+import {
+  motion,
+  animate,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
+
+function Counter({ value, delay = 0 }) {
+  const count = useMotionValue(0);
+
+  const rounded = useTransform(count, (latest) =>
+    Math.floor(latest)
+  );
+
+  useEffect(() => {
+    const controls = animate(count, value, {
+      duration: 2,
+      delay,
+      ease: "easeOut",
+    });
+
+    return () => controls.stop();
+  }, [value, delay, count]);
+
+  return <motion.span>{rounded}</motion.span>;
+}
 
 const MainPerformanceAnalysis = () => {
   const theme = useTheme();
+  const MotionBox = motion(Box);
 
   const cards = [
     {
@@ -48,38 +77,60 @@ const MainPerformanceAnalysis = () => {
 
   return (
     <Box sx={{ mb: 4, px: { xs: 1, sm: 0 }, mr: { md: 2 } }}>
-      {/* Title */}
       <Typography
         sx={{
           fontSize: "20px",
           fontWeight: 700,
           mb: 3,
           color: theme.palette.primary.text3,
-          textAlign: "right", // محاذاة النص لليمين للثيم العربي
+          textAlign: "right",
         }}
       >
         الأداء الرئيسية
       </Typography>
 
-      {/* Grid Container المستجيب بشكل ذكي */}
       <Box
         sx={{
           display: "grid",
           gridTemplateColumns: {
-            xs: "1fr",          // سطر واحد لكل كارد على الموبايل
-            sm: "repeat(2, 1fr)", // كاردين بجانب بعض في السطر على التابلت
-            lg: "repeat(4, 1fr)", // 4 كاردات بجانب بعض على الشاشات الكبيرة
+            xs: "1fr",
+            sm: "repeat(2, 1fr)",
+            lg: "repeat(4, 1fr)",
           },
-          gap: 3, // مسافة أمان مريحة بين الكاردات من كل الأطراف
+          gap: 3,
           width: "100%",
         }}
       >
-        {cards.map((card) => (
-          <Box
+        {cards.map((card, index) => (
+          <MotionBox
             key={card.title}
+            initial={{
+              opacity: 0,
+              scale: 0.7,
+              y: 40,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0,
+            }}
+            transition={{
+              delay: index * 0.18,
+              duration: 0.8,
+              type: "spring",
+              stiffness: 180,
+              damping: 12,
+            }}
+            whileHover={{
+              y: -6,
+              scale: 1.02,
+              transition: {
+                duration: 0.2,
+              },
+            }}
             sx={{
-              height: "135px", // زيادة الطول قليلاً ليكون مريحاً للكتابة المزدوجة
-              width: "100%",   // إزالة الـ 242px الثابتة ليتمدد مرناً مع الشاشة بالكامل
+              height: "135px",
+              width: "100%",
               backgroundColor: theme.palette.primary.Appar2,
               borderRadius: "14px",
               padding: "16px",
@@ -87,15 +138,9 @@ const MainPerformanceAnalysis = () => {
               flexDirection: "column",
               justifyContent: "space-between",
               border: `1px solid ${card.color}`,
-              boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.03)", // ظل ناعم جداً جمالي للواجهة
-              transition: "transform 0.3s ease, box-shadow 0.3s ease",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: "0px 6px 20px rgba(0, 0, 0, 0.06)",
-              },
+              boxShadow: "0px 4px 12px rgba(0,0,0,0.03)",
             }}
           >
-            {/* Top row: percent + icon */}
             <Box
               sx={{
                 display: "flex",
@@ -114,27 +159,42 @@ const MainPerformanceAnalysis = () => {
                 {card.percent}
               </Typography>
 
-              <Box
-                sx={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: "50%",
-                  backgroundColor: card.bg,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: card.color,
+              <motion.div
+                initial={{
+                  scale: 0,
+                  rotate: -180,
+                }}
+                animate={{
+                  scale: 1,
+                  rotate: 0,
+                }}
+                transition={{
+                  delay: index * 0.18 + 0.2,
+                  type: "spring",
+                  stiffness: 250,
                 }}
               >
-                {card.icon}
-              </Box>
+                <Box
+                  sx={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: "50%",
+                    backgroundColor: card.bg,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: card.color,
+                  }}
+                >
+                  {card.icon}
+                </Box>
+              </motion.div>
             </Box>
 
-            {/* Bottom section: title + number */}
             <Box sx={{ textAlign: "right" }}>
               <Typography
                 sx={{
-                  fontSize: "20px", // تصغير خط العنوان قليلاً ليتناسق ولا ينزل سطر جديد بشكل مشوه
+                  fontSize: "20px",
                   color: theme.palette.primary.text3,
                   fontWeight: 500,
                   mb: 0.5,
@@ -151,10 +211,13 @@ const MainPerformanceAnalysis = () => {
                   lineHeight: 1,
                 }}
               >
-                {card.count}
+                <Counter
+                  value={card.count}
+                  delay={index * 0.18 + 0.4}
+                />
               </Typography>
             </Box>
-          </Box>
+          </MotionBox>
         ))}
       </Box>
     </Box>

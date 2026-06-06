@@ -4,8 +4,11 @@ import DashboardSection from "./dashboard";
 import  VolunteersTable from '../volinterr/volintersTable'
 import { useTheme } from "@mui/material/styles";
 import { white } from "../../../style/color-main/color";
+import { motion } from "framer-motion"; // تأكد من المسار الصحيح للمكتبة
 
 export default function HomePage(){
+      const MotionButton = motion(Button);
+
     const theme =useTheme()
     return(
         <>
@@ -13,7 +16,11 @@ export default function HomePage(){
         <DashboardSection/>
  <VolunteersTable
       topContent={
-        <Button
+         <MotionButton
+        initial={{ opacity: 0, x: -250 }}
+  animate={{ opacity: 1, x: 7}}
+  transition={{ duration: 2.5 }}
+
           sx={{
             backgroundColor:
               theme.palette.primary.button1,
@@ -27,7 +34,7 @@ export default function HomePage(){
           }}
         >
           مشاهدة جميع المتطوعين
-        </Button>
+        </MotionButton>
       }
     />       </>
     )

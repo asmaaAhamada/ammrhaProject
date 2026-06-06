@@ -146,7 +146,8 @@ export default function VolunteersTable({ topContent }) {
             >
               <VisibilityOutlinedIcon
                 sx={{
-                  color: theme.palette.primary.card,
+                  color:                    theme.palette.primary.button1
+,
                 }}
               />
             </Button>

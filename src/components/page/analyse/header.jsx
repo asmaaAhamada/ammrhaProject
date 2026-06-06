@@ -2,7 +2,9 @@ import { Box, Button, Typography } from "@mui/material";
 import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import {useTheme} from '@mui/material/styles' 
 import { white } from "../../../style/color-main/color";
+import { motion } from "framer-motion"; // تأكد من المسار الصحيح للمكتبة
 export default function Header(){
+    const MotionButton = motion(Button);
     const theme = useTheme()
     return(
         <>
@@ -52,8 +54,11 @@ export default function Header(){
 لوحة التحليلات والإحصائيات
   </Typography>
 
-  <Button
-onClick={() => setOpen(true)}
+ <MotionButton
+        initial={{ opacity: 0, y: -20 }}
+  animate={{ opacity: 1, y: 7}}
+  transition={{ duration: 1 }}
+
     variant="contained"
     sx={{
       width: {
@@ -88,7 +93,7 @@ onClick={() => setOpen(true)}
     
 تصدير التقرير
 <DownloadOutlinedIcon sx={{width:'18px',height:'18px' ,mr:2}}/>
-  </Button>
+  </MotionButton>
 </Box>
         </>
     )

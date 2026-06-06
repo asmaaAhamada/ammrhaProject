@@ -2,6 +2,8 @@ import { Box, Button, Card, Grid, IconButton, List, ListItem, ListItemText, Typo
 import { useTheme } from "@mui/material/styles";
 import { babyblue, darkgray, light_blue, white } from "../../../style/color-main/color";
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
+import { motion } from "framer-motion"; // تأكد من المسار الصحيح للمكتبة
+
 const people = [
   { id: 1, name: "أحمد محمد" },
   { id: 2, name: "سارة علي" },
@@ -9,6 +11,8 @@ const people = [
 ];
 
 export default function VolnteersCard(){
+      const MotionButton = motion(Button);
+
     const theme = useTheme()
     return(
         <>
@@ -109,7 +113,10 @@ mr: "auto",
             </List>
 
             {/* زر عرض الكل */}
-            <Button
+             <MotionButton
+        initial={{ opacity: 0, y: -20 }}
+  animate={{ opacity: 1, y: 7}}
+  transition={{ duration: 1 }}
               variant="contained"
               fullWidth
               sx={{
@@ -119,7 +126,7 @@ mr: "auto",
               }}
             >
               عرض قائمة الطلبات
-            </Button>
+            </MotionButton>
           </Card>
         </Grid>
         

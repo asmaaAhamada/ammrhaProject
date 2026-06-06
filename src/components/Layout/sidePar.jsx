@@ -200,21 +200,29 @@ function Sidebar({ toggleMode, mode }) {
   // MEMOIZED DRAWER CONTENT
   const drawerContent = (
   <Box
-    sx={{
-      width: "256px",
-      height: "100vh",
-      backgroundColor: theme.palette.primary.Appar,
-      color: mainColor,
-      direction: "rtl",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-    }}
-  >
+  sx={{
+    width: "256px",
+    height: "100vh",
+    backgroundColor: theme.palette.primary.Appar,
+    color: mainColor,
+    direction: "rtl",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    overflow: "hidden",   // ← أضف هذا
+  }}
+>
     <LogoHeader />
 
-    <List sx={{ mt: 0 }}>
-      {menuItems.map((item, index) => (
+<List sx={{ 
+  mt: 0, 
+  flex: 1,           // ← يأخذ المساحة المتبقية
+  overflowY: "auto", // ← يسمح بالسكرول
+  // إخفاء الـ scrollbar في كل المتصفحات
+  "&::-webkit-scrollbar": { display: "none" },
+  msOverflowStyle: "none",
+  scrollbarWidth: "none",
+}}>      {menuItems.map((item, index) => (
         <SidebarItem
           key={index}
           item={item}
@@ -275,12 +283,14 @@ function Sidebar({ toggleMode, mode }) {
             width: "256px",
             flexShrink: 0,
 
-              "& .MuiDrawer-paper": {
-      width: 266,
-      height: "100vh",
-      backgroundColor: theme.palette.primary.Appar,
-      border: "none",
-      boxSizing: "border-box",
+             "& .MuiDrawer-paper": {
+  width: 266,
+  height: "100vh",
+  backgroundColor: theme.palette.primary.Appar,
+  border: "none",
+  boxSizing: "border-box",
+  overflow: "hidden",   // ← أضف هذا
+
     },
           }}
         >
@@ -298,12 +308,13 @@ function Sidebar({ toggleMode, mode }) {
           }}
           sx={{
             "& .MuiDrawer-paper": {
-              width: 276,
-      height: "100vh",
-              backgroundColor: theme.palette.primary.Appar,
-      border: "none",
-      boxSizing: "border-box",
-            },
+  width: 276,
+  height: "100vh",
+  backgroundColor: theme.palette.primary.Appar,
+  border: "none",
+  boxSizing: "border-box",
+  overflow: "hidden",   // ← أضف هذا
+},
           }}
         >
           {drawerContent}

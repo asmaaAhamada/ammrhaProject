@@ -8,8 +8,14 @@ import BlockIcon from "@mui/icons-material/Block";
 
 import { babygreen, yallow } from "../../../style/color-main/color";
 
+// استيراد الـ motion فقط من framer-motion
+import { motion } from "framer-motion";
+
 const VolunteersStatsCards = () => {
   const theme = useTheme();
+  
+  // تحويل الـ Box الخاص بـ MUI إلى مكون يدعم Framer Motion
+  const MotionBox = motion(Box);
 
   const cards = [
     {
@@ -47,9 +53,35 @@ const VolunteersStatsCards = () => {
         mb: 4,
       }}
     >
-      {cards.map((card) => (
-        <Box
+      {cards.map((card, index) => (
+        <MotionBox
           key={card.title}
+          // أنميشن ظهور الكارد بالكامل بالتتابع من الأسفل للأعلى
+          initial={{
+            opacity: 0,
+            scale: 0.7,
+            y: 40,
+          }}
+          animate={{
+            opacity: 1,
+            scale: 1,
+            y: 0,
+          }}
+          transition={{
+            delay: index * 0.18, // تتابع الظهور بناءً على ترتيب الكرت
+            duration: 0.8,
+            type: "spring",
+            stiffness: 180,
+            damping: 12,
+          }}
+          // أنميشن الـ Hover المرن عند تمرير الماوس فوق الكرت
+          whileHover={{
+            y: -6,
+            scale: 1.02,
+            transition: {
+              duration: 0.2,
+            },
+          }}
           sx={{
             height: "86px",
             maxWidth: "386px",
@@ -65,13 +97,11 @@ const VolunteersStatsCards = () => {
               xs: "0 auto",
               md: 0,
             },
-            transition: "0.3s",
-            "&:hover": {
-              transform: "translateY(-2px)",
-            },
+            boxShadow: "0px 4px 12px rgba(0,0,0,0.03)",
           }}
         >
-          <Box>
+          {/* محتوى النصوص والارقام الثابتة */}
+          <Box sx={{ textAlign: "right" }}>
             <Typography
               sx={{
                 color: card.color,
@@ -89,25 +119,43 @@ const VolunteersStatsCards = () => {
                 mt: 0.5,
               }}
             >
+              {/* الرقم هنا ثابت وبدون أنميشن تصاعدي */}
               {card.count} متطوع
             </Typography>
           </Box>
 
-          <Box
-            sx={{
-              width: 54,
-              height: 54,
-              borderRadius: "50%",
-              backgroundColor: card.bg,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: card.color,
+          {/* أنميشن دوران وتكبير الأيقونة عند ظهور الكارد */}
+          <motion.div
+            initial={{
+              scale: 0,
+              rotate: -180,
+            }}
+            animate={{
+              scale: 1,
+              rotate: 0,
+            }}
+            transition={{
+              delay: index * 0.18 + 0.2,
+              type: "spring",
+              stiffness: 250,
             }}
           >
-            {card.icon}
-          </Box>
-        </Box>
+            <Box
+              sx={{
+                width: 54,
+                height: 54,
+                borderRadius: "50%",
+                backgroundColor: card.bg,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: card.color,
+              }}
+            >
+              {card.icon}
+            </Box>
+          </motion.div>
+        </MotionBox>
       ))}
     </Box>
   );

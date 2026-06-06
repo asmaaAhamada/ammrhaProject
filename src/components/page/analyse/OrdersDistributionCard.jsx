@@ -1,12 +1,10 @@
 import React from 'react';
-import { Box, Typography, LinearProgress } from '@mui/material';
-import { babygreen, babyred, black, blue1, blue3, light_blue, lighttext, white, yallow } from '../../../style/color-main/color';
-import {useTheme}  from '@mui/material/styles'
+import { Box, Typography } from '@mui/material';
+import { babygreen, light_blue, lighttext, white, yallow, black } from '../../../style/color-main/color';
+import { useTheme } from '@mui/material/styles';
+import { motion } from 'framer-motion'; // استيراد framer-motion
 
-// الألوان المرسلة من قبلك
-const cardBg = white;
 const textHeader = black;
-const lightText = lighttext;
 const greenColor = babygreen;
 const yellowColor = yallow;
 const redColor = 'red';
@@ -14,7 +12,7 @@ const blue5 = light_blue;
 const successBg = 'rgba(5, 223, 114, 0.1)';
 
 export default function OrdersDistributionCard() {
-        const theme =useTheme()
+  const theme = useTheme();
 
   const rowData = [
     { label: 'المنتهية', count: 156, percentage: 87, color: greenColor },
@@ -23,14 +21,14 @@ export default function OrdersDistributionCard() {
   ];
 
   return (
-   <Box
+    <Box
       dir="rtl"
       sx={{
-        width: { xs: '100%', sm: 502  }, // العرض المطلوب تماماً على الشاشات المناسبة
+        width: { xs: '100%', sm: 502 },
         maxWidth: 502,
         height: { xs: 'auto', md: 346 },
         minHeight: 346,
-              backgroundColor: theme.palette.primary.Appar2,
+        backgroundColor: theme.palette.primary.Appar2,
         borderRadius: 4,
         p: 3,
         boxShadow: '0px 4px 20px rgba(0,0,0,0.03)',
@@ -42,13 +40,11 @@ export default function OrdersDistributionCard() {
     >
       {/* الهيدر */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" sx={{      color: theme.palette.primary.text3
-, fontWeight: 'bold', fontSize: '1.1rem' }}>
+        <Typography variant="h6" sx={{ color: theme.palette.primary.text3, fontWeight: 'bold', fontSize: '1.1rem' }}>
           توزيع الطلبات
         </Typography>
         <Box sx={{ bgcolor: 'rgba(161, 169, 195, 0.1)', px: 1.5, py: 0.5, borderRadius: 1 }}>
-          <Typography variant="caption" sx={{       color: theme.palette.primary.text3,
- fontWeight: 'bold' }}>
+          <Typography variant="caption" sx={{ color: theme.palette.primary.text3, fontWeight: 'bold' }}>
             مخطط شريطي
           </Typography>
         </Box>
@@ -59,15 +55,9 @@ export default function OrdersDistributionCard() {
         {rowData.map((row, index) => (
           <Box key={index}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-            <Typography
-  variant="body2"
-  sx={{
-    color: row.color,
-    fontWeight: "bold",
-  }}
->
-  {row.label}
-</Typography>
+              <Typography variant="body2" sx={{ color: row.color, fontWeight: "bold" }}>
+                {row.label}
+              </Typography>
               <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
                 <Typography variant="body2" sx={{ fontWeight: 'bold', color: textHeader }}>
                   {row.count}
@@ -77,29 +67,44 @@ export default function OrdersDistributionCard() {
                 </Typography>
               </Box>
             </Box>
-            {/* شريط التقدم اللينيير */}
-            <LinearProgress
-              variant="determinate"
-              value={row.percentage}
-              sx={{
-                height: 8,
-                borderRadius: 5,
-                bgcolor: 'rgba(232, 234, 241, 1)',
-                '& .MuiLinearProgress-bar': {
+            
+            {/* حاوية شريط التقدم اللينيير */}
+            <Box sx={{ height: 8, borderRadius: 5, bgcolor: 'rgba(232, 234, 241, 1)', width: '100%', position: 'relative', overflow: 'hidden' }}>
+              <Box
+                component={motion.div}
+                style={{ originX: 1 }} // يبدأ التمدد من اليمين ليتوافق مع اتجاه الـ RTL
+                initial={{ width: "0%" }}
+                whileInView={{
+                  width: [
+                    "0%", 
+                    `${Math.min(row.percentage + 10, 100)}%`, // يطلع فوق النسبة المطلوبة
+                    `${Math.max(row.percentage - 8, 0)}%`,   // ينزل تحتها
+                    `${Math.min(row.percentage + 4, 100)}%`,  // اهتزاز خفيف للأعلى
+                    `${row.percentage}%`                      // الاستقرار النهائي
+                  ]
+                }}
+                viewport={{ once: true, amount: 0.2 }} // يبدأ فوراً عند ظهور أول 20% من الكارت بالشاشة ولمرة واحدة
+                transition={{
+                  duration: 2.5,
+                  ease: "easeInOut",
+                  delay: index * 0.15 // حركة تتابعية خلف بعضهم البعض بشكل رهيب
+                }}
+                sx={{
+                  height: '100%',
                   borderRadius: 5,
                   bgcolor: row.color,
-                },
-              }}
-            />
+                }}
+              />
+            </Box>
           </Box>
         ))}
       </Box>
 
       {/* المؤشرات السفلية */}
       <Box sx={{ display: 'flex', gap: 2, mt: 'auto' }}>
-        <Box sx={{ flex: 1, bgcolor:  "rgba(5, 223, 114, 0.1)", p: 1.5, borderRadius: 3, textAlign: 'center' }}>
-          <Typography variant="caption" sx={{ color:light_blue, fontWeight: 'bold' }}>إجمالي الطلبات</Typography>
-          <Typography variant="h6" sx={{ color:light_blue, fontWeight: 'bold', mt: 0.5 }}>١٨٠</Typography>
+        <Box sx={{ flex: 1, bgcolor: "rgba(5, 223, 114, 0.1)", p: 1.5, borderRadius: 3, textAlign: 'center' }}>
+          <Typography variant="caption" sx={{ color: light_blue, fontWeight: 'bold' }}>إجمالي الطلبات</Typography>
+          <Typography variant="h6" sx={{ color: light_blue, fontWeight: 'bold', mt: 0.5 }}>١٨٠</Typography>
         </Box>
         <Box sx={{ flex: 1, bgcolor: successBg, p: 1.5, borderRadius: 3, textAlign: 'center' }}>
           <Typography variant="caption" sx={{ color: greenColor, fontWeight: 'bold' }}>معدل القبول</Typography>
