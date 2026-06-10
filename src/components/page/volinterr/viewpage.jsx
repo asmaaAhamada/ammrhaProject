@@ -14,24 +14,26 @@ import {
 } from "@mui/material";
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VolunteersTable from "./volintersTable";
+import VolunteersStatsCards from "./VolunteersStatsCards ";
 export default function Volunteerspage() {
   const theme = useTheme();
 
   
-  
-    // داخل VolunteersTable.js
 return (
-  <VolunteersTable
-  topContent={
-   <Space
-  wrap
-  size="middle"
-  style={{
-    width: "100%",
-    marginBottom: "15px",
-    justifyContent: "flex-start",
-  }}
->
+    <VolunteersTable
+      // نمرر الكاردات هنا لتعرض فقط في صفحة المتطوعين
+      statsContent={<VolunteersStatsCards />} 
+      
+      topContent={
+        <Space
+          wrap
+          size="middle"
+          style={{
+            width: "100%",
+            marginBottom: "15px",
+            justifyContent: "flex-start",
+          }}
+        >
   {/* حسب الحالة */}
   <FormControl>
     <Select

@@ -7,8 +7,13 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import LogoutSection from './logout';
 import { gray2, gray5, gray6, white } from '../../style/color-main/color';
+import { useSelector } from 'react-redux';
 
 export default function ProfileSection() {
+  const userInfo = useSelector((state) => state.user?.userInfo);
+
+console.log("USER =", userInfo);
+console.log("ROLE =", userInfo?.role);
   const theme = useTheme();
 
   return (
@@ -34,11 +39,14 @@ export default function ProfileSection() {
         <Stack direction="row" spacing={2} alignItems="center" textAlign="right">
           <Box>
             <Typography variant="body1" sx={{ color: white,   }}>
-              أحمد محمد
-            </Typography>
+{userInfo?.full_name}            </Typography>
             <Typography variant="caption" sx={{ color: gray2 }}>
-              مدير النظام
-            </Typography>
+  {userInfo?.role === "admin"
+    ? "مدير النظام"
+    : userInfo?.role === "hr_general"
+    ? "الموارد البشرية"
+    : userInfo?.role}
+</Typography>
           </Box>
                  <KeyboardArrowDownIcon sx={{ color: '#94a3b8', fontSize: 20,mr:2 }} />
 

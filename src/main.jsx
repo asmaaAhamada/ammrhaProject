@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
+import store from '../src/backend/store/index'
 import { HashRouter } from 'react-router-dom'
 import "antd/dist/reset.css";
 import { Provider } from 'react-redux'
@@ -129,10 +130,10 @@ button:mode === 'light' ? '#ffffff' : '#9819d2ff',
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    
+     <Provider store={store}>
       <HashRouter>
         <Main />
       </HashRouter>
-   
+   </Provider>
   </React.StrictMode>
 )

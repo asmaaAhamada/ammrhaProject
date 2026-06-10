@@ -16,7 +16,7 @@ import {
 } from "../../../style/color-main/color";
 import VolunteersStatsCards from "./VolunteersStatsCards ";
 
-export default function VolunteersTable({ topContent }) {
+export default function VolunteersTable({ topContent, statsContent }) {
   const theme = useTheme();
 
   // ================= DATA =================
@@ -200,7 +200,7 @@ export default function VolunteersTable({ topContent }) {
   ];
 
   // ================= RETURN =================
-  return (
+ return (
     <div
       style={{
         padding: "10px",
@@ -210,14 +210,20 @@ export default function VolunteersTable({ topContent }) {
         boxSizing: "border-box",
       }}
     >
-      {/* المحتوى العلوي */}
+      {/* المحتوى العلوي الفلاتر أو الأزرار */}
       {topContent && (
         <div style={{ marginBottom: "15px" }}>
           {topContent}
         </div>
       )}
 
-<VolunteersStatsCards/>
+      {/* 2. تعديل هنا: الكاردات الإحصائية لن تعرض إلا إذا قمت بتمريرها صراحة */}
+      {statsContent && (
+        <div style={{ marginBottom: "15px" }}>
+          {statsContent}
+        </div>
+      )}
+
       <Table
         columns={columns}
         dataSource={data}

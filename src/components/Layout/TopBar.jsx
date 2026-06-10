@@ -24,7 +24,7 @@ export default function TopBar(props) {
           sm: "90%",
           md: "92%",               
 
-          lg: "1050px",
+          lg: "97%",
         },
 
         height: "65px",
