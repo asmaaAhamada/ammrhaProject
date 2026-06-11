@@ -27,7 +27,6 @@ const getAuthHeaders = (customHeaders = {}) => {
   const token = cookies.get("token"); 
   return {
     Authorization: token ? `Bearer ${token}` : "",
-    "Content-Type": "application/json",
     ...customHeaders,
   };
 };
@@ -48,9 +47,15 @@ export const getData = async (url, customHeaders = {}) => {
 // POST مع توكن
 export const postData = async (url, data = {}, customHeaders = {}) => {
   try {
+    const isFormData = data instanceof FormData;
+
     const response = await axios.post(url, data, {
-      headers: getAuthHeaders(customHeaders),
+      headers: {
+        ...getAuthHeaders(customHeaders),
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      },
     });
+
     return response.data || response;
   } catch (error) {
     console.error("AXIOS ERROR:", error);

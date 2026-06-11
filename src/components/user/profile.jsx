@@ -12,8 +12,7 @@ import { useSelector } from 'react-redux';
 export default function ProfileSection() {
   const userInfo = useSelector((state) => state.user?.userInfo);
 
-console.log("USER =", userInfo);
-console.log("ROLE =", userInfo?.role);
+
   const theme = useTheme();
 
   return (

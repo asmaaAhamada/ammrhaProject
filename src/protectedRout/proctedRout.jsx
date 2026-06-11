@@ -17,8 +17,7 @@ export default function ProtectedRoute({ allowedRole }) {
 
   const [loading, setLoading] = useState(true);
 
-  console.log("PROTECTED ROUTE MOUNTED");
-  console.log("userInfo =", userInfo);
+  
 
   useEffect(() => {
     const checkSession = async () => {
@@ -33,7 +32,6 @@ export default function ProtectedRoute({ allowedRole }) {
 
         const response = await getData(`${BaseUrl}${USER}`);
 
-        console.log("USER API =", response);
 
         dispatch(setUserInfo(response));
       } catch (error) {

@@ -6,6 +6,7 @@ import LoginPage from "./components/Login/LoginPage";
 import ComplaintsPage from "./components/page/Complaints/ComplaintsPage";
 import AnalysePage from "./components/page/analyse/analysePage";
 import ProtectedRoute from "./protectedRout/proctedRout";
+import APPLoading from "./style/loader/AppLoading";
 
 // lazy imports
 const Sidebar = lazy(() => import("./components/Layout/sidePar"));
@@ -22,7 +23,7 @@ const CriteriaPage = lazy(() => import("./components/page/Criteria/CriteriaPage"
 
 export default function App({ toggleMode, mode }) {
   return (
-    <Suspense fallback={<div>جاري التحميل...</div>}>
+    <Suspense fallback={<APPLoading/>}>
       <Routes>
         {/* 1. صفحة تسجيل الدخول كمسار مستقل تماماً */}
         <Route path="/login" element={<LoginPage />} />

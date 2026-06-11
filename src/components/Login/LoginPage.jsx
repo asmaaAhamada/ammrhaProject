@@ -13,7 +13,6 @@ import { Log_in, setformInfo, clearError } from "../../backend/slice/auth/log_in
 
 export default function LoginPage() {
   const { userInfo } = useSelector((state) => state.user);
-      console.log(userInfo?.role);
 
   const theme = useTheme();
   const [showPassword, setShowPassword] = useState(false);
@@ -40,10 +39,8 @@ export default function LoginPage() {
     const resultAction = await dispatch(Log_in());
       
     if (Log_in.fulfilled.match(resultAction)) {
-  console.log("LOGIN SUCCESS");
 
 const role = resultAction.payload?.role;
-console.log("ROLE =", role);
 
 if (role === "hr_general" || role === "admin") {
  navigate("/home"); }
