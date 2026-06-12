@@ -9,10 +9,10 @@ import {
 } from "@mui/material";
 
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import AcUnitOutlinedIcon from "@mui/icons-material/AcUnitOutlined"; // أيقونة التجميد (Ice/Freeze)
 import ImageNotSupportedOutlinedIcon from "@mui/icons-material/ImageNotSupportedOutlined"; // أيقونة غياب الصورة
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 
 import { baby_gray, red1, yallow1 } from "../../../style/color-main/color";
 import { Tooltip } from "antd";
@@ -168,79 +168,77 @@ function SectionCard({
           
         </Box>
         
-        <Box>
-          <hr style={{ border: "none", borderTop: "1px solid #f3f4f6", marginBottom: "12px" }} />
+<Box>
+  <hr style={{ border: "none", borderTop: "1px solid #f3f4f6", marginBottom: "12px" }} />
 
-          {/* الأزرار السفليّة كما هي بدون تعديل في الـ Actions */}
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: 1,
-            }}
-          >
-            
-            {/* زر حذف */}
-            <Tooltip title="حذف القسم">
-              <Button
-                onClick={() => onDelete(card)}
-                startIcon={<DeleteOutlineOutlinedIcon sx={{ ml: 0.5 }} />}
-                sx={{
-                  p: 0,
-                  minWidth: "auto",
-                  background: "transparent",
-                  color: red1,
-                  textTransform: "none",
-                  fontWeight: 500,
-                  "&:hover": { background: "transparent" }
-                }}
-              >
-                حذف
-              </Button>
-            </Tooltip>
-            
-            {/* زر تجميد */}
-            <Tooltip title="تجميد القسم">
-              <Button
-                onClick={() => onFreeze(card)}
-                startIcon={<AcUnitOutlinedIcon sx={{ ml: 0.5 }} />}
-                sx={{
-                  p: 0,
-                  minWidth: "auto",
-                  background: "transparent",
-                  color: yallow1,
-                  textTransform: "none",
-                  fontWeight: 500,
-                  "&:hover": { background: "transparent" }
-                }}
-              >
-                تجميد
-              </Button>
-            </Tooltip>
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      flexWrap: "wrap",
+      gap: 1,
+    }}
+  >
+    {/* تم استبدال زر حذف بـ زر عرض التفاصيل */}
+    <Tooltip title="عرض تفاصيل القسم">
+      <Button
+        onClick={() => onDelete(card)} // قمنا بالإبقاء على الدالة ممررة مؤقتاً لتجنب كسر التوابع الفوقية
+        startIcon={<VisibilityOutlinedIcon sx={{ ml: 0.5 }} />}
+        sx={{
+          p: 0,
+          minWidth: "auto",
+          background: "transparent",
+          color: theme.palette.primary.button1, // استخدام لون مميز أزرق بدلاً من الأحمر
+          textTransform: "none",
+          fontWeight: 500,
+          "&:hover": { background: "transparent" }
+        }}
+      >
+        عرض التفاصيل
+      </Button>
+    </Tooltip>
+    
+    {/* زر تجميد */}
+    <Tooltip title="تجميد القسم">
+      <Button
+        onClick={() => onFreeze(card)}
+        startIcon={<AcUnitOutlinedIcon sx={{ ml: 0.5 }} />}
+        sx={{
+          p: 0,
+          minWidth: "auto",
+          background: "transparent",
+          color: yallow1,
+          textTransform: "none",
+          fontWeight: 500,
+          "&:hover": { background: "transparent" }
+        }}
+      >
+        تجميد
+      </Button>
+    </Tooltip>
 
-            {/* زر تعديل */}
-            <Tooltip title="تعديل القسم">
-              <Button
-                onClick={() => onEdit(card)}
-                startIcon={<EditOutlinedIcon sx={{ ml: 0.5 }} />}
-                sx={{
-                  p: 0,
-                  minWidth: "auto",
-                  background: "transparent",
-                  color: theme.palette.primary.text3,
-                  textTransform: "none",
-                  fontWeight: 500,
-                  "&:hover": { background: "transparent" }
-                }}
-              >
-                تعديل
-              </Button>
-            </Tooltip>
+    {/* زر تعديل */}
+    <Tooltip title="تعديل القسم">
+      <Button
+        onClick={() => onEdit(card)}
+        startIcon={<EditOutlinedIcon sx={{ ml: 0.5 }} />}
+        sx={{
+          p: 0,
+          minWidth: "auto",
+          background: "transparent",
+          color: theme.palette.primary.text3,
+          textTransform: "none",
+          fontWeight: 500,
+          "&:hover": { background: "transparent" }
+        }}
+      >
+        تعديل
+      </Button>
+    </Tooltip>
 
-          </Box>
-        </Box>
+  </Box>
+</Box>
       </CardContent>
     </Card>
   );

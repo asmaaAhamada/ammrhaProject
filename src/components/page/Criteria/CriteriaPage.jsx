@@ -1,45 +1,53 @@
 import React, { useState, useCallback, useMemo, lazy, Suspense } from "react";
 import { Table, Space, Tooltip } from "antd";
 import { useTheme } from "@mui/material/styles";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography, LinearProgress } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 
 import { white } from "../../../style/color-main/color";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCriteria } from "../../../backend/slice/Criteria/fetchAll";
 
-//lazy-loading
+// lazy-loading للمودالات
 const EditCriteriaModal = lazy(() => import("./editCriteria"));
 const DeletCriteriaModal = lazy(() => import("./delet"));
 const AddCriteriaModal = lazy(() => import("./addCriteria"));
 
 const CriteriaPage = () => {
+  const dispatch = useDispatch();
   const theme = useTheme();
 
-  const [openEdit, setOpenEdit] = useState(false);
-    const [openAdd, setOpenAdd] = useState(false);
+  // جلب البيانات وحالة التحميل والخطأ من الـ Redux Store
+  const { data, isLoading, error } = useSelector((state) => state.fetchCriteria);
 
+  // الوصول لمصفوفة المعايير الحقيقية من الريسبونس ومعالجتها
+  const criteriaData = useMemo(() => {
+    const rawList = Array.isArray(data) ? data : data?.data || [];
+    return rawList.map((item) => ({
+      ...item,
+      key: item.id?.toString(),
+    }));
+  }, [data]);
+
+  // استدعاء البيانات عند تحميل الصفحة
+  React.useEffect(() => {
+    dispatch(fetchCriteria());
+  }, [dispatch]);
+
+  // حالات التحكم بالمودالات
+  const [openEdit, setOpenEdit] = useState(false);
+  const [openAdd, setOpenAdd] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedCriteria, setSelectedCriteria] = useState(null);
 
-  const criteriaData = useMemo(
-    () => [
-      {
-        key: "1",
-        id: 1,
-        name: "الالتزام بالحضور",
-        points: "20",
-      },
-      {
-        key: "2",
-        id: 2,
-        name: "التفاعل مع الفريق",
-        points: "15",
-      },
-    ],
-    []
-  );
-   const handleAdd= useCallback(() => {
+  // دالة تحديث البيانات بعد العمليات الناجحة
+  const handleSuccess = useCallback(() => {
+    dispatch(fetchCriteria());
+  }, [dispatch]);
+
+  const handleAdd = useCallback(() => {
     setOpenAdd(true);
   }, []);
 
@@ -53,6 +61,7 @@ const CriteriaPage = () => {
     setOpenDelete(true);
   }, []);
 
+  // إعدادات أعمدة الجدول
   const columns = useMemo(
     () => [
       {
@@ -76,22 +85,20 @@ const CriteriaPage = () => {
           </Tooltip>
         ),
       },
-
       {
         title: "عدد النقاط",
-        dataIndex: "points",
-        key: "points",
+        dataIndex: "formatted_points",
+        key: "formatted_points",
         width: 180,
+        render: (text, row) => text || row.points,
       },
-
       {
         title: "الإجراءات",
         key: "actions",
         width: 180,
-
         render: (_, row) => (
           <Space size="middle">
-            {/* Delete */}
+            {/* الحذف */}
             <Tooltip title="حذف المعيار">
               <DeleteOutlined
                 onClick={() => handleDelete(row)}
@@ -103,7 +110,7 @@ const CriteriaPage = () => {
               />
             </Tooltip>
 
-            {/* Edit */}
+            {/* التعديل */}
             <Tooltip title="تعديل المعيار">
               <EditOutlined
                 onClick={() => handleEdit(row)}
@@ -130,9 +137,10 @@ const CriteriaPage = () => {
           maxWidth: "100vw",
           overflowX: "hidden",
           boxSizing: "border-box",
+          direction: "rtl",
         }}
       >
-        {/* Header */}
+        {/* الهيدر العلوي ثابت */}
         <Box
           sx={{
             width: "100%",
@@ -141,13 +149,13 @@ const CriteriaPage = () => {
             alignItems: "center",
             justifyContent: "space-between",
             mb: 3,
-            gap: { xs: 0, sm: 0, md: 2 },
+            gap: { xs: 2, sm: 2, md: 2 },
           }}
         >
           <Typography
             sx={{
-              fontSize: { xs: "14px", sm: "16px", md: "20px" },
-              fontWeight: 600,
+              fontSize: { xs: "16px", sm: "18px", md: "22px" },
+              fontWeight: 700,
               color: theme.palette.primary.text3,
             }}
           >
@@ -155,25 +163,16 @@ const CriteriaPage = () => {
           </Typography>
 
           <Button
-          onClick={() => setOpenAdd(true)}
-
+            onClick={handleAdd}
             variant="contained"
             sx={{
-              width: {
-                xs: "140px",
-                sm: "160px",
-                md: "177px",
-              },
+              width: { xs: "140px", sm: "160px", md: "177px" },
               height: "43px",
               borderRadius: "12px",
               backgroundColor: theme.palette.primary.button1,
               color: white,
               boxShadow: "none",
-              fontSize: {
-                xs: "13px",
-                sm: "14px",
-                md: "15px",
-              },
+              fontSize: { xs: "13px", sm: "14px", md: "15px" },
               fontWeight: 600,
               textTransform: "none",
               "&:hover": {
@@ -183,23 +182,48 @@ const CriteriaPage = () => {
             }}
           >
             إضافة معيار
-            <AddIcon sx={{ width: "18px", height: "18px", mr: 2 }} />
+            <AddIcon sx={{ width: "18px", height: "18px", mr: 1.5 }} />
           </Button>
         </Box>
 
-        {/* Table Container */}
-        <div
-          style={{
-            width: "100%",
-            borderRadius: "8px",
-          }}
-        >
+        {/* حاوية الجدول */}
+        <div style={{ width: "100%", borderRadius: "8px", overflow: "hidden" }}>
           <Table
             columns={columns}
-            dataSource={criteriaData}
+            // إذا كان في حالة تحميل أو خطأ نمرر مصفوفة فارغة ليعرض الجدول الهيدر والبودي المخصص بالأسفل
+            dataSource={isLoading || error ? [] : criteriaData}
             pagination={false}
-            /* تم تعديل التمرير هنا ليكون تلقائياً بناءً على حجم المحتوى المحيط */
-            scroll={{ x: "max-content" }} 
+            scroll={{ x: "max-content" }}
+            locale={{
+              // تخصيص محتوى الـ Body تماماً بناءً على الحالات المختلفة لقاعدة البيانات
+              emptyText: (
+                <Box sx={{ p: 3, display: "flex", justifyContent: "center", alignItems: "center", width: "100%" }}>
+                  {isLoading ? (
+                    // 1. حالة اللودر الخطي بقلب البودي
+                    <Box sx={{ width: "80%", py: 2 }}>
+                      <LinearProgress 
+                        sx={{ 
+                          backgroundColor: "#e2e8f0", 
+                          height: "6px",
+                          borderRadius: "4px",
+                          "& .MuiLinearProgress-bar": { backgroundColor: theme.palette.primary.button1 } 
+                        }} 
+                      />
+                    </Box>
+                  ) : error ? (
+                    // 2. حالة الخطأ
+                    <Typography color="error" sx={{ fontWeight: 500 }}>
+                      حدث خطأ أثناء تحميل المعايير. يرجى التحقق من الاتصال بالسيرفر.
+                    </Typography>
+                  ) : (
+                    // 3. حالة المصفوفة فارغة تماماً
+                    <Typography sx={{ color: theme.palette.primary.chip, fontWeight: 500, fontSize: "15px" }}>
+                      لا يوجد معايير لعرضها في الوقت الحالي
+                    </Typography>
+                  )}
+                </Box>
+              )
+            }}
             components={{
               header: {
                 cell: (props) => (
@@ -211,6 +235,7 @@ const CriteriaPage = () => {
                       padding: "12px 8px",
                       textAlign: "center",
                       whiteSpace: "nowrap",
+                      fontWeight: 600,
                     }}
                   />
                 ),
@@ -233,29 +258,31 @@ const CriteriaPage = () => {
         </div>
       </div>
 
-      {/* Edit Modal */}
+      {/* مودالات الـ Lazy Loading الشرطية */}
       <Suspense fallback={null}>
         {openEdit && (
           <EditCriteriaModal
             open={openEdit}
             onClose={() => setOpenEdit(false)}
             selectedData={selectedCriteria}
+            onSuccess={handleSuccess}
           />
         )}
 
-  {/* add Modal */}
         {openAdd && (
           <AddCriteriaModal
             open={openAdd}
             onClose={() => setOpenAdd(false)}
+            onSuccess={handleSuccess}
           />
         )}
-        {/* Delete Modal */}
+
         {openDelete && (
           <DeletCriteriaModal
             open={openDelete}
             onClose={() => setOpenDelete(false)}
             selectedData={selectedCriteria}
+            onSuccess={handleSuccess}
           />
         )}
       </Suspense>

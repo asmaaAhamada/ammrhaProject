@@ -1,22 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Dialog,
   Box,
   Typography,
   TextField,
   Button,
-  MenuItem,
-  Select,
-  FormControl,
   useMediaQuery,
+  CircularProgress,
 } from "@mui/material";
 
 import UploadIcon from "@mui/icons-material/CloudUpload";
 import { useTheme } from "@mui/material/styles";
 import { white } from "../../../style/color-main/color";
 
-export default function EditSection({ open, onClose, selectedCard }) {
+import { useDispatch, useSelector } from "react-redux";
+import { Edit_Department, setformInfo, resetForm } from "../../../backend/slice/department/Edit";
+
+export default function EditSection({ open, onClose, selectedCard, onSuccess }) {
   const theme = useTheme();
+  const dispatch = useDispatch();
+
+  const { formInfo, isLoading, error, success } = useSelector((state) => state.Edit_Department);
 
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isTablet = useMediaQuery(theme.breakpoints.down("md"));
@@ -24,24 +28,38 @@ export default function EditSection({ open, onClose, selectedCard }) {
   const fieldWidth = isMobile ? "100%" : isTablet ? "90%" : "478px";
   const topFieldWidth = isMobile ? "100%" : "231px";
 
-  // ===== state filled from parent =====
-  const [form, setForm] = useState({
-    title: "",
-    category: "",
-    content: "",
-    image: "",
-  });
-
-  // fill data when card selected
+  // تعبئة البيانات بشكل صحيح بناءً على مسميات الباك-إند
   useEffect(() => {
     if (selectedCard) {
-      setForm({
-        title: selectedCard.name || "",
-        content: selectedCard.volunteerCount || "",
-        image: selectedCard.image || "",
-      });
+      dispatch(setformInfo({
+        name: selectedCard.name || "",
+        max_volunteers: selectedCard.max_volunteers || "", // تم تعديل المسمى هنا ليطابق بيانات الكارد تماماً
+        image: selectedCard.image || null,
+      }));
     }
-  }, [selectedCard]);
+  }, [selectedCard, dispatch]);
+
+  // عند نجاح التعديل: نقوم بتحديث القائمة الرئيسية وإغلاق المودال
+  useEffect(() => {
+    if (success) {
+      if (onSuccess) onSuccess(); // استدعاء الدالة لتحديث القائمة دون ريفريش للرابط
+      onClose();
+      dispatch(resetForm());
+    }
+  }, [success, onClose, dispatch, onSuccess]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      dispatch(setformInfo({ image: file }));
+    }
+  };
+
+  const handleSave = () => {
+    if (selectedCard?.id) {
+      dispatch(Edit_Department(selectedCard.id));
+    }
+  };
 
   return (
     <Dialog
@@ -59,41 +77,39 @@ export default function EditSection({ open, onClose, selectedCard }) {
         },
       }}
     >
-      {/* title */}
-      <Typography sx={{ fontSize: "18px", fontWeight: 700, mb: 2 ,          color: theme.palette.primary.text3,
- }}>
+      <Typography sx={{ fontSize: "18px", fontWeight: 700, mb: 2, color: theme.palette.primary.text3 }}>
         تعديل قسم
       </Typography>
 
-      {/* title + category */}
-    
-        {/* title */}
-        <Box sx={{ width: topFieldWidth }}>
-          <Typography sx={{ fontSize: "13px", mb: 1 ,              color: theme.palette.primary.text4,
-}}>العنوان</Typography>
-
-          <TextField
-            fullWidth
-            value={form.title}
-            onChange={(e) =>
-              setForm({ ...form, title: e.target.value })
-            }
-            inputProps={{
-              style: {
-                textAlign: "right",
-                backgroundColor: theme.palette.primary.inputt,
-                color: theme.palette.primary.text7,
-              },
-            }}
-          />
+      {error && (
+        <Box sx={{ mb: 2, p: 1.5, borderRadius: "8px", backgroundColor: "rgba(211, 47, 47, 0.1)", border: "1px solid #d32f2f" }}>
+          <Typography sx={{ color: "#d32f2f", fontSize: "14px", fontWeight: 500 }}>
+            {error}
+          </Typography>
         </Box>
+      )}
 
-       
+      <Box sx={{ width: topFieldWidth, mb: 2 }}>
+        <Typography sx={{ fontSize: "13px", mb: 1, color: theme.palette.primary.text4 }}>
+          العنوان
+        </Typography>
+        <TextField
+          fullWidth
+          value={formInfo.name}
+          onChange={(e) => dispatch(setformInfo({ name: e.target.value }))}
+          inputProps={{
+            style: {
+              textAlign: "right",
+              backgroundColor: theme.palette.primary.inputt,
+              color: theme.palette.primary.text7,
+            },
+          }}
+        />
+      </Box>
 
-      {/* image */}
-      <Typography sx={{ fontSize: "13px", mb: 1 ,              color: theme.palette.primary.text4,
-}}>الصورة</Typography>
-
+      <Typography sx={{ fontSize: "13px", mb: 1, color: theme.palette.primary.text4 }}>
+        الصورة
+      </Typography>
       <Box
         component="label"
         sx={{
@@ -110,33 +126,35 @@ export default function EditSection({ open, onClose, selectedCard }) {
           overflow: "hidden",
         }}
       >
-        <input type="file" accept="image/*" hidden />
+        <input 
+          type="file" 
+          accept="image/*" 
+          hidden 
+          onChange={handleImageChange} 
+        />
 
-        {form.image ? (
+        {formInfo.image ? (
           <img
-            src={form.image}
+            src={formInfo.image instanceof File ? URL.createObjectURL(formInfo.image) : formInfo.image}
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            alt="Department"
           />
         ) : (
           <>
-            <Typography>انقر لإضافة صورة</Typography>
+            <Typography sx={{ ml: 1 }}>انقر لإضافة صورة</Typography>
             <UploadIcon />
           </>
         )}
       </Box>
 
-      {/* content */}
-      <Typography sx={{ fontSize: "13px", mb: 1 ,              color: theme.palette.primary.text4,
-}}>العدد</Typography>
-
+      <Typography sx={{ fontSize: "13px", mb: 1, color: theme.palette.primary.text4 }}>
+        العدد (الحد الأقصى للمتطوعين)
+      </Typography>
       <TextField
-        multiline
-        rows={isMobile ? 3 : 4}
         fullWidth
-        value={form.content}
-        onChange={(e) =>
-          setForm({ ...form, content: e.target.value })
-        }
+        type="number"
+        value={formInfo.max_volunteers}
+        onChange={(e) => dispatch(setformInfo({ max_volunteers: e.target.value }))}
         sx={{ width: fieldWidth, mb: 3 }}
         inputProps={{
           style: {
@@ -146,34 +164,30 @@ export default function EditSection({ open, onClose, selectedCard }) {
         }}
       />
 
-      {/* buttons */}
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-start",
-          gap: 2,
-          flexDirection: isMobile ? "column" : "row",
-        }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "flex-start", gap: 2, flexDirection: isMobile ? "column" : "row" }}>
         <Button
           variant="contained"
+          onClick={handleSave}
+          disabled={isLoading}
           sx={{
             width: isMobile ? "100%" : "106px",
             height: "43px",
             backgroundColor: theme.palette.primary.button1,
-            color: white,borderRadius:'12px',
-
+            color: white,
+            borderRadius: '12px',
           }}
         >
-          حفظ
+          {isLoading ? <CircularProgress size={24} sx={{ color: white }} /> : "حفظ"}
         </Button>
 
         <Button
           onClick={onClose}
+          disabled={isLoading}
           sx={{
             width: isMobile ? "100%" : "106px",
-            height: "43px",              color: theme.palette.primary.text4,
-borderRadius:'12px',
+            height: "43px",
+            color: theme.palette.primary.text4,
+            borderRadius: '12px',
             border: "1px solid #ccc",
           }}
         >

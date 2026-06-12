@@ -6,5 +6,5 @@ export const BLACK_LIST =`/blacklist`
 export const Departments =`/departments`
 export const Available =`/available`
 export const LIST =`/lists`
-
+export const Criteria =`/criteria`
 
