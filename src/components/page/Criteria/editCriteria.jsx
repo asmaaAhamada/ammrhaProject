@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -6,37 +6,53 @@ import {
   TextField,
   IconButton,
   Button,
+  CircularProgress
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useTheme } from "@mui/material/styles";
 import { white } from "../../../style/color-main/color";
+import { useDispatch, useSelector } from "react-redux";
+import { setformInfo, Edit_Criteria, resetForm } from "../../../backend/slice/Criteria/Edit";
 
-const EditCriteriaModal = ({ open, onClose, selectedData }) => {
+const EditCriteriaModal = ({ open, onClose, selectedData, onSuccess }) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    points: "",
-  });
+  // جلب البيانات والحالات من الستور الصحيح
+  const { formInfo, isLoading, error } = useSelector((state) => state.Edit_Criteria);
 
+  // حقن البيانات القادمة من الجدول داخل الستور عند فتح المودال فقط
   useEffect(() => {
-    if (selectedData) {
-      setFormData({
+    if (open && selectedData) {
+      dispatch(setformInfo({
         name: selectedData.name || "",
-        points: selectedData.points || "",
-      });
+        points: selectedData.points || selectedData.formatted_points || "",
+      }));
     }
-  }, [selectedData]);
+    // نقوم بتنظيف الفورم عند إغلاق المودال
+    return () => {
+      dispatch(resetForm());
+    };
+  }, [selectedData, open, dispatch]);
 
+  // تحديث الستور مباشرة عند الكتابة
   const handleChange = (key, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    dispatch(setformInfo({ [key]: value }));
   };
 
   const handleSubmit = () => {
-    console.log(formData);
+    if (!selectedData?.id) return;
+
+    // إرسال معرف المعيار إلى الـ Thunk
+    dispatch(Edit_Criteria(selectedData.id))
+      .unwrap()
+      .then(() => {
+        if (typeof onSuccess === "function") onSuccess(); // تحديث جدول صفحة المعايير فوراً
+        if (typeof onClose === "function") onClose();       // إغلاق المودال
+      })
+      .catch((err) => {
+        console.error("فشلت عملية التعديل:", err);
+      });
   };
 
   return (
@@ -66,6 +82,7 @@ const EditCriteriaModal = ({ open, onClose, selectedData }) => {
 
         <IconButton
           onClick={onClose}
+          disabled={isLoading}
           sx={{
             position: "absolute",
             left: 8,
@@ -80,46 +97,42 @@ const EditCriteriaModal = ({ open, onClose, selectedData }) => {
       <DialogContent>
         <TextField
           fullWidth
-          value={formData.name}
+          value={formInfo.name}
           placeholder="تعديل اسم المعيار"
           onChange={(e) => handleChange("name", e.target.value)}
           margin="normal"
+          disabled={isLoading}
           InputProps={{
-            sx: {
-              color: theme.palette.primary.text7,
-              textAlign: "right",
-            },
+            sx: { color: theme.palette.primary.text7, textAlign: "right" },
           }}
-          inputProps={{
-            style: {
-              textAlign: "right",
-            },
-          }}
+          inputProps={{ style: { textAlign: "right" } }}
         />
 
         <TextField
           fullWidth
-          value={formData.points}
+          value={formInfo.points}
           placeholder="عدد النقاط"
           onChange={(e) => handleChange("points", e.target.value)}
           margin="normal"
           inputMode="numeric"
+          disabled={isLoading}
           InputProps={{
-            sx: {
-              color: theme.palette.primary.text7,
-            },
+            sx: { color: theme.palette.primary.text7 },
           }}
-          inputProps={{
-            style: {
-              textAlign: "right",
-            },
-          }}
+          inputProps={{ style: { textAlign: "right" } }}
         />
+
+        {error && (
+          <div style={{ color: "red", textAlign: "right", marginTop: "10px", fontWeight: "bold" }}>
+            {error}
+          </div>
+        )}
 
         <Button
           fullWidth
           variant="contained"
           onClick={handleSubmit}
+          disabled={isLoading}
           sx={{
             mt: 3,
             py: 1.2,
@@ -130,7 +143,7 @@ const EditCriteriaModal = ({ open, onClose, selectedData }) => {
             },
           }}
         >
-          حفظ التعديلات
+          {isLoading ? <CircularProgress size={24} color="inherit" /> : "حفظ التعديلات"}
         </Button>
       </DialogContent>
     </Dialog>

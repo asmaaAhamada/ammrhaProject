@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -6,18 +6,47 @@ import {
   TextField,
   IconButton,
   Button,
+  CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useTheme } from "@mui/material/styles";
 import { white } from "../../../style/color-main/color";
+import { useDispatch, useSelector } from "react-redux";
+import { setformInfo, Add_Criteria, resetForm } from "../../../backend/slice/Criteria/Add"; // تأكدي من مسار مأخذ السلايس التابع للإضافة
 
-const AddCriteriaModal = ({ open, onClose}) => {
+const AddCriteriaModal = ({ open, onClose, onSuccess }) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
 
- 
+  // جلب البيانات وحالة التحميل والخطأ من ستور الإضافة الصحيح
+  const { formInfo, isLoading, error } = useSelector((state) => state.Add_Criteria);
 
- 
+  // تنظيف الحقول وإعادتها فارغة فور إغلاق المودال أو فتحه مجدداً لكي لا تظهر البيانات القديمة
+  useEffect(() => {
+    if (!open) {
+      dispatch(resetForm());
+    }
+  }, [open, dispatch]);
 
+  // تحديث بيانات الستور عند الكتابة داخل الحقول
+  const handleChange = (key, value) => {
+    dispatch(setformInfo({ [key]: value }));
+  };
+
+  const handleSubmit = () => {
+    // التحقق من أن الحقول ليست فارغة قبل الإرسال للسيرفر
+    if (!formInfo.name.trim() || !formInfo.points.trim()) return;
+
+    dispatch(Add_Criteria())
+      .unwrap()
+      .then(() => {
+        if (typeof onSuccess === "function") onSuccess(); // تحديث فوري للجدول الرئيسي
+        if (typeof onClose === "function") onClose();       // إغلاق المودال 
+      })
+      .catch((err) => {
+        console.error("فشلت عملية الإضافة:", err);
+      });
+  };
 
   return (
     <Dialog
@@ -46,6 +75,7 @@ const AddCriteriaModal = ({ open, onClose}) => {
 
         <IconButton
           onClick={onClose}
+          disabled={isLoading}
           sx={{
             position: "absolute",
             left: 8,
@@ -58,10 +88,14 @@ const AddCriteriaModal = ({ open, onClose}) => {
       </DialogTitle>
 
       <DialogContent>
+        {/* حقل اسم المعيار */}
         <TextField
           fullWidth
           placeholder="ادخل اسم المعيار"
+          value={formInfo.name}
+          onChange={(e) => handleChange("name", e.target.value)}
           margin="normal"
+          disabled={isLoading}
           InputProps={{
             sx: {
               color: theme.palette.primary.text7,
@@ -75,11 +109,15 @@ const AddCriteriaModal = ({ open, onClose}) => {
           }}
         />
 
+        {/* حقل عدد النقاط */}
         <TextField
           fullWidth
           placeholder="عدد النقاط"
+          value={formInfo.points}
+          onChange={(e) => handleChange("points", e.target.value)}
           margin="normal"
           inputMode="numeric"
+          disabled={isLoading}
           InputProps={{
             sx: {
               color: theme.palette.primary.text7,
@@ -91,10 +129,19 @@ const AddCriteriaModal = ({ open, onClose}) => {
             },
           }}
         />
+
+        {/* طباعة الخطأ في حال حدوث مشكلة من الباكيند */}
+        {error && (
+          <div style={{ color: "red", textAlign: "right", marginTop: "10px", fontWeight: "bold" }}>
+            {error}
+          </div>
+        )}
 
         <Button
           fullWidth
           variant="contained"
+          onClick={handleSubmit}
+          disabled={isLoading || !formInfo.name.trim() || !formInfo.points.trim()}
           sx={{
             mt: 3,
             py: 1.2,
@@ -105,8 +152,7 @@ const AddCriteriaModal = ({ open, onClose}) => {
             },
           }}
         >
-            إضافة
-           
+          {isLoading ? <CircularProgress size={24} color="inherit" /> : "إضافة"}
         </Button>
       </DialogContent>
     </Dialog>

@@ -54,5 +54,5 @@ export const babygreen ='rgba(5, 223, 114, 1)'
 
 export const babyred ='rgba(255, 100, 107, 0.2)'
 export const red ='rgba(255, 100, 103, 1)'
-
+export const red2 = "#b30000"
 export const red1 =' rgba(239, 68, 68, 1)'

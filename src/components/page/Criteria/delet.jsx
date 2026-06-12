@@ -1,92 +1,131 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
-  Modal,
-  Paper,
-  Typography,
-  Grid,
-  Box,
   Button,
-  Select,
-  MenuItem,
-  TextField,
-  FormControl,
-  InputLabel,CircularProgress,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
-  Snackbar,
-  Alert
+  CircularProgress
 } from "@mui/material";
-import { blue, blue2, red } from "../../../style/color-main/color";
-
+import { red, red1, red2 } from "../../../style/color-main/color";
 import { useTheme } from "@mui/material/styles";
+import { deletCriteria } from "../../../backend/slice/Criteria/delet";
+import { useDispatch, useSelector } from "react-redux";
 
+export default function DeletCriteriaModal({ open, onClose, selectedData, onSuccess }) {
+  const dispatch = useDispatch();
+  const theme = useTheme();
+  
+  // جلب حالة التحميل والخطأ من السلايس
+  const { isLoading, error } = useSelector((state) => state.deletCriteria);
 
+  const handleDelete = () => {
+    if (!selectedData?.id) return;
 
-export default function DeletCriteriaModal( {open,onClose}){
-        const theme =useTheme()
+    dispatch(deletCriteria(selectedData.id))
+      .unwrap()
+      .then(() => {
+        // تنفيذ الـ Refresh في الصفحة الأساسية مباشرة فور النجاح
+        if (typeof onSuccess === "function") onSuccess();
+        // إغلاق المودال
+        if (typeof onClose === "function") onClose();
+      })
+      .catch((err) => {
+        console.error("فشلت عملية الحذف:", err);
+      });
+  };
 
-    return(
-        <>
-        
-        
-      <Dialog
-          open={open}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-         
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogTitle
+        id="alert-dialog-title"
+        sx={{
+          color: theme.palette.text.textc,
+          direction: "rtl",
+          fontSize: "22px",
+          fontWeight: "700",
+          backgroundColor: theme.palette.primary.Appar2,
+        }}
+      >
+        هل ترغب حقاً بحذف هذا المعيار؟
+      </DialogTitle>
+
+      <DialogContent sx={{ backgroundColor: theme.palette.primary.Appar2 }}>
+        <DialogContentText
+          id="alert-dialog-description"
+          sx={{
+            fontSize: "16px",
+            fontWeight: "500",
+            backgroundColor: theme.palette.primary.Appar2,
+            color: theme.palette.primary.text6,
+            direction: "rtl",
+            lineHeight: "1.6"
+          }}
         >
-           
-          <DialogTitle
-            id="alert-dialog-title"
-            sx={{                      color: theme.palette.text.textc,
- direction: "rtl", fontSize: "24px", fontWeight: "700" ,                               backgroundColor: theme.palette.primary.Appar2,
- }}
-          >
-            {"هل ترغب حقا بحذف هذا العيار"}
-          </DialogTitle>
-          <DialogContent sx={{backgroundColor: theme.palette.primary.Appar2,}}>
-            <DialogContentText
-              sx={{ fontSize: "24px", fontWeight: "700",backgroundColor: theme.palette.primary.Appar2, color: theme.palette.primary.text6, }}
-              id="alert-dialog-description"
-            >
-              لن تستطبع التراجع اذا قمت بالضغط على موافق
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions sx={{ backgroundColor: theme.palette.primary.Appar2, display: "flex",
-    justifyContent: "flex-start",}}>
-          
-           <Button
-              onClick={onClose}
-               
-              sx={{
-                color: red,
-                fontSize: "24px",
-                fontWeight: "700",
-              }}
-            >
-              حذف
-            </Button>
+          {selectedData?.name ? (
+            <span>
+              سيتم حذف المعيار:{" "}
+              <span style={{ color: "red", fontWeight: "bold" }}>
+                {selectedData.name}
+              </span>
+              . لن تستطيع التراجع إذا قمت بالضغط على موافق.
+            </span>
+          ) : (
+            "لن تستطيع التراجع إذا قمت بالضغط على موافق."
+          )}
+        </DialogContentText>
 
-            <Button
-              onClick={onClose}
-               
-              sx={{
-      color: theme.palette.primary.text3,
-                fontSize: "24px",
-                fontWeight: "700",
-              }}
-            >
-              تراجع
-            </Button>
-            
-          </DialogActions>
-          
-        </Dialog>
-        
-        </>
-    )
+        {/* عرض رسالة الخطأ إذا فشل السيرفر في الحذف */}
+        {error && (
+          <DialogContentText color="error" sx={{ mt: 2, fontSize: "14px", fontWeight: "bold", direction: "rtl" }}>
+            حدث خطأ: {error}
+          </DialogContentText>
+        )}
+      </DialogContent>
+
+      <DialogActions
+        sx={{
+          backgroundColor: theme.palette.primary.Appar2,
+          display: "flex",
+          justifyContent: "flex-start",
+          gap: 1,
+          px: 3,
+          pb: 2
+        }}
+      >
+        <Button
+          onClick={handleDelete}
+          disabled={isLoading}
+          variant="contained"
+          sx={{
+            backgroundColor: red2,
+            color: "#fff",
+            fontSize: "16px",
+            fontWeight: "700",
+            "&:hover": { backgroundColor: red2 }
+          }}
+        >
+          {isLoading ? <CircularProgress size={24} color="inherit" /> : "تأكيد الحذف"}
+        </Button>
+
+        <Button
+          onClick={onClose}
+          disabled={isLoading}
+          sx={{
+            color: theme.palette.primary.text3,
+            fontSize: "16px",
+            fontWeight: "700",
+          }}
+        >
+          تراجع
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }
-

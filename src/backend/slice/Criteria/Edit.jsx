@@ -1,41 +1,32 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { BaseUrl, Departments } from '../../Api';
-import { putData } from '../../ApiServecies';
+import { BaseUrl, Criteria } from '../../Api';
+import { postData } from '../../ApiServecies'; // استيراد postData بدلاً من putData لتوافق الـ FormData مع لارافل
 
 const initialState = {
   formInfo: {
     name: '',
-    max_volunteers: '',
-    image: null, 
+    points: '',
   },
   isLoading: false,
   error: null,
   success: false,
 };
 
-// نقوم بتمرير الـ departmentId عند عمل dispatch للدالة
-export const Edit_Department = createAsyncThunk(
-  'Edit_Department/Execute',
-  async (departmentId, { getState, rejectWithValue }) => {
+export const Edit_Criteria = createAsyncThunk(
+  'Edit_Criteria/Edit_Criteria',
+  async (criterionId, { getState, rejectWithValue }) => {
     try {
       const state = getState();
-      
-      // تصحيح جلب البيانات من نفس السلايس الحالي (Edit_Department)
-      const { name, max_volunteers, image } = state.Edit_Department.formInfo;
+      const { name, points } = state.Edit_Criteria.formInfo;
       
       const formData = new FormData();
       formData.append('name', name);
-      formData.append('max_volunteers', max_volunteers);
-      
-      // ملاحظة لـ Laravel: إذا واجهت مشكلة عدم وصول البيانات، يمكنك فك التعليق عن السطر التالي وتغيير putData إلى postData
-      // formData.append('_method', 'PUT');
+      formData.append('points', points);
+      formData.append('_method', 'PUT'); // حيلة لارافل الأساسية لقراءة الـ FormData في طلبات التعديل
 
-      if (image && image instanceof File) {
-        formData.append('image', image);
-      }
-
-      const response = await putData(
-        `${BaseUrl}${Departments}/${departmentId}`,
+      // نرسلها كـ POST مع الـ _method لتفادي مشاكل الـ PUT المشهورة في لارافل
+      const response = await postData(
+        `${BaseUrl}${Criteria}/${criterionId}`,
         formData,
         {},
         true
@@ -43,7 +34,6 @@ export const Edit_Department = createAsyncThunk(
 
       return response;
     } catch (error) {
-      // جلب رسالة الخطأ القادمة من الباك-إند بدقة
       const serverMessage = error?.response?.data?.message || error?.message || 'حدث خطأ ما أثناء التعديل';
       return rejectWithValue(serverMessage);
     }
@@ -51,7 +41,7 @@ export const Edit_Department = createAsyncThunk(
 );
 
 const formSlice = createSlice({
-  name: 'Edit_Department',
+  name: 'Edit_Criteria',
   initialState,
   reducers: {
     setformInfo: (state, action) => {
@@ -64,19 +54,19 @@ const formSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(Edit_Department.pending, (state) => {
+      .addCase(Edit_Criteria.pending, (state) => {
         state.isLoading = true;
         state.error = null;
         state.success = false;
       })
-      .addCase(Edit_Department.fulfilled, (state, action) => {
+      .addCase(Edit_Criteria.fulfilled, (state) => {
         state.isLoading = false;
         state.success = true;
         state.error = null;
       })
-      .addCase(Edit_Department.rejected, (state, action) => {
+      .addCase(Edit_Criteria.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload; // هنا سيتم تخزين رسالة خطأ الباك-إند
+        state.error = action.payload;
         state.success = false;
       });
   },

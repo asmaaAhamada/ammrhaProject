@@ -1,14 +1,15 @@
 import { createSlice ,createAsyncThunk  } from '@reduxjs/toolkit'
-import { ALL, BaseUrl, Complaints, DELET, Employees, GONVERMENT_ENTITIES, Incoming } from '../../Back_end/Api';
-import { deleteData, getData } from '../../Back_end/ApiServecies';
+import { BaseUrl, Criteria } from '../../Api';
+import { deleteData } from '../../ApiServecies';
 
 
 
-export const deletGonverments = createAsyncThunk(
-  'program/deletGonverments',
-  async (employeeId, { rejectWithValue }) => {
+
+export const deletCriteria = createAsyncThunk(
+  'program/deletCriteria',
+  async (criterion, { rejectWithValue }) => {
     try {
-      const response = await deleteData(`${BaseUrl}${GONVERMENT_ENTITIES}/${employeeId}`) 
+      const response = await deleteData(`${BaseUrl}${Criteria}/${criterion}`) 
       console.log(response)
       return response;
     } catch (error) {
@@ -18,7 +19,7 @@ export const deletGonverments = createAsyncThunk(
 );
 
 export const counterSlice = createSlice({
-    name: 'deletGonverments',
+    name: 'deletCriteria',
     initialState: {
        isLoading:false,
        data:[],
@@ -28,15 +29,15 @@ export const counterSlice = createSlice({
     
     }, extraReducers: builder => {
         builder
-          .addCase(deletGonverments.pending, (state, action) => {
+          .addCase(deletCriteria.pending, (state, action) => {
             state.isLoading = true
           })
-          .addCase(deletGonverments.fulfilled, (state, action) => {
+          .addCase(deletCriteria.fulfilled, (state, action) => {
             state.isLoading = false
             state.data = action.payload.data
             
           })
-       .addCase(deletGonverments.rejected, (state, action) => {
+       .addCase(deletCriteria.rejected, (state, action) => {
             state.isLoading = false;
             state.error = action.payload; 
           })

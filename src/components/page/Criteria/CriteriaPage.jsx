@@ -36,6 +36,8 @@ const CriteriaPage = () => {
     dispatch(fetchCriteria());
   }, [dispatch]);
 
+   
+  
   // حالات التحكم بالمودالات
   const [openEdit, setOpenEdit] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
