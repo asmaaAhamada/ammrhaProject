@@ -10,6 +10,11 @@ import fetchCriteriaReducer from '../slice/Criteria/fetchAll'
 import deletCriteriaReducer from '../slice/Criteria/delet'
 import Edit_CriteriaReducer from '../slice/Criteria/Edit'
 import Add_CriteriaReducer from '../slice/Criteria/add'
+import fetchAnnouncementReducer from '../slice/announcement/fetchAll'
+import Add_AnnouncementReducer from '../slice/announcement/add'
+import deletAnnouncementReducer from '../slice/announcement/delet'
+import Update_AnnouncementReducer from '../slice/announcement/Edit'
+import fetchDetailsAnnouncementReducer from '../slice/announcement/deteails'
 const store = configureStore({
   reducer: {
  Log_in: Log_inReducer,
@@ -22,7 +27,12 @@ const store = configureStore({
  fetchCriteria: fetchCriteriaReducer,
  deletCriteria :deletCriteriaReducer,
  Edit_Criteria :Edit_CriteriaReducer,
- Add_Criteria:Add_CriteriaReducer
+ Add_Criteria:Add_CriteriaReducer,
+ fetchAnnouncement :fetchAnnouncementReducer,
+ Add_Announcement :Add_AnnouncementReducer,
+ deletAnnouncement:deletAnnouncementReducer,
+ Update_Announcement:Update_AnnouncementReducer,
+ fetchDetailsAnnouncement:fetchDetailsAnnouncementReducer
 }})
 
 export default store

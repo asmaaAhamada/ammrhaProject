@@ -1,20 +1,21 @@
 import React, { lazy, Suspense, useCallback, useState } from "react";
-import { Box, Typography, Button, Grid } from "@mui/material";
+import { Box, Typography, Button, Grid, Alert } from "@mui/material";
 import SectionCard from "./SectionCard";
 import { useTheme } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 import ImageNotSupportedOutlinedIcon from "@mui/icons-material/ImageNotSupportedOutlined";
+import AccountTreeOutlinedIcon from "@mui/icons-material/AccountTreeOutlined"; // 👈 أيقونة رسمية ممتازة لتمثيل الهيكلية والأقسام
 import { white } from "../../../style/color-main/color";
 import { useNavigate } from "react-router-dom";
 import { fetchDepartment } from "../../../backend/slice/department/fetchAll";
 import { useDispatch, useSelector } from "react-redux";
 import { Spin } from "antd";
 
-// الـ Lazy loading للمودالات - تأكدي أن اسم الملف يطابق تماماً ملف المودال في نفس المجلد
+// الـ Lazy loading للمودالات
 const AddSection = lazy(() => import("./AddSection"));
 const EditSection = lazy(() => import("./EditSection"));
-// 💡 تأكدي أن الملف في المجلد اسمه SectionDetailsModal.jsx تماماً بالصياغة الحرفية
 const SectionDetailsModal = lazy(() => import("./SectionDetailsModal"));
+
 export default function SectionPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export default function SectionPage() {
   const handleViewDetails = useCallback((card) => {
     console.log("تم الضغط على عرض التفاصيل للقسم:", card);
     setSelectedCard(card);
-    setOpenDetails(true); // 👈 تفعيل الفتح بشكل صحيح
+    setOpenDetails(true); 
   }, []);
 
   const handleFreeze = useCallback((card) => {
@@ -52,7 +53,7 @@ export default function SectionPage() {
   }, [dispatch]);
 
   return (
-    <Box sx={{ width: "100%", p: { xs: 1, sm: 2, md: 3 }, boxSizing: "border-box" }}>
+    <Box sx={{ width: "100%", p: { xs: 1, sm: 2, md: 3 }, boxSizing: "border-box", direction: "rtl" }}>
       
       {/* الهيدر */}
       <Box sx={{ width: "100%", minHeight: "36px", display: "flex", alignItems: "center", justifyContent: "space-between", mb: 3 }}>
@@ -77,17 +78,83 @@ export default function SectionPage() {
         </Button>
       </Box>
 
-      {/* عرض المحتوى */}
+      {/* عرض المحتوى مع معالجة كافة الحالات بالتفصيل */}
       {isLoading ? (
-        <Box sx={{ py: 5, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+        <Box sx={{ py: 8, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
           <Spin size="large" />
-          <Typography style={{ color: theme.palette.primary.chip }}>جاري تحميل الاقسام...</Typography>
+          <Typography style={{ color: theme.palette.primary.chip, fontWeight: 500 }}>جاري تحميل الأقسام...</Typography>
         </Box>
       ) : error ? (
-        <Box sx={{ p: 5, width: "100%", textAlign: "center" }}>
-          <Typography color="error" sx={{ fontWeight: 500 }}>حدث خطأ أثناء تحميل البيانات.</Typography>
+        <Box sx={{ mb: 3 }}>
+          <Alert 
+            severity="error" 
+            variant="outlined"
+            sx={{ borderRadius: "12px", fontWeight: 600 }}
+          >
+            {typeof error === "string" ? error : "حدث خطأ أثناء تحميل بيانات الأقسام."}
+          </Alert>
+        </Box>
+      ) : departmentsList.length === 0 ? (
+        /* 👈 حالة الفراغ المتطابقة والموحدة مع صفحة الأخبار */
+        <Box 
+          sx={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            alignItems: "center", 
+            justifyContent: "center", 
+            minHeight: "45vh", 
+            width: "100%",
+            textAlign: "center",
+            py: 4
+          }}
+        >
+          {/* حاوية الدائرة الخلفية والأيقونة الشجرية للأقسام */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100px",
+              height: "100px",
+              borderRadius: "50%",
+              backgroundColor: theme.palette.primary.inputt || "rgba(0, 0, 0, 0.03)",
+              mb: 2.5
+            }}
+          >
+            <AccountTreeOutlinedIcon 
+              sx={{ 
+                fontSize: "52px", 
+                color: theme.palette.primary.text4,
+                opacity: 0.7
+              }} 
+            />
+          </Box>
+
+          <Typography 
+            sx={{ 
+              color: theme.palette.primary.text3, 
+              fontSize: { xs: "16px", sm: "18px" }, 
+              fontWeight: 700,
+              mb: 1
+            }}
+          >
+            لا توجد أقسام مضافة حالياً
+          </Typography>
+          
+          <Typography 
+            sx={{ 
+              color: theme.palette.primary.text4, 
+              fontSize: { xs: "13px", sm: "14px" }, 
+              fontWeight: 500,
+              maxWidth: "340px",
+              lineHeight: 1.6
+            }}
+          >
+            النظام لا يحتوي على أي أقسام تنظيمية أو تطوعية في الوقت الحالي. يمكنك البدء بتأسيس أول قسم من خلال زر الإضافة المتاح بالأعلى.
+          </Typography>
         </Box>
       ) : (
+        /* عرض قائمة الكاردات الحقيقية */
         <Grid container spacing={3} justifyContent="flex-start">
           {departmentsList.map((department) => {
             const currentCount = department.current_volunteers_count !== undefined && department.current_volunteers_count !== null ? department.current_volunteers_count : 0;
@@ -129,7 +196,7 @@ export default function SectionPage() {
                   card={processedCard}
                   theme={theme}
                   onEdit={handleEdit}
-                  onDelete={handleViewDetails} // 👈 يمرر هنا دالة الفتح
+                  onDelete={handleViewDetails} 
                   onFreeze={handleFreeze}
                 />
               </Grid>
@@ -141,10 +208,7 @@ export default function SectionPage() {
       {/* المودالات */}
       <Suspense fallback={null}>
         {open && <AddSection open={open} onClose={() => setOpen(false)} onSuccess={handleSuccess} />}
-        
         {openEdit && <EditSection open={openEdit} onClose={() => setOpenEdit(false)} selectedCard={selectedCard} onSuccess={handleSuccess} />}
-        
-        {/* مودال تفاصيل القسم الاستدعاء والتأكيد الشرطي */}
         {openDetails && (
           <SectionDetailsModal 
             open={openDetails} 

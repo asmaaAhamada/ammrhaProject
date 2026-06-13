@@ -7,4 +7,13 @@ export const Departments =`/departments`
 export const Available =`/available`
 export const LIST =`/lists`
 export const Criteria =`/criteria`
+export const Announcement =`/announcement`
+export const Create =`/create`
+export const Delete =`/delete`
+export const Update =`/update`
+
+
+
+
+
 

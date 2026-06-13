@@ -51,7 +51,7 @@ function NewsCard({
         {/* الصورة */}
         <CardMedia
           component="img"
-          image={card.image}
+          image={card.image_url}
           alt="cover"
           loading="lazy"
           sx={{
@@ -75,18 +75,7 @@ function NewsCard({
           }}
         >
           <Box>
-            {/* التاريخ */}
-            <Typography
-              variant="body2"
-              sx={{
-                color: theme.palette.primary.text5,
-                mb: 1,
-                fontSize: "12px",
-                fontWeight: 400,
-              }}
-            >
-              {card.date}
-            </Typography>
+           
 
             {/* الوصف */}
             <Typography
@@ -102,7 +91,7 @@ function NewsCard({
                 wordBreak: "break-word",
               }}
             >
-              {card.description}
+              {card.title}
             </Typography>
           </Box>
 
