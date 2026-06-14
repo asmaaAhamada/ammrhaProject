@@ -11,6 +11,7 @@ export const Announcement =`/announcement`
 export const Create =`/create`
 export const Delete =`/delete`
 export const Update =`/update`
+export const Ranks =`/ranks`
 
 
 export const Complaints =`/complaints`

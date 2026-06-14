@@ -12,18 +12,19 @@ import { red, red1, red2 } from "../../../style/color-main/color";
 import { useTheme } from "@mui/material/styles";
 import { deletCriteria } from "../../../backend/slice/Criteria/delet";
 import { useDispatch, useSelector } from "react-redux";
+import { deletRanks } from "../../../backend/slice/Ranks/delet";
 
-export default function DeletCriteriaModal({ open, onClose, selectedData, onSuccess }) {
+export default function DeletRankModal({ open, onClose, selectedData, onSuccess }) {
   const dispatch = useDispatch();
   const theme = useTheme();
   
   // جلب حالة التحميل والخطأ من السلايس
-  const { isLoading, error } = useSelector((state) => state.deletCriteria);
+  const { isLoading, error } = useSelector((state) => state.deletRanks);
 
   const handleDelete = () => {
     if (!selectedData?.id) return;
 
-    dispatch(deletCriteria(selectedData.id))
+    dispatch(deletRanks(selectedData.id))
       .unwrap()
       .then(() => {
         // تنفيذ الـ Refresh في الصفحة الأساسية مباشرة فور النجاح

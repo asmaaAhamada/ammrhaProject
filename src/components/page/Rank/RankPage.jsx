@@ -8,19 +8,20 @@ import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 
 import { white } from "../../../style/color-main/color";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCriteria } from "../../../backend/slice/Criteria/fetchAll";
+import { fetchRanks } from "../../../backend/slice/Ranks/fetchAll";
 
 // lazy-loading للمودالات
-const EditCriteriaModal = lazy(() => import("./editRank"));
-const DeletCriteriaModal = lazy(() => import("./delet"));
-const AddCriteriaModal = lazy(() => import("./addRank"));
+const EditRankModal = lazy(() => import("./editRank"));
+const DeletRankModal = lazy(() => import("./delet"));
+const AddRankModal = lazy(() => import("./addRank"));
 
-const CriteriaPage = () => {
+const RankPage = () => {
   const dispatch = useDispatch();
   const theme = useTheme();
 
   // جلب البيانات وحالة التحميل والخطأ من الـ Redux Store
-  const { data, isLoading, error } = useSelector((state) => state.fetchCriteria);
+  const { data, isLoading, error } = useSelector((state) => state.fetchRanks);
+  console.log(data);
 
   // الوصول لمصفوفة المعايير الحقيقية من الريسبونس ومعالجتها
   const criteriaData = useMemo(() => {
@@ -33,11 +34,9 @@ const CriteriaPage = () => {
 
   // استدعاء البيانات عند تحميل الصفحة
   React.useEffect(() => {
-    dispatch(fetchCriteria());
+    dispatch(fetchRanks());
   }, [dispatch]);
 
-   
-  
   // حالات التحكم بالمودالات
   const [openEdit, setOpenEdit] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
@@ -46,7 +45,7 @@ const CriteriaPage = () => {
 
   // دالة تحديث البيانات بعد العمليات الناجحة
   const handleSuccess = useCallback(() => {
-    dispatch(fetchCriteria());
+    dispatch(fetchRanks()); // تم تعديلها لتستدعي الـ ثانك الصحيح fetchRanks بدلاً من fetchCriteria
   }, [dispatch]);
 
   const handleAdd = useCallback(() => {
@@ -67,10 +66,10 @@ const CriteriaPage = () => {
   const columns = useMemo(
     () => [
       {
-        title: "المعيار",
+        title: "المعيار / الرتبة",
         dataIndex: "name",
         key: "name",
-        width: 300,
+        width: 250,
         render: (text) => (
           <Tooltip title={text}>
             <div
@@ -78,8 +77,9 @@ const CriteriaPage = () => {
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
-                maxWidth: "260px",
+                maxWidth: "220px",
                 margin: "0 auto",
+                fontWeight: 600
               }}
             >
               {text}
@@ -88,16 +88,23 @@ const CriteriaPage = () => {
         ),
       },
       {
-        title: "عدد النقاط",
-        dataIndex: "formatted_points",
-        key: "formatted_points",
+        title: "عدد الساعات المطلوب",
+        dataIndex: "min_hours",
+        key: "min_hours",
         width: 180,
-        render: (text, row) => text || row.points,
+        render: (text) => text !== undefined && text !== null ? `${text} ساعة` : "-",
+      },
+      {
+        title: "عدد النقاط المطلوب",
+        dataIndex: "min_points",
+        key: "min_points",
+        width: 180,
+        render: (text) => text !== undefined && text !== null ? `${text} نقطة` : "-",
       },
       {
         title: "الإجراءات",
         key: "actions",
-        width: 180,
+        width: 150,
         render: (_, row) => (
           <Space size="middle">
             {/* الحذف */}
@@ -192,16 +199,13 @@ const CriteriaPage = () => {
         <div style={{ width: "100%", borderRadius: "8px", overflow: "hidden" }}>
           <Table
             columns={columns}
-            // إذا كان في حالة تحميل أو خطأ نمرر مصفوفة فارغة ليعرض الجدول الهيدر والبودي المخصص بالأسفل
             dataSource={isLoading || error ? [] : criteriaData}
             pagination={false}
             scroll={{ x: "max-content" }}
             locale={{
-              // تخصيص محتوى الـ Body تماماً بناءً على الحالات المختلفة لقاعدة البيانات
               emptyText: (
                 <Box sx={{ p: 3, display: "flex", justifyContent: "center", alignItems: "center", width: "100%" }}>
                   {isLoading ? (
-                    // 1. حالة اللودر الخطي بقلب البودي
                     <Box sx={{ width: "80%", py: 2 }}>
                       <LinearProgress 
                         sx={{ 
@@ -213,12 +217,10 @@ const CriteriaPage = () => {
                       />
                     </Box>
                   ) : error ? (
-                    // 2. حالة الخطأ
                     <Typography color="error" sx={{ fontWeight: 500 }}>
                       حدث خطأ أثناء تحميل المعايير. يرجى التحقق من الاتصال بالسيرفر.
                     </Typography>
                   ) : (
-                    // 3. حالة المصفوفة فارغة تماماً
                     <Typography sx={{ color: theme.palette.primary.chip, fontWeight: 500, fontSize: "15px" }}>
                       لا يوجد معايير لعرضها في الوقت الحالي
                     </Typography>
@@ -263,7 +265,7 @@ const CriteriaPage = () => {
       {/* مودالات الـ Lazy Loading الشرطية */}
       <Suspense fallback={null}>
         {openEdit && (
-          <EditCriteriaModal
+          <EditRankModal
             open={openEdit}
             onClose={() => setOpenEdit(false)}
             selectedData={selectedCriteria}
@@ -272,7 +274,7 @@ const CriteriaPage = () => {
         )}
 
         {openAdd && (
-          <AddCriteriaModal
+          <AddRankModal
             open={openAdd}
             onClose={() => setOpenAdd(false)}
             onSuccess={handleSuccess}
@@ -280,7 +282,7 @@ const CriteriaPage = () => {
         )}
 
         {openDelete && (
-          <DeletCriteriaModal
+          <DeletRankModal
             open={openDelete}
             onClose={() => setOpenDelete(false)}
             selectedData={selectedCriteria}
@@ -292,4 +294,4 @@ const CriteriaPage = () => {
   );
 };
 
-export default CriteriaPage;
+export default RankPage;

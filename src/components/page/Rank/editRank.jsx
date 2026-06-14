@@ -15,19 +15,19 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useTheme } from "@mui/material/styles";
 import { white } from "../../../style/color-main/color";
 import { useDispatch, useSelector } from "react-redux";
-import { setformInfo, Edit_Criteria, resetForm } from "../../../backend/slice/Criteria/Edit";
+import { Edit_Ranks, resetForm, setformInfo } from "../../../backend/slice/Ranks/Edit";
 
 // دالة الحركة الانزلاقية اللطيفة من الأعلى للأسفل
 function TransitionDown(props) {
   return <Slide {...props} direction="down" />;
 }
 
-const EditCriteriaModal = ({ open, onClose, selectedData, onSuccess }) => {
+const EditRankModal = ({ open, onClose, selectedData, onSuccess }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
 
   // جلب البيانات والحالات من الستور الصحيح
-  const { formInfo, isLoading, error } = useSelector((state) => state.Edit_Criteria);
+  const { formInfo, isLoading, error } = useSelector((state) => state.Edit_Ranks);
 
   // حالة التحكم بالـ Toast العلوي
   const [toast, setToast] = useState({
@@ -41,7 +41,9 @@ const EditCriteriaModal = ({ open, onClose, selectedData, onSuccess }) => {
     if (open && selectedData) {
       dispatch(setformInfo({
         name: selectedData.name || "",
-        points: selectedData.points || selectedData.formatted_points || "",
+        min_points: selectedData.min_points || selectedData.formatted_points || "",
+                min_hours: selectedData.min_hours || selectedData.formatted_points || "",
+
       }));
     }
     // نقوم بتنظيف الفورم عند إغلاق المودال
@@ -76,7 +78,7 @@ const EditCriteriaModal = ({ open, onClose, selectedData, onSuccess }) => {
 
   const handleSubmit = () => {
     if (!selectedData?.id) return;
-    if (!formInfo.name.toString().trim() || !formInfo.points.toString().trim()) {
+    if (!formInfo.name.toString().trim() || !formInfo.min_points.toString().trim() || !formInfo.min_hours.toString().trim()) {
       setToast({
         open: true,
         message: "الرجاء التأكد من ملء الحقول قبل الحفظ",
@@ -86,7 +88,7 @@ const EditCriteriaModal = ({ open, onClose, selectedData, onSuccess }) => {
     }
 
     // إرسال معرف المعيار إلى الـ Thunk
-    dispatch(Edit_Criteria(selectedData.id))
+    dispatch(Edit_Ranks(selectedData.id))
       .unwrap()
       .then(() => {
         setToast({
@@ -182,7 +184,7 @@ const EditCriteriaModal = ({ open, onClose, selectedData, onSuccess }) => {
           <TextField
             fullWidth
             value={formInfo.name}
-            placeholder="تعديل اسم المعيار"
+            placeholder="تعديل اسم الرتبة"
             onChange={(e) => handleChange("name", e.target.value)}
             margin="normal"
             disabled={isLoading}
@@ -198,9 +200,26 @@ const EditCriteriaModal = ({ open, onClose, selectedData, onSuccess }) => {
 
           <TextField
             fullWidth
-            value={formInfo.points}
+            value={formInfo.min_points}
             placeholder="عدد النقاط"
-            onChange={(e) => handleChange("points", e.target.value)}
+            onChange={(e) => handleChange("min_points", e.target.value)}
+            margin="normal"
+            inputMode="numeric"
+            disabled={isLoading}
+            InputProps={{
+              sx: { 
+                color: theme.palette.primary.text7,
+                backgroundColor: theme.palette.primary.inputt,
+                borderRadius: "8px"
+              },
+            }}
+            inputProps={{ style: { textAlign: "right" } }}
+          />
+           <TextField
+            fullWidth
+            value={formInfo.min_hours}
+            placeholder="عدد النقاط"
+            onChange={(e) => handleChange("min_hours", e.target.value)}
             margin="normal"
             inputMode="numeric"
             disabled={isLoading}
@@ -239,4 +258,4 @@ const EditCriteriaModal = ({ open, onClose, selectedData, onSuccess }) => {
   );
 };
 
-export default EditCriteriaModal;
+export default EditRankModal;

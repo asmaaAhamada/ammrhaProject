@@ -8,6 +8,7 @@ import AnalysePage from "./components/page/analyse/analysePage";
 import ProtectedRoute from "./protectedRout/proctedRout";
 import APPLoading from "./style/loader/AppLoading";
 import HonorPage from "./components/page/HonorBord/HonorPage";
+import RankPage from "./components/page/Rank/RankPage";
 
 // lazy imports
 const Sidebar = lazy(() => import("./components/Layout/sidePar"));
@@ -49,6 +50,7 @@ export default function App({ toggleMode, mode }) {
           <Route path="Complaints" element={<ComplaintsPage />} />
           <Route path="analyse" element={<AnalysePage />} />
                     <Route path="Honor" element={<HonorPage />} />
+                    <Route path="Rank" element={<RankPage />} />
 
         </Route>
 </Route>

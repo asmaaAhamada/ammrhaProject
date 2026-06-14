@@ -15,25 +15,25 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useTheme } from "@mui/material/styles";
 import { white } from "../../../style/color-main/color";
 import { useDispatch, useSelector } from "react-redux";
-import { setformInfo, Add_Criteria, resetForm } from "../../../backend/slice/Criteria/Add"; 
+import { resetForm, setformInfo, Add_Ranks } from "../../../backend/slice/Ranks/add";
 
 // دالة الحركة الانزلاقية من الأعلى للأسفل
 function TransitionDown(props) {
   return <Slide {...props} direction="down" />;
 }
 
-const AddCriteriaModal = ({ open, onClose, onSuccess }) => {
+const AddRankModal = ({ open, onClose, onSuccess }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
 
   // جلب البيانات وحالة التحميل والخطأ من ستور الإضافة
-  const { formInfo, isLoading, error } = useSelector((state) => state.Add_Criteria);
+  const { formInfo, isLoading, error } = useSelector((state) => state.Add_Ranks);
 
   // حالة التحكم بالـ Toast العلوي
   const [toast, setToast] = useState({
     open: false,
     message: "",
-    severity: "success", // 'success' أو 'error'
+    severity: "success", 
   });
 
   // تنظيف الحقول وإعادتها فارغة فور إغلاق المودال أو فتحه مجدداً
@@ -68,7 +68,8 @@ const AddCriteriaModal = ({ open, onClose, onSuccess }) => {
   };
 
   const handleSubmit = () => {
-    if (!formInfo.name.trim() || !formInfo.points.trim()) {
+    // تحديث التحقق ليتوافق مع أسماء الحقول الجديدة min_points و min_hours
+    if (!formInfo.name.trim() || !formInfo.min_points.toString().trim() || !formInfo.min_hours.toString().trim()) {
       setToast({
         open: true,
         message: "الرجاء ملء جميع الحقول المطلوبة أولاً",
@@ -77,17 +78,16 @@ const AddCriteriaModal = ({ open, onClose, onSuccess }) => {
       return;
     }
 
-    dispatch(Add_Criteria())
+    // 👈 تم تعديل اسم الدالة هنا إلى الـ Thunk الصحيح Add_Ranks
+    dispatch(Add_Ranks())
       .unwrap()
       .then(() => {
-        // عرض رسالة النجاح فوراً
         setToast({
           open: true,
-          message: "تم إضافة المعيار بنجاح!",
+          message: "تم إضافة الرتبة بنجاح!",
           severity: "success",
         });
 
-        // تأخير الإغلاق قليلاً ليعطي تأثيراً بصرياً مريحاً للمستخدم
         setTimeout(() => {
           if (typeof onSuccess === "function") onSuccess(); 
           if (typeof onClose === "function") onClose();       
@@ -98,9 +98,11 @@ const AddCriteriaModal = ({ open, onClose, onSuccess }) => {
       });
   };
 
+  // التحقق من صحة المدخلات لتفعيل زر الإضافة
+  const isFormValid = formInfo.name?.trim() && formInfo.min_points?.toString().trim() && formInfo.min_hours?.toString().trim();
+
   return (
     <>
-      {/* التنبيه العلوي اللطيف (Toast) */}
       <Snackbar
         open={toast.open}
         autoHideDuration={4000}
@@ -141,7 +143,7 @@ const AddCriteriaModal = ({ open, onClose, onSuccess }) => {
             color: theme.palette.primary.text3,
             borderRadius: "12px",
             p: 1,
-            direction: "rtl" // التأكد من توجيه المودال بالكامل للغة العربية
+            direction: "rtl" 
           },
         }}
       >
@@ -154,7 +156,7 @@ const AddCriteriaModal = ({ open, onClose, onSuccess }) => {
             pt: 2
           }}
         >
-          إضافة المعيار
+          إضافة رتبة جديدة
 
           <IconButton
             onClick={onClose}
@@ -171,10 +173,10 @@ const AddCriteriaModal = ({ open, onClose, onSuccess }) => {
         </DialogTitle>
 
         <DialogContent>
-          {/* حقل اسم المعيار */}
+          {/* حقل اسم الرتبة */}
           <TextField
             fullWidth
-            placeholder="ادخل اسم المعيار"
+            placeholder="ادخل اسم الرتبة"
             value={formInfo.name}
             onChange={(e) => handleChange("name", e.target.value)}
             margin="normal"
@@ -197,8 +199,31 @@ const AddCriteriaModal = ({ open, onClose, onSuccess }) => {
           <TextField
             fullWidth
             placeholder="عدد النقاط"
-            value={formInfo.points}
-            onChange={(e) => handleChange("points", e.target.value)}
+            value={formInfo.min_points}
+            onChange={(e) => handleChange("min_points", e.target.value)}
+            margin="normal"
+            inputMode="numeric"
+            disabled={isLoading}
+            InputProps={{
+              sx: {
+                color: theme.palette.primary.text7,
+                backgroundColor: theme.palette.primary.inputt,
+                borderRadius: "8px",
+              },
+            }}
+            inputProps={{
+              style: {
+                textAlign: "right",
+              },
+            }}
+          />
+
+          {/* حقل عدد الساعات */}
+          <TextField
+            fullWidth
+            placeholder="عدد الساعات"
+            value={formInfo.min_hours}
+            onChange={(e) => handleChange("min_hours", e.target.value)}
             margin="normal"
             inputMode="numeric"
             disabled={isLoading}
@@ -220,7 +245,7 @@ const AddCriteriaModal = ({ open, onClose, onSuccess }) => {
             fullWidth
             variant="contained"
             onClick={handleSubmit}
-            disabled={isLoading || !formInfo.name.trim() || !formInfo.points.trim()}
+            disabled={isLoading || !isFormValid} // تم تعديل شرط التعطيل هنا
             sx={{
               mt: 3,
               py: 1.2,
@@ -241,4 +266,4 @@ const AddCriteriaModal = ({ open, onClose, onSuccess }) => {
   );
 };
 
-export default AddCriteriaModal;
+export default AddRankModal;

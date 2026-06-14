@@ -103,6 +103,11 @@ const menuItems = [
     path: "/Criteria",
   },
   {
+    text: "خوارزمية الرتب ",
+    icon: <CheckIcon />,
+    path: "/Rank",
+  },
+  {
     text: "لوحة الشرف",
     icon: <ClassIcon />,
     path: "/Honor",

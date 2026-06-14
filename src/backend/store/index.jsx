@@ -19,6 +19,10 @@ import fetchComplaintsReducer from '../slice/complaints/fetchAll'
 import fetchDetailsComplaintsReducer from '../slice/complaints/deteails'
 import Update_ComplaintsReducer from '../slice/complaints/Edit'
 import fetchHonorReducer from '../slice/honor/fetchAll'
+import fetchRanksReducer from '../slice/Ranks/fetchAll'
+import Add_RanksReducer from '../slice/Ranks/add'
+import deletRanksReducer from '../slice/Ranks/delet'
+import Edit_RanksReducer from '../slice/Ranks/Edit'
 // import filter_HonorReducer from '../slice/honor/filter'
 const store = configureStore({
   reducer: {
@@ -43,6 +47,10 @@ const store = configureStore({
  Update_Complaints:Update_ComplaintsReducer,
  fetchHonor:fetchHonorReducer,
 //  filter_Honor :filter_HonorReducer
+fetchRanks:fetchRanksReducer,
+Add_Ranks:Add_RanksReducer,
+deletRanks:deletRanksReducer,
+Edit_Ranks:Edit_RanksReducer
 }})
 
 export default store
