@@ -9,6 +9,9 @@ import ProtectedRoute from "./protectedRout/proctedRout";
 import APPLoading from "./style/loader/AppLoading";
 import HonorPage from "./components/page/HonorBord/HonorPage";
 import RankPage from "./components/page/Rank/RankPage";
+import EventCard from "./components/page/events/EventCard";
+import EventsPage from "./components/page/events/EventsPage";
+import EventDetails from "./components/page/events/EventDetails";
 
 // lazy imports
 const Sidebar = lazy(() => import("./components/Layout/sidePar"));
@@ -51,7 +54,9 @@ export default function App({ toggleMode, mode }) {
           <Route path="analyse" element={<AnalysePage />} />
                     <Route path="Honor" element={<HonorPage />} />
                     <Route path="Rank" element={<RankPage />} />
-
+// داخل الـ Routes الخاصة بك تأكد من إضافتها هكذا:
+<Route path="/Events" element={<EventsPage />} />
+<Route path="/Events/:id" element={<EventDetails />} />
         </Route>
 </Route>
         {/* أي مسار غير معروف يتم إرجاعه للمسار الرئيسي */}

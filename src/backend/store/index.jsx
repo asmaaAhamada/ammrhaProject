@@ -23,6 +23,8 @@ import fetchRanksReducer from '../slice/Ranks/fetchAll'
 import Add_RanksReducer from '../slice/Ranks/add'
 import deletRanksReducer from '../slice/Ranks/delet'
 import Edit_RanksReducer from '../slice/Ranks/Edit'
+import fetchEventsReducer from '../slice/events/fetchAll'
+import fetchDetailsEventsReducer from '../slice/events/deteails'
 // import filter_HonorReducer from '../slice/honor/filter'
 const store = configureStore({
   reducer: {
@@ -50,7 +52,9 @@ const store = configureStore({
 fetchRanks:fetchRanksReducer,
 Add_Ranks:Add_RanksReducer,
 deletRanks:deletRanksReducer,
-Edit_Ranks:Edit_RanksReducer
+Edit_Ranks:Edit_RanksReducer,
+fetchEvents:fetchEventsReducer,
+fetchDetailsEvents:fetchDetailsEventsReducer
 }})
 
 export default store

@@ -35,6 +35,8 @@ import ClassIcon from "../../assets/icons/class.svg?react";
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import BlockIcon from "@mui/icons-material/Block";
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
+import MilitaryTechOutlinedIcon from '@mui/icons-material/MilitaryTechOutlined';
+import SeventeenMpOutlinedIcon from '@mui/icons-material/SeventeenMpOutlined';
 import {
   blue1,
   darkgray,
@@ -83,6 +85,11 @@ const menuItems = [
     path: "/section",
   },
   {
+    text: "الفعاليات",
+    icon: <SeventeenMpOutlinedIcon />,
+    path: "/Events",
+  },
+  {
     text: "الشكاوي",
     icon: <CreditCardOffOutlinedIcon />,
     path: "/Complaints",
@@ -104,7 +111,7 @@ const menuItems = [
   },
   {
     text: "خوارزمية الرتب ",
-    icon: <CheckIcon />,
+    icon: <MilitaryTechOutlinedIcon />,
     path: "/Rank",
   },
   {
