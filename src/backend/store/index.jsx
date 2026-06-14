@@ -15,6 +15,9 @@ import Add_AnnouncementReducer from '../slice/announcement/add'
 import deletAnnouncementReducer from '../slice/announcement/delet'
 import Update_AnnouncementReducer from '../slice/announcement/Edit'
 import fetchDetailsAnnouncementReducer from '../slice/announcement/deteails'
+import fetchComplaintsReducer from '../slice/complaints/fetchAll'
+import fetchDetailsComplaintsReducer from '../slice/complaints/deteails'
+import Update_ComplaintsReducer from '../slice/complaints/Edit'
 const store = configureStore({
   reducer: {
  Log_in: Log_inReducer,
@@ -32,7 +35,10 @@ const store = configureStore({
  Add_Announcement :Add_AnnouncementReducer,
  deletAnnouncement:deletAnnouncementReducer,
  Update_Announcement:Update_AnnouncementReducer,
- fetchDetailsAnnouncement:fetchDetailsAnnouncementReducer
+ fetchDetailsAnnouncement:fetchDetailsAnnouncementReducer,
+ fetchComplaints:fetchComplaintsReducer,
+ fetchDetailsComplaints :fetchDetailsComplaintsReducer,
+ Update_Complaints:Update_ComplaintsReducer
 }})
 
 export default store

@@ -13,7 +13,8 @@ export const Delete =`/delete`
 export const Update =`/update`
 
 
-
+export const Complaints =`/complaints`
+export const Status =`/status`
 
 
 
