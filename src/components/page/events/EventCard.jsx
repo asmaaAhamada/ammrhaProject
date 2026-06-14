@@ -7,7 +7,7 @@ import EventIcon from "@mui/icons-material/Event";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import ImageNotSupportedOutlinedIcon from "@mui/icons-material/ImageNotSupportedOutlined";
-import { red1 } from "../../../style/color-main/color";
+import { babygreen, red1 } from "../../../style/color-main/color";
 
 export default function EventCard({ card, theme, onEdit, onDelete, onView }) {
   
@@ -153,7 +153,7 @@ export default function EventCard({ card, theme, onEdit, onDelete, onView }) {
               <Button
                 onClick={() => onEdit && onEdit(card)}
                 startIcon={<EditOutlinedIcon sx={{ ml: 0.5, mr: 0 }} />}
-                sx={{ p: 0, minWidth: "auto", color: theme?.palette?.primary?.text3 || "#000", fontWeight: 500, fontSize: "14px" }}
+                sx={{ p: 0, minWidth: "auto", color: babygreen || "#000", fontWeight: 500, fontSize: "14px" }}
               >
                 تعديل
               </Button>

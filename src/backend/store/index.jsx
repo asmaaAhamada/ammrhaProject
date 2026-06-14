@@ -25,6 +25,7 @@ import deletRanksReducer from '../slice/Ranks/delet'
 import Edit_RanksReducer from '../slice/Ranks/Edit'
 import fetchEventsReducer from '../slice/events/fetchAll'
 import fetchDetailsEventsReducer from '../slice/events/deteails'
+import deletEventsReducer from '../slice/events/delet'
 // import filter_HonorReducer from '../slice/honor/filter'
 const store = configureStore({
   reducer: {
@@ -54,7 +55,8 @@ Add_Ranks:Add_RanksReducer,
 deletRanks:deletRanksReducer,
 Edit_Ranks:Edit_RanksReducer,
 fetchEvents:fetchEventsReducer,
-fetchDetailsEvents:fetchDetailsEventsReducer
+fetchDetailsEvents:fetchDetailsEventsReducer,
+deletEvents:deletEventsReducer
 }})
 
 export default store

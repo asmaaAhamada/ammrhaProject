@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from "react";
+import React, { useCallback, useState, useMemo, lazy, Suspense } from "react";
 import { 
   Box, 
   Typography, 
@@ -20,10 +20,16 @@ import { fetchEvents } from "../../../backend/slice/events/fetchAll";
 import { useDispatch, useSelector } from "react-redux";
 import { Spin } from "antd";
 
+// الاستيراد الديناميكي لمودال الحذف
+const DeletEvents = lazy(() => import("./deletEvents"));
+
 export default function EventsPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
+
+  const [opendelet, setOpendelet] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null); // الحالة لتخزين الفعالية المراد حذفها
 
   // جلب بيانات الفعاليات من الريدوكس وحالات التحميل والخطأ
   const { data: eventsResponse, isLoading, error } = useSelector((state) => state.fetchEvents);
@@ -93,8 +99,10 @@ export default function EventsPage() {
     console.log("تعديل الفعالية:", eventItem);
   }, []);
 
+  // دالة الحذف الموحدة التي تفتح النافذة المنبثقة
   const handleDelete = useCallback((eventItem) => {
-    console.log("حذف الفعالية:", eventItem);
+    setSelectedCard(eventItem); 
+    setOpendelet(true);
   }, []);
 
   const handleView = useCallback((eventItem) => {
@@ -137,7 +145,7 @@ export default function EventsPage() {
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
           
-          {/* فلتر الأقسام الديناميكي المستخرج من الباك إند */}
+          {/* فلتر الأقسام */}
           <FormControl size="small" sx={{ minWidth: "140px" }}>
             <InputLabel id="dept-filter-label" sx={labelStyles}>حسب القسم</InputLabel>
             <Select
@@ -214,7 +222,6 @@ export default function EventsPage() {
           </Alert>
         </Box>
       ) : filteredEvents.length === 0 ? (
-        /* حالة عدم وجود فعاليات بالوقت الحالي أو فلاتر فارغة */
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "45vh", textAlign: "center", py: 4, width: "100%" }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100px", height: "100px", borderRadius: "50%", backgroundColor: "rgba(0,0,0,0.03)", mb: 2.5 }}>
             <CalendarMonthOutlinedIcon sx={{ fontSize: "52px", color: theme?.palette?.primary?.text4 || "#666", opacity: 0.7 }} />
@@ -223,11 +230,10 @@ export default function EventsPage() {
             لا توجد فعاليات في الوقت الحالي
           </Typography>
           <Typography sx={{ color: theme?.palette?.primary?.text4 || "#666", fontSize: "14px", maxWidth: "340px", lineHeight: 1.6 }}>
-            النظام لا يحتوي على فعاليات مسجلة تطابق التصفية الحالية. يمكنك البدء بإضافة فعالية جديدة باستخدام الزر المتاح بالأعلى.
+            النظام لا يحتوي على فعاليات مسجلة تطابق التصفية الحالية.
           </Typography>
         </Box>
       ) : (
-        /* عرض قائمة الكروت الحقيقية */
         <Grid container spacing={3}>
           {filteredEvents.map((eventItem) => (
             <EventCard
@@ -241,6 +247,18 @@ export default function EventsPage() {
           ))}
         </Grid>
       )}
+
+      {/* مودال الحذف الاستباقي */}
+      <Suspense fallback={null}>
+        {opendelet && (
+          <DeletEvents 
+            open={opendelet} 
+            onClose={() => setOpendelet(false)} 
+            selectedCard={selectedCard} 
+            onSuccess={loadEvents} 
+          />
+        )}
+      </Suspense>
     </Box>
   );
 }

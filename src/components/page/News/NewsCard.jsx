@@ -10,12 +10,13 @@ import {
   Grid,
   
 } from "@mui/material";
+import ImageNotSupportedOutlinedIcon from "@mui/icons-material/ImageNotSupportedOutlined";
 
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 
-import { red1 } from "../../../style/color-main/color";
+import { babygreen, red1 } from "../../../style/color-main/color";
 import { Tooltip } from "antd";
 
 function NewsCard({
@@ -49,21 +50,33 @@ function NewsCard({
         }}
       >
         {/* الصورة */}
-        <CardMedia
-          component="img"
-          image={card.image_url}
-          alt="cover"
-          loading="lazy"
-          sx={{
-            height: {
-              xs: 180,
-              sm: 200,
-              md: 223,
-            },
-            objectFit: "cover",
-          }}
-        />
-
+       
+ {card.image ? (
+            <CardMedia
+              component="img"
+              height="180"
+              image={card.image_url}
+              alt={card.name}
+              sx={{ objectFit: "cover" }}
+            />
+          ) : (
+            <Box
+              sx={{
+                width: "100%",
+                height: "180px",
+                backgroundColor: "#f8f9fa",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                borderBottom: "1px solid rgba(0,0,0,0.04)",
+                gap: 1
+              }}
+            >
+              <ImageNotSupportedOutlinedIcon sx={{ fontSize: 40, color: "#9ca3af" }} />
+              <Typography sx={{ fontSize: "13px", color: "#9ca3af", fontWeight: 500 }}>لا يتوفر صورة لهذا الخبر</Typography>
+            </Box>
+          )}
         {/* المحتوى */}
         <CardContent
           sx={{
@@ -132,7 +145,7 @@ function NewsCard({
                 p: 0,
                 minWidth: "auto",
                 background: "transparent",
-                color: theme.palette.primary.text3,
+                color: babygreen,
                 textTransform: "none",
                 fontWeight: 500,
               }}
