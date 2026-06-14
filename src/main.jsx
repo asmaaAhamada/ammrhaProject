@@ -6,7 +6,7 @@ import "antd/dist/reset.css";
 import { Provider } from 'react-redux'
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
 import App from './App'
-import { blue, card, darkblack, blue1, darkcard, darkgray, darkwhite, gray1, gray2, gray3, gray4, lightgray, lighttext, mainColor, textheder, white, gray, blue2, gray11, gray13, black, blue4, blue5, light_blue, gray7, gray8, gray9, black1 } from './style/color-main/color'
+import { blue, card, darkblack, blue1, darkcard, darkgray, darkwhite, gray1, gray2, gray3, gray4, lightgray, lighttext, mainColor, textheder, white, gray, blue2, gray11, gray13, black, blue4, blue5, light_blue, gray7, gray8, gray9, black1, yallow1 } from './style/color-main/color'
 
 function Main() {
 
@@ -65,6 +65,8 @@ imagcard:mode  === 'light' ? white : lightgray,
     // أزرق رئيسي لللايت، أزرق فاتح للدارك
     contrastText:mode === 'light' ?'#ffffffff' : '#000000',
     text4:mode === 'light' ? black : lightgray,
+        text14:mode === 'light' ? black : yallow1,
+
     text3:mode === 'light' ? blue1 : lightgray,
     text5:mode === 'light' ? gray9 : blue4,
     text6:mode === 'light' ? black1 : lightgray,

@@ -15,6 +15,7 @@ export const Update =`/update`
 
 export const Complaints =`/complaints`
 export const Status =`/status`
+export const Honor =`/honor-board`
 
 
 

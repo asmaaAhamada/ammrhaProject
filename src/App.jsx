@@ -7,6 +7,7 @@ import ComplaintsPage from "./components/page/Complaints/ComplaintsPage";
 import AnalysePage from "./components/page/analyse/analysePage";
 import ProtectedRoute from "./protectedRout/proctedRout";
 import APPLoading from "./style/loader/AppLoading";
+import HonorPage from "./components/page/HonorBord/HonorPage";
 
 // lazy imports
 const Sidebar = lazy(() => import("./components/Layout/sidePar"));
@@ -47,6 +48,8 @@ export default function App({ toggleMode, mode }) {
           <Route path="section" element={<SectionPage />} />
           <Route path="Complaints" element={<ComplaintsPage />} />
           <Route path="analyse" element={<AnalysePage />} />
+                    <Route path="Honor" element={<HonorPage />} />
+
         </Route>
 </Route>
         {/* أي مسار غير معروف يتم إرجاعه للمسار الرئيسي */}

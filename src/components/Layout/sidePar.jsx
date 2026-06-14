@@ -105,7 +105,7 @@ const menuItems = [
   {
     text: "لوحة الشرف",
     icon: <ClassIcon />,
-    path: "/evalouit",
+    path: "/Honor",
   },
 ];
 

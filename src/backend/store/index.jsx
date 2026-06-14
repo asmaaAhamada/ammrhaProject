@@ -18,6 +18,8 @@ import fetchDetailsAnnouncementReducer from '../slice/announcement/deteails'
 import fetchComplaintsReducer from '../slice/complaints/fetchAll'
 import fetchDetailsComplaintsReducer from '../slice/complaints/deteails'
 import Update_ComplaintsReducer from '../slice/complaints/Edit'
+import fetchHonorReducer from '../slice/honor/fetchAll'
+// import filter_HonorReducer from '../slice/honor/filter'
 const store = configureStore({
   reducer: {
  Log_in: Log_inReducer,
@@ -38,7 +40,9 @@ const store = configureStore({
  fetchDetailsAnnouncement:fetchDetailsAnnouncementReducer,
  fetchComplaints:fetchComplaintsReducer,
  fetchDetailsComplaints :fetchDetailsComplaintsReducer,
- Update_Complaints:Update_ComplaintsReducer
+ Update_Complaints:Update_ComplaintsReducer,
+ fetchHonor:fetchHonorReducer,
+//  filter_Honor :filter_HonorReducer
 }})
 
 export default store
