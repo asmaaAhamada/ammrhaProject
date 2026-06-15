@@ -54,7 +54,6 @@ export default function App({ toggleMode, mode }) {
           <Route path="analyse" element={<AnalysePage />} />
                     <Route path="Honor" element={<HonorPage />} />
                     <Route path="Rank" element={<RankPage />} />
-// داخل الـ Routes الخاصة بك تأكد من إضافتها هكذا:
 <Route path="/Events" element={<EventsPage />} />
 <Route path="/Events/:id" element={<EventDetails />} />
         </Route>

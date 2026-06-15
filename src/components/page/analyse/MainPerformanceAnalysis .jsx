@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, CircularProgress } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 
 import PendingActionsIcon from "@mui/icons-material/PendingActions";
@@ -15,23 +15,26 @@ import {
   useMotionValue,
   useTransform,
 } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchDashboard } from "../../../backend/slice/dashbord/fetchAll";
 
+// 1. مكون العداد الذكي: يعيد تشغيل الحركة فور وصول القيمة الحقيقية من الـ API
 function Counter({ value, delay = 0 }) {
   const count = useMotionValue(0);
-
-  const rounded = useTransform(count, (latest) =>
-    Math.floor(latest)
-  );
+  const rounded = useTransform(count, (latest) => Math.floor(latest));
 
   useEffect(() => {
+    // إعادة تعيين القيمة للبدء من الصفر عند تغير القيمة القادمة
+    count.set(0); 
+
     const controls = animate(count, value, {
-      duration: 2,
+      duration: 1.5, // تقليل المدة قليلاً لتجربة مستخدم أسرع وأسلس
       delay,
       ease: "easeOut",
     });
 
     return () => controls.stop();
-  }, [value, delay, count]);
+  }, [value, delay, count]); // مراقبة الـ value لإعادة الأنميشن فوراً
 
   return <motion.span>{rounded}</motion.span>;
 }
@@ -39,36 +42,129 @@ function Counter({ value, delay = 0 }) {
 const MainPerformanceAnalysis = () => {
   const theme = useTheme();
   const MotionBox = motion(Box);
+  const dispatch = useDispatch();
 
+  // جلب البيانات وحالة التحميل والخطأ من الـ Store
+  const { data, isLoading, error } = useSelector((state) => state.fetchDashboard);
+
+  // استدعاء البيانات عند تحميل الصفحة
+  useEffect(() => {
+    dispatch(fetchDashboard());
+  }, [dispatch]);
+
+  // 2. واجهة التحميل الفريندلي والكيوت 
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "250px",
+          width: "100%",
+          gap: 2,
+        }}
+      >
+        <MotionBox
+          animate={{
+            scale: [1, 1.15, 1],
+            rotate: [0, 10, -10, 0],
+          }}
+          transition={{
+            duration: 1.8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          sx={{
+            width: 60,
+            height: 60,
+            borderRadius: "50%",
+            backgroundColor: "rgba(48, 154, 187, 0.15)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: blue3,
+          }}
+        >
+          <GroupsIcon sx={{ fontSize: 35 }} /> 
+        </MotionBox>
+
+        <Box sx={{ textAlign: "center" }}>
+          <Typography
+            sx={{
+              fontSize: "16px",
+              fontWeight: 600,
+              color: theme.palette.primary.text3,
+              direction: "rtl",
+              mb: 0.5
+            }}
+          >
+            جاري تجهيز إحصائياتك الجميلة... 
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: "13px",
+              color: "text.secondary",
+              direction: "rtl",
+            }}
+          >
+            نجمع لك البيانات، لحظات صغيرة فقط!
+          </Typography>
+        </Box>
+      </Box>
+    );
+  }
+
+  // في حالة حدوث خطأ أثناء جلب البيانات
+  if (error) {
+    return (
+      <Typography color="error" sx={{ textAlign: "center", my: 4, direction: "rtl" }}>
+        عذراً، حدث خطأ أثناء تحميل البيانات الحقيقية.
+      </Typography>
+    );
+  }
+
+  // استخراج الـ summary بأمان مع قيم افتراضية منعاً لـ undefined
+  const summary = data?.data?.summary || {
+    pending_requests: 0,
+    total_volunteers: 0,
+    events_completed: 0,
+    total_events: 0,
+    acceptance_rate: 0,
+    events_completion_rate: 0,
+  };
+
+  // 3. ربط مصفوفة الكروت بالبيانات الحقيقية القادمة من الـ API
   const cards = [
     {
       title: "الطلبات المعلقة",
-      count: 18,
-      percent: "12%",
+      count: summary.pending_requests,
+      percent: `${summary.acceptance_rate}%`,
       color: yallow,
       bg: "rgba(255, 152, 0, 0.10)",
       icon: <PendingActionsIcon sx={{ fontSize: 30 }} />,
     },
     {
       title: "إجمالي المتطوعين",
-      count: 240,
-      percent: "68%",
+      count: summary.total_volunteers,
+      percent: "100%",
       color: "#0740db",
       bg: "rgba(25, 118, 210, 0.10)",
       icon: <GroupsIcon sx={{ fontSize: 30 }} />,
     },
     {
       title: "الفعاليات المنجزة",
-      count: 54,
-      percent: "45%",
+      count: summary.events_completed,
+      percent: `${summary.events_completion_rate}%`,
       color: babygreen,
       bg: "rgba(5, 223, 114, 0.10)",
       icon: <EventAvailableIcon sx={{ fontSize: 30 }} />,
     },
     {
-      title: "الأعضاء النشطون",
-      count: 120,
-      percent: "80%",
+      title: "إجمالي الفعاليات",
+      count: summary.total_events,
+      percent: "100%", 
       color: blue3,
       bg: "rgba(48, 154, 187, 0.1)",
       icon: <HowToRegIcon sx={{ fontSize: 30 }} />,
@@ -115,11 +211,11 @@ const MainPerformanceAnalysis = () => {
               y: 0,
             }}
             transition={{
-              delay: index * 0.18,
-              duration: 0.8,
+              delay: index * 0.12, // تسريع تتابع الكروت قليلاً لشعور تفاعلي أفضل
+              duration: 0.6,
               type: "spring",
               stiffness: 180,
-              damping: 12,
+              damping: 14,
             }}
             whileHover={{
               y: -6,
@@ -169,7 +265,7 @@ const MainPerformanceAnalysis = () => {
                   rotate: 0,
                 }}
                 transition={{
-                  delay: index * 0.18 + 0.2,
+                  delay: index * 0.12 + 0.15,
                   type: "spring",
                   stiffness: 250,
                 }}
@@ -213,7 +309,7 @@ const MainPerformanceAnalysis = () => {
               >
                 <Counter
                   value={card.count}
-                  delay={index * 0.18 + 0.4}
+                  delay={index * 0.12 + 0.3}
                 />
               </Typography>
             </Box>
