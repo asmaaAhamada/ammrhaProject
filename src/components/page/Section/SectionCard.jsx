@@ -10,12 +10,13 @@ import {
 
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
-import AcUnitOutlinedIcon from "@mui/icons-material/AcUnitOutlined"; // أيقونة التجميد (Ice/Freeze)
-import ImageNotSupportedOutlinedIcon from "@mui/icons-material/ImageNotSupportedOutlined"; // أيقونة غياب الصورة
+import AcUnitOutlinedIcon from "@mui/icons-material/AcUnitOutlined"; 
+import ImageNotSupportedOutlinedIcon from "@mui/icons-material/ImageNotSupportedOutlined"; 
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 
 import { baby_gray, red1, yallow1 } from "../../../style/color-main/color";
 import { Tooltip } from "antd";
+import { BaseUrl } from "../../../backend/Api";
 
 function SectionCard({
   card,
@@ -24,12 +25,30 @@ function SectionCard({
   onDelete,
   onFreeze,
 }) {
+  
+  // 🔹 دالة ذكية لمعالجة وبناء رابط الصورة الكامل لضمان ظهورها بالمتصفح دون كسر
+  const getFullImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    
+    // إذا كان الرابط كاملاً جاهزاً من الباكيند
+    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+      return imagePath;
+    }
+    
+    // إذا كان المسار راجع نسبياً مثل "storage/departments/..."
+    const cleanBaseUrl = BaseUrl.replace("/v1", ""); 
+    return `${cleanBaseUrl}/${imagePath}`;
+  };
+
+  // تأمين التقاط المسار سواء جاء تحت مسمى image أو image_url
+  const finalImagePath = card.image_url || card.image;
+
   // 1. معالجة وتأمين قراءة الـ 0 لعدد المتطوعين الحاليين صراحةً ومنع اختفائه
   const currentCount = card.current_volunteers_count !== undefined && card.current_volunteers_count !== null 
     ? card.current_volunteers_count 
     : 0;
 
-  // 2. التحقق إذا كان الحد الأقصى رقماً أو نصاً (مثل قسم علاقات عامة) لتجنب تخريب التصميم
+  // 2. التحقق إذا كان الحد الأقصى رقماً أو نصاً لتجنب تخريب التصميم
   const isMaxANumber = !isNaN(card.max_volunteers) && card.max_volunteers !== null && card.max_volunteers !== "";
 
   return (
@@ -37,8 +56,8 @@ function SectionCard({
       sx={{
         backgroundColor: theme.palette.primary.Appar2,
         width: "100%",
-        maxWidth: "352px",  // العرض المطلوب
-        height: "349px",    // الطول الثابت المطلوب للـ 3 كاردات
+        maxWidth: "352px",  
+        height: "349px",    
         borderRadius: "12px",
         overflow: "hidden",
         display: "flex",
@@ -46,11 +65,11 @@ function SectionCard({
         boxShadow: "0px 4px 12px rgba(0,0,0,0.05)"
       }}
     >
-      {/* الصورة: إذا كانت null يعرض مربّع رمادي دافئ يحافظ على أبعاد الكارد الثابتة */}
-      {card.image ? (
+      {/* 🔹 فحص وتمرير رابط الصورة المصلح ديناميكياً */}
+      {finalImagePath ? (
         <CardMedia
           component="img"
-          image={card.image}
+          image={getFullImageUrl(finalImagePath)} // 👈 تمرير الرابط بعد التجميع الذكي
           alt={card.name}
           loading="lazy"
           sx={{
@@ -85,11 +104,11 @@ function SectionCard({
           flexDirection: "column",
           justifyContent: "space-between",
           p: 2,
-          "&:last-child": { pb: 2 } // لإلغاء البادينغ التلقائي الإضافي من الماتيريال ديزاين
+          "&:last-child": { pb: 2 } 
         }}
       >
         <Box>
-          {/* اسم القسم القادم من السلايس */}
+          {/* اسم القسم */}
           <Typography
             variant="h6"
             sx={{
@@ -102,14 +121,13 @@ function SectionCard({
             {card.name}
           </Typography>
 
-          {/* سطر المتطوعين المدمج بالكامل مع الحالة النشطة والنقطة الخضراء بأقصى اليسار */}
+          {/* سطر المتطوعين المدمج بالكامل */}
           <Box 
             display="flex" 
             alignItems="center" 
-            justifyContent="space-between" // لتوزيع الأعداد على اليمين والحالة على اليسار تماماً
+            justifyContent="space-between" 
             sx={{ width: "100%" }}
           >
-            {/* اليمين: الأيقونة والأعداد بجانب بعضها تماماً */}
             <Box display="flex" alignItems="center" sx={{ gap: 1, color: baby_gray }}>
               <PeopleAltOutlinedIcon sx={{ fontSize: "20px" }} />
               <Box display="flex" alignItems="center" sx={{ gap: 0.5 }}>
@@ -124,7 +142,6 @@ function SectionCard({
                   المتطوعين:
                 </Typography>
                 
-                {/* الرقم الحالي بلون الثيم المميز لإبرازه */}
                 <Typography component="span" sx={{ fontSize: "14px", fontWeight: 700, color: theme.palette.primary.button1 || "#162d6b" }}>
                   {currentCount}
                 </Typography>
@@ -133,7 +150,6 @@ function SectionCard({
                   /
                 </Typography>
                 
-                {/* الحد الأقصى بلون مختلف (وردي/أحمر غامق) أو كلمة مفتوح إذا كانت داتا نصية */}
                 <Typography 
                   component="span" 
                   sx={{ 
@@ -147,7 +163,7 @@ function SectionCard({
               </Box>
             </Box>
 
-            {/* اليسار: النقطة الخضراء المشعة مع كلمة نشط */}
+            {/* اليسار: الحالة */}
             {card.status === "نشط" && (
               <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
                 <Box
@@ -156,7 +172,7 @@ function SectionCard({
                     height: "8px",
                     borderRadius: "50%",
                     backgroundColor: "#22c55e",
-                    boxShadow: "0 0 6px #22c55e", // تأثير التوهج الأخضر الأنيق
+                    boxShadow: "0 0 6px #22c55e", 
                   }}
                 />
                 <Typography sx={{ fontSize: "13px", fontWeight: 600, color: "#22c55e" }}>
@@ -165,80 +181,78 @@ function SectionCard({
               </Box>
             )}
           </Box>
-          
         </Box>
         
-<Box>
-  <hr style={{ border: "none", borderTop: "1px solid #f3f4f6", marginBottom: "12px" }} />
+        <Box>
+          <hr style={{ border: "none", borderTop: "1px solid #f3f4f6", marginBottom: "12px" }} />
 
-  <Box
-    sx={{
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      flexWrap: "wrap",
-      gap: 1,
-    }}
-  >
-    {/* تم استبدال زر حذف بـ زر عرض التفاصيل */}
-    <Tooltip title="عرض تفاصيل القسم">
-      <Button
-        onClick={() => onDelete(card)} // قمنا بالإبقاء على الدالة ممررة مؤقتاً لتجنب كسر التوابع الفوقية
-        startIcon={<VisibilityOutlinedIcon sx={{ ml: 0.5 }} />}
-        sx={{
-          p: 0,
-          minWidth: "auto",
-          background: "transparent",
-          color: theme.palette.primary.button1, // استخدام لون مميز أزرق بدلاً من الأحمر
-          textTransform: "none",
-          fontWeight: 500,
-          "&:hover": { background: "transparent" }
-        }}
-      >
-        عرض التفاصيل
-      </Button>
-    </Tooltip>
-    
-    {/* زر تجميد */}
-    <Tooltip title="تجميد القسم">
-      <Button
-        onClick={() => onFreeze(card)}
-        startIcon={<AcUnitOutlinedIcon sx={{ ml: 0.5 }} />}
-        sx={{
-          p: 0,
-          minWidth: "auto",
-          background: "transparent",
-          color: yallow1,
-          textTransform: "none",
-          fontWeight: 500,
-          "&:hover": { background: "transparent" }
-        }}
-      >
-        تجميد
-      </Button>
-    </Tooltip>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 1,
+            }}
+          >
+            {/* عرض التفاصيل */}
+            <Tooltip title="عرض تفاصيل القسم">
+              <Button
+                onClick={() => onDelete(card)} 
+                startIcon={<VisibilityOutlinedIcon sx={{ ml: 0.5 }} />}
+                sx={{
+                  p: 0,
+                  minWidth: "auto",
+                  background: "transparent",
+                  color: theme.palette.primary.button1, 
+                  textTransform: "none",
+                  fontWeight: 500,
+                  "&:hover": { background: "transparent" }
+                }}
+              >
+                عرض التفاصيل
+              </Button>
+            </Tooltip>
+            
+            {/* زر تجميد */}
+            <Tooltip title="تجميد القسم">
+              <Button
+                onClick={() => onFreeze(card)}
+                startIcon={<AcUnitOutlinedIcon sx={{ ml: 0.5 }} />}
+                sx={{
+                  p: 0,
+                  minWidth: "auto",
+                  background: "transparent",
+                  color: yallow1,
+                  textTransform: "none",
+                  fontWeight: 500,
+                  "&:hover": { background: "transparent" }
+                }}
+              >
+                تجميد
+              </Button>
+            </Tooltip>
 
-    {/* زر تعديل */}
-    <Tooltip title="تعديل القسم">
-      <Button
-        onClick={() => onEdit(card)}
-        startIcon={<EditOutlinedIcon sx={{ ml: 0.5 }} />}
-        sx={{
-          p: 0,
-          minWidth: "auto",
-          background: "transparent",
-          color: theme.palette.primary.text3,
-          textTransform: "none",
-          fontWeight: 500,
-          "&:hover": { background: "transparent" }
-        }}
-      >
-        تعديل
-      </Button>
-    </Tooltip>
-
-  </Box>
-</Box>
+            {/* زر تعديل */}
+            <Tooltip title="تعديل القسم">
+              <Button
+                onClick={() => onEdit(card)}
+                startIcon={<EditOutlinedIcon sx={{ ml: 0.5 }} />}
+                sx={{
+                  p: 0,
+                  minWidth: "auto",
+                  background: "transparent",
+                  color: theme.palette.primary.text3,
+                  textTransform: "none",
+                  fontWeight: 500,
+                  "&:hover": { background: "transparent" }
+                }}
+              >
+                تعديل
+              </Button>
+            </Tooltip>
+          </Box>
+        </Box>
       </CardContent>
     </Card>
   );

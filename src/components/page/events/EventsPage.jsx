@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo, lazy, Suspense } from "react";
+import React, { useCallback, useState, useMemo, lazy, Suspense, useEffect } from "react";
 import { 
   Box, 
   Typography, 
@@ -8,7 +8,8 @@ import {
   InputLabel, 
   Select, 
   MenuItem,
-  Alert
+  Alert,
+  useMediaQuery
 } from "@mui/material";
 import EventCard from "./EventCard"; 
 import { useTheme } from "@mui/material/styles";
@@ -19,59 +20,64 @@ import { useNavigate } from "react-router-dom";
 import { fetchEvents } from "../../../backend/slice/events/fetchAll";
 import { useDispatch, useSelector } from "react-redux";
 import { Spin } from "antd";
+import { fetchDepartment } from "../../../backend/slice/department/fetchAll";
 
-// الاستيراد الديناميكي لمودال الحذف
 const DeletEvents = lazy(() => import("./deletEvents"));
+const AddEventModal = lazy(() => import("./AddEveents"));
 
 export default function EventsPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
-
+  
+  const [open, setOpen] = useState(false);
   const [opendelet, setOpendelet] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null); // الحالة لتخزين الفعالية المراد حذفها
+  const [selectedCard, setSelectedCard] = useState(null);
 
-  // جلب بيانات الفعاليات من الريدوكس وحالات التحميل والخطأ
+  // 🔹 فلاتر التصفية المحلية الصحيحة الخاصة بالصفحة
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+
+  // جلب قائمة الأقسام من الستيت لتغذية الفلتر
+  const { data: departmentsData } = useSelector((state) => state.fetchDepartment);
+  const departmentsList = Array.isArray(departmentsData) ? departmentsData : departmentsData?.data || [];
+
+  // جلب الفعاليات من السلايس
   const { data: eventsResponse, isLoading, error } = useSelector((state) => state.fetchEvents);
 
-  // استخراج المصفوفة الحقيقية للبيانات من الباك إند
   const actualEventsData = useMemo(() => {
     if (!eventsResponse) return [];
     return Array.isArray(eventsResponse) ? eventsResponse : eventsResponse.data || [];
   }, [eventsResponse]);
 
-  // دالة جلب البيانات
+  // دالة جلب البيانات ممرر لها الفلاتر الحالية لطلبها من السيرفر
   const loadEvents = useCallback(() => {
-    dispatch(fetchEvents());
-  }, [dispatch]);
+    dispatch(fetchEvents({
+      department_id: selectedDepartmentId,
+      status: selectedStatus
+    }));
+  }, [dispatch, selectedDepartmentId, selectedStatus]);
 
-  // جلب البيانات عند أول رندر للصفحة
-  React.useEffect(() => {
+  // تحديث البيانات تلقائياً فور تغيير الفلاتر بالواجهة
+  useEffect(() => {
     loadEvents(); 
   }, [loadEvents]);
 
-  // فلاتر البحث والتحكم
-  const [selectedDepartmentId, setSelectedDepartmentId] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("all");
+  // جلب قائمة الأقسام الشاملة عند فتح الصفحة لتعبئة خيارات الفلتر
+  useEffect(() => {
+    dispatch(fetchDepartment());
+  }, [dispatch]);
 
-  // استخراج الأقسام الفريدة ديناميكياً من الباك إند لبناء قائمة الفلترة تلقائياً
-  const uniqueDepartments = useMemo(() => {
-    const depts = {};
-    actualEventsData.forEach(event => {
-      if (event?.department?.id) {
-        depts[event.department.id] = event.department.name;
-      }
-    });
-    return Object.entries(depts).map(([id, name]) => ({ id: Number(id), name }));
-  }, [actualEventsData]);
-
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const topFieldWidth = isMobile ? "100%" : "200px";
   const primaryButtonColor = theme?.palette?.primary?.button1 || "#162d6b";
 
-  // التنسيقات الموحدة
+  // التنسيقات الموحدة للمنسدلات
   const selectStyles = {
     borderRadius: "10px", 
     fontSize: "14px", 
     fontWeight: 500,
+    backgroundColor: theme?.palette?.primary?.inputt,
     color: theme?.palette?.primary?.text3 || "#000",
     "& .MuiOutlinedInput-notchedOutline": {
       borderColor: primaryButtonColor,
@@ -99,7 +105,6 @@ export default function EventsPage() {
     console.log("تعديل الفعالية:", eventItem);
   }, []);
 
-  // دالة الحذف الموحدة التي تفتح النافذة المنبثقة
   const handleDelete = useCallback((eventItem) => {
     setSelectedCard(eventItem); 
     setOpendelet(true);
@@ -109,19 +114,10 @@ export default function EventsPage() {
     navigate(`/Events/${eventItem.id}`);
   }, [navigate]);
 
-  // منطق الفلترة الذكي بناءً على تركيبة بيانات الباك إند
-  const filteredEvents = useMemo(() => {
-    return actualEventsData.filter((event) => {
-      const matchDepartment = selectedDepartmentId === "all" || event?.department?.id === Number(selectedDepartmentId);
-      const matchStatus = selectedStatus === "all" || event?.status === selectedStatus;
-      return matchDepartment && matchStatus;
-    });
-  }, [actualEventsData, selectedDepartmentId, selectedStatus]);
-
   return (
     <Box sx={{ width: "100%", p: { xs: 1, sm: 2, md: 3 }, boxSizing: "border-box", direction: "rtl" }}>
       
-      {/* الهيدر العلوي وفلاتر المنسدلة */}
+      {/* القسم العلوي: العنوان وأدوات الفلترة */}
       <Box
         sx={{
           width: "100%",
@@ -143,27 +139,31 @@ export default function EventsPage() {
           الفعاليات
         </Typography>
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+        <Box sx={{ display: "flex", alignItems: "flex-end", gap: 2, flexWrap: "wrap", width: isMobile ? "100%" : "auto" }}>
           
-          {/* فلتر الأقسام */}
-          <FormControl size="small" sx={{ minWidth: "140px" }}>
-            <InputLabel id="dept-filter-label" sx={labelStyles}>حسب القسم</InputLabel>
-            <Select
-              labelId="dept-filter-label"
-              value={selectedDepartmentId}
-              label="حسب القسم"
-              onChange={(e) => setSelectedDepartmentId(e.target.value)}
-              sx={selectStyles}
-            >
-              <MenuItem value="all">الكل</MenuItem>
-              {uniqueDepartments.map((dept) => (
-                <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          {/* فلتر الأقسام الأحادي المربوط بالستيت الصحيحة للصفحة */}
+          <Box sx={{ width: topFieldWidth }}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="dept-filter-label" sx={labelStyles}>حسب القسم</InputLabel>
+              <Select
+                labelId="dept-filter-label"
+                value={selectedDepartmentId}
+                label="حسب القسم"
+                onChange={(e) => setSelectedDepartmentId(e.target.value)}
+                sx={selectStyles}
+              >
+                <MenuItem value="all">الكل</MenuItem>
+                {departmentsList.map((dept) => (
+                  <MenuItem key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
 
-          {/* فلتر الحالات */}
-          <FormControl size="small" sx={{ minWidth: "140px" }}>
+          {/* فلتر الحالات     */}
+          <FormControl size="small" sx={{ minWidth: "140px", width: isMobile ? "100%" : "auto" }}>
             <InputLabel id="status-filter-label" sx={labelStyles}>حسب الحالة</InputLabel>
             <Select
               labelId="status-filter-label"
@@ -173,18 +173,18 @@ export default function EventsPage() {
               sx={selectStyles}
             >
               <MenuItem value="all">الكل</MenuItem>
-              <MenuItem value="قادمة">قادمة</MenuItem>
-              <MenuItem value="نشطة">نشطة</MenuItem>
-              <MenuItem value="منتهية">منتهية</MenuItem>
+              <MenuItem value="upcoming">قادمة</MenuItem>
+              <MenuItem value="active">نشطة</MenuItem>
+              <MenuItem value="finished">منتهية</MenuItem>
             </Select>
           </FormControl>
 
           {/* زر إضافة فعالية */}
           <Button
-            onClick={() => console.log("فتح مودال إضافة فعالية")}
+            onClick={() => setOpen(true)}
             variant="contained"
             sx={{
-              width: { xs: "140px", sm: "160px", md: "177px" },
+              width: { xs: "100%", sm: "160px", md: "177px" },
               height: "40px",
               borderRadius: "10px",
               backgroundColor: primaryButtonColor,
@@ -209,7 +209,7 @@ export default function EventsPage() {
         </Box>
       </Box>
 
-      {/* معالجة حالات الـ API بالتفصيل */}
+      {/* عرض محتوى الفعاليات بناءً على ردود الخادم */}
       {isLoading ? (
         <Box sx={{ py: 8, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
           <Spin size="large" />
@@ -221,7 +221,7 @@ export default function EventsPage() {
             {typeof error === "string" ? error : "حدث خطأ أثناء تحميل بيانات الفعاليات من الخادم."}
           </Alert>
         </Box>
-      ) : filteredEvents.length === 0 ? (
+      ) : actualEventsData.length === 0 ? (
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "45vh", textAlign: "center", py: 4, width: "100%" }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100px", height: "100px", borderRadius: "50%", backgroundColor: "rgba(0,0,0,0.03)", mb: 2.5 }}>
             <CalendarMonthOutlinedIcon sx={{ fontSize: "52px", color: theme?.palette?.primary?.text4 || "#666", opacity: 0.7 }} />
@@ -230,12 +230,12 @@ export default function EventsPage() {
             لا توجد فعاليات في الوقت الحالي
           </Typography>
           <Typography sx={{ color: theme?.palette?.primary?.text4 || "#666", fontSize: "14px", maxWidth: "340px", lineHeight: 1.6 }}>
-            النظام لا يحتوي على فعاليات مسجلة تطابق التصفية الحالية.
+            القسم أو الحالة المحددة لا تحتوي على فعاليات مسجلة حالياً على السيرفر.
           </Typography>
         </Box>
       ) : (
         <Grid container spacing={3}>
-          {filteredEvents.map((eventItem) => (
+          {actualEventsData.map((eventItem) => (
             <EventCard
               key={eventItem.id}
               card={eventItem}
@@ -248,7 +248,7 @@ export default function EventsPage() {
         </Grid>
       )}
 
-      {/* مودال الحذف الاستباقي */}
+      {/* تحميل المودالات بشكل استباقي منفصل */}
       <Suspense fallback={null}>
         {opendelet && (
           <DeletEvents 
@@ -258,6 +258,7 @@ export default function EventsPage() {
             onSuccess={loadEvents} 
           />
         )}
+        {open && <AddEventModal open={open} onClose={() => setOpen(false)} onSuccess={loadEvents} />}
       </Suspense>
     </Box>
   );

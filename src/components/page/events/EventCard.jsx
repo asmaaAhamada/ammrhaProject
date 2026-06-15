@@ -44,7 +44,7 @@ export default function EventCard({ card, theme, onEdit, onDelete, onView }) {
         sx={{
           borderRadius: "16px",
           overflow: "hidden",
-          backgroundColor: theme?.palette?.primary?.imagecard1 || "#fff",
+        backgroundColor: theme.palette.primary.Appar2,
           boxShadow: "0px 4px 20px rgba(0,0,0,0.04)",
           display: "flex",
           flexDirection: "column",
