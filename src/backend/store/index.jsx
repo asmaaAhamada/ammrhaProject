@@ -35,6 +35,7 @@ import DeletBlack_ListReducer from '../slice/blakList/delet'
 import fetchvolunteer_freezeReducer from '../slice/frazzring/fetchAll'
 import volunteer_freezeReducer from '../slice/frazzring/add'
 import Deletvolunteer_freezeReducer from '../slice/frazzring/delet'
+import transferrReducer from '../slice/volnteers/transfer'
 // import filter_HonorReducer from '../slice/honor/filter'
 const store = configureStore({
   reducer: {
@@ -74,7 +75,8 @@ Add_black_List:Add_black_ListReducer,
 DeletBlack_List:DeletBlack_ListReducer,
 fetchvolunteer_freeze:fetchvolunteer_freezeReducer,
 volunteer_freeze:volunteer_freezeReducer,
-Deletvolunteer_freeze:Deletvolunteer_freezeReducer
+Deletvolunteer_freeze:Deletvolunteer_freezeReducer,
+transferr:transferrReducer
 }})
 
 export default store

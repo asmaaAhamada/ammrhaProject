@@ -21,4 +21,5 @@ export const Honor =`/honor-board`
 export const HomePage =`/homePage`
 export const Event =`/events`
 export const Freezen = `/volunteer-freeze`
+export const Transfer = `/transfer-department`
 

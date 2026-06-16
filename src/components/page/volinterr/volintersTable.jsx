@@ -14,13 +14,14 @@ import { babygreen, white, yallow, red2 } from "../../../style/color-main/color"
 import { fetchvolunteers } from "../../../backend/slice/volnteers/fetchAll";
 import Frezzen_Modal from "../frazzening/frazingModal";
 import AddBlack_ListModal from "./blacklistModal";
+import TransferModal from "./TransferModal";
 // 🌟 تأكدي من استيراد المودال الخاص بالحظر من مساره الصحيح هنا:
 
 export default function VolunteersTable({ topContent, statsContent, isHomePage = false }) {
   const dispatch = useDispatch();
   const theme = useTheme();
   const navigate = useNavigate();
-
+const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isFreezeModalOpen, setIsFreezeModalOpen] = useState(false);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false); // 🌟 إضافة الـ State لمودال الحظر
   const [selectedVolunteer, setSelectedVolunteer] = useState(null);
@@ -201,8 +202,16 @@ export default function VolunteersTable({ topContent, statsContent, isHomePage =
               </Button>
             </Tooltip>
 
-            <span style={{ textDecoration: "underline", cursor: "pointer", fontWeight: 600, color: theme.palette.primary.chip }}> نقل </span>
-            <span style={{ textDecoration: "underline", cursor: "pointer", fontWeight: 600, color: babygreen }}> ترقية </span>
+{/* تعديل سطر النقل الحالي ليكون تفاعلياً */}
+<span 
+  style={{ textDecoration: "underline", cursor: "pointer", fontWeight: 600, color: theme.palette.primary.chip }}
+  onClick={() => {
+    setSelectedVolunteer(record);
+    setIsTransferModalOpen(true);
+  }}
+> 
+  نقل 
+</span>            <span style={{ textDecoration: "underline", cursor: "pointer", fontWeight: 600, color: babygreen }}> ترقية </span>
           </Space>
         );
       },
@@ -286,7 +295,7 @@ export default function VolunteersTable({ topContent, statsContent, isHomePage =
         onSuccess={refreshTableData}
       />
 
-      {/* 🌟 استدعاء مودال الحظر (قم بفك الـ Comment وتعديل اسم الكومبوننت لو اختلف) */}
+      {/*   مودال الحظر */}
       <AddBlack_ListModal 
         open={isBlockModalOpen}
         onClose={() => {
@@ -296,6 +305,17 @@ export default function VolunteersTable({ topContent, statsContent, isHomePage =
         selectedCard={selectedVolunteer}
         onSuccess={refreshTableData}
       />
+
+      {/* مودال نقل المتطوع إلى قسم آخر */}
+<TransferModal 
+  open={isTransferModalOpen}
+  onClose={() => {
+    setIsTransferModalOpen(false);
+    setSelectedVolunteer(null);
+  }}
+  selectedVolunteer={selectedVolunteer}
+  onSuccess={refreshTableData}
+/>
     </div>
   );
 }
