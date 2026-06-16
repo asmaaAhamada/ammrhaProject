@@ -15,6 +15,7 @@ import { fetchvolunteers } from "../../../backend/slice/volnteers/fetchAll";
 import Frezzen_Modal from "../frazzening/frazingModal";
 import AddBlack_ListModal from "./blacklistModal";
 import TransferModal from "./TransferModal";
+import PromoteModal from "./PromoteModal";
 // 🌟 تأكدي من استيراد المودال الخاص بالحظر من مساره الصحيح هنا:
 
 export default function VolunteersTable({ topContent, statsContent, isHomePage = false }) {
@@ -25,7 +26,7 @@ const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isFreezeModalOpen, setIsFreezeModalOpen] = useState(false);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false); // 🌟 إضافة الـ State لمودال الحظر
   const [selectedVolunteer, setSelectedVolunteer] = useState(null);
-
+const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
   const { data: rawData, isLoading, error } = useSelector((state) => state.fetchvolunteers);
   
   const refreshTableData = () => {
@@ -211,8 +212,16 @@ const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   }}
 > 
   نقل 
-</span>            <span style={{ textDecoration: "underline", cursor: "pointer", fontWeight: 600, color: babygreen }}> ترقية </span>
-          </Space>
+</span>          
+<span 
+    style={{ textDecoration: "underline", cursor: "pointer", fontWeight: 600, color: babygreen }}
+    onClick={() => {
+      setSelectedVolunteer(record); // تحديد المتطوع الحالي من السطر
+      setIsPromoteModalOpen(true); // فتح المودال فورا
+    }}
+  > 
+    ترقية 
+  </span>          </Space>
         );
       },
     },
@@ -316,6 +325,15 @@ const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   selectedVolunteer={selectedVolunteer}
   onSuccess={refreshTableData}
 />
+<PromoteModal 
+        open={isPromoteModalOpen}
+        onClose={() => {
+          setIsPromoteModalOpen(false);
+          setSelectedVolunteer(null);
+        }}
+        selectedVolunteer={selectedVolunteer}
+        onSuccess={refreshTableData}
+      />
     </div>
   );
 }

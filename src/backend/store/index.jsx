@@ -36,6 +36,7 @@ import fetchvolunteer_freezeReducer from '../slice/frazzring/fetchAll'
 import volunteer_freezeReducer from '../slice/frazzring/add'
 import Deletvolunteer_freezeReducer from '../slice/frazzring/delet'
 import transferrReducer from '../slice/volnteers/transfer'
+import PostionReducer from '../slice/volnteers/postion'
 // import filter_HonorReducer from '../slice/honor/filter'
 const store = configureStore({
   reducer: {
@@ -76,6 +77,7 @@ DeletBlack_List:DeletBlack_ListReducer,
 fetchvolunteer_freeze:fetchvolunteer_freezeReducer,
 volunteer_freeze:volunteer_freezeReducer,
 Deletvolunteer_freeze:Deletvolunteer_freezeReducer,
+Postion:PostionReducer,
 transferr:transferrReducer
 }})
 
