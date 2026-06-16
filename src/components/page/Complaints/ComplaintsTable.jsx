@@ -13,9 +13,9 @@ import { motion } from "framer-motion";
 
 const ComplaintsTable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const dispatch = useDispatch();
   const theme = useTheme();
   const MotionBox = motion(Box);
+  const dispatch = useDispatch();
 
   // 1. جلب البيانات وحالة التحميل والخطأ بشكل صحيح من الـ Store
   const { data: rawData, isLoading, error } = useSelector((state) => state.fetchComplaints);

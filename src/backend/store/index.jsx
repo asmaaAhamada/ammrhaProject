@@ -32,6 +32,9 @@ import fetchvolunteersHomeReducer from '../slice/dashbord/homePage'
 import fetchDetailsvolunteersReducer from '../slice/volnteers/details'
 import Add_black_ListReducer from '../slice/blakList/add'
 import DeletBlack_ListReducer from '../slice/blakList/delet'
+import fetchvolunteer_freezeReducer from '../slice/frazzring/fetchAll'
+import volunteer_freezeReducer from '../slice/frazzring/add'
+import Deletvolunteer_freezeReducer from '../slice/frazzring/delet'
 // import filter_HonorReducer from '../slice/honor/filter'
 const store = configureStore({
   reducer: {
@@ -68,7 +71,10 @@ fetchvolunteers:fetchvolunteersReducer,
 fetchvolunteersHome:fetchvolunteersHomeReducer,
 fetchDetailsvolunteers:fetchDetailsvolunteersReducer,
 Add_black_List:Add_black_ListReducer,
-DeletBlack_List:DeletBlack_ListReducer
+DeletBlack_List:DeletBlack_ListReducer,
+fetchvolunteer_freeze:fetchvolunteer_freezeReducer,
+volunteer_freeze:volunteer_freezeReducer,
+Deletvolunteer_freeze:Deletvolunteer_freezeReducer
 }})
 
 export default store
