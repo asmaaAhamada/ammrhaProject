@@ -12,6 +12,7 @@ import RankPage from "./components/page/Rank/RankPage";
 import EventCard from "./components/page/events/EventCard";
 import EventsPage from "./components/page/events/EventsPage";
 import EventDetails from "./components/page/events/EventDetails";
+import VolunteerProfilePage from "./components/page/volinterr/profilePage";
 
 // lazy imports
 const Sidebar = lazy(() => import("./components/Layout/sidePar"));
@@ -43,6 +44,8 @@ export default function App({ toggleMode, mode }) {
           {/* الصفحات الداخلية التي تظهر داخل السايدبار */}
           <Route path="home" element={<HomePage />} />
           <Route path="volunteers" element={<Volunteerspage />} />
+                    <Route path="volunteers/:id" element={<VolunteerProfilePage />} />
+
           <Route path="News" element={<NeWsPage />} />
           <Route path="News/:id" element={<NewsDetails />} />
           <Route path="orders" element={<RequestsComponent />} />

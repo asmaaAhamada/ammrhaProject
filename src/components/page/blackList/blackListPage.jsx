@@ -2,10 +2,14 @@ import React, { useState } from "react";
 import { Table, Avatar, Space, Tooltip, Spin } from "antd";
 import { useTheme } from "@mui/material/styles";
 import { Box, Button, Typography } from "@mui/material";
-import { white } from "../../../style/color-main/color";
+import { white, red2 } from "../../../style/color-main/color";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBlack_list } from "../../../backend/slice/blakList/fetchAll";
-import { CheckCircleOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, LockOutlined } from "@ant-design/icons";
+import DeletList from "./retrayBlack_LIst";
+
+// 👇 استيراد مودال إلغاء الحظر المعدل
+
 const BlackListPage = () => {
   console.log("BlackListPage Rendered");
 
@@ -13,44 +17,75 @@ const BlackListPage = () => {
   const theme = useTheme();
   const [view, setView] = useState("requests");
 
-  // استخراج البيانات، وحالة التحميل، والخطأ من السلايس
-  // ملاحظة: تم تعديل الوصول للاسم بناءً على هيكلية الـ state المتوقعة
+  // 🌟 إعدادات الستيت للتحكم بفتح المودال والمتطوع المختار لإلغاء حظره
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedVolunteer, setSelectedVolunteer] = useState(null);
+
+  // استخراج البيانات، وحالة التحميل، والخطأ من السلايس الخاص بالـ Fetch
   const { data, isLoading, error } = useSelector((state) => state.fetchBlack_list);
   
-  // الوصول لمصفوفة العناصر القادمة من الريسبونس (data.items)
   const blacklistItems = data?.items || [];
+
+  const handleFetchData = () => {
+    dispatch(fetchBlack_list());
+  };
 
   React.useEffect(() => {
     console.log("dispatching...");
-    dispatch(fetchBlack_list());
+    handleFetchData();
   }, [dispatch]);
 
   const columns = [
     {
       title: "الاسم",
-      dataIndex: "volunteer_name", // مطابقة للريسبونس الجديد
+      dataIndex: "volunteer_name", 
       key: "volunteer_name",
       fixed: "left",
       width: 180,
       render: (text) => (
         <Space>
-          {/* حماية في حال كان الاسم فارغاً أو string وهمي */}
-          <Avatar>{text ? text.charAt(0).toUpperCase() : "V"}</Avatar>
-          <span>{text}</span>
+          <Avatar style={{ backgroundColor: "rgba(255, 77, 79, 0.2)", color: red2 }}>
+            {text ? text.charAt(0).toUpperCase() : "V"}
+          </Avatar>
+          <span style={{ fontWeight: 500 }}>{text}</span>
         </Space>
       ),
     },
     {
       title: "التاريخ",
-      dataIndex: "created_at", // مطابقة للريسبونس الجديد
+      dataIndex: "created_at", 
       key: "created_at",
       width: 140,
+    },
+    {
+      title: "الحالة البصرية",
+      key: "visual_status",
+      width: 120,
+      render: () => (
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "4px",
+            padding: "4px 12px",
+            borderRadius: "12px",
+            border: `1px solid ${red2}`,
+            color: red2,
+            backgroundColor: "rgba(255, 77, 79, 0.08)",
+            fontWeight: 600,
+            fontSize: "13px"
+          }}
+        >
+          <LockOutlined style={{ fontSize: "12px" }} />
+          محظور
+        </span>
+      ),
     },
     {
       title: "السبب",
       dataIndex: "reason",
       key: "reason",
-      width: 280,
+      width: 260,
       render: (reason) => (
         <Tooltip 
           title={reason} 
@@ -59,7 +94,7 @@ const BlackListPage = () => {
         >
           <div 
             style={{ 
-              maxWidth: "260px",
+              maxWidth: "240px",
               overflow: "hidden", 
               textOverflow: "ellipsis", 
               whiteSpace: "nowrap", 
@@ -78,19 +113,35 @@ const BlackListPage = () => {
       key: "actions",
       fixed: "right",
       width: 180,
-      render: () => (
+      render: (_, record) => (
         <Space size="middle">
           <Button
-            type="primary"
+            onClick={() => {
+              setSelectedVolunteer(record);
+              setIsDeleteModalOpen(true);
+            }}
             style={{
               color: theme.palette.primary.text3,
-              borderColor: "red",
-              width: "120px",
-              height: "32px",
-              borderRadius: "4px",
-              fontSize: "12px",
+              borderColor: red2,
+              width: "130px",
+              height: "34px",
+              borderRadius: "6px",
+              fontSize: "13px",
+              fontWeight: "600",
               backgroundColor: "transparent",
               border: `1px solid ${theme.palette.primary.text3}`,
+              cursor: "pointer",
+              transition: "all 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = "#fff";
+              e.currentTarget.style.backgroundColor = red2;
+              e.currentTarget.style.borderColor = red2;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = theme.palette.primary.text3;
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.border = `1px solid ${theme.palette.primary.text3}`;
             }}
           >
             إزالة من القائمة
@@ -100,7 +151,6 @@ const BlackListPage = () => {
     },
   ];
 
-  // دالة مخصصة للتحكم بما يظهر داخل جسم الجدول (البودي) في الحالات الخاصة دون التأثير على الهيدر
   const renderTableLocale = () => {
     if (isLoading) {
       return {
@@ -123,13 +173,11 @@ const BlackListPage = () => {
       };
     }
 
-    // الحالة الافتراضية عند عدم وجود بيانات (رسالة لطيفة)
     return {
       emptyText: (
         <Box sx={{ py: 5 }}>
           <Typography style={{ color: theme.palette.primary.chip, fontSize: "15px", fontWeight: 500 }}>
-            قائمتك السوداء
-             نقية! لا يوجد أي متطوعين في القائمة السوداء حالياً. 
+            قائمتك السوداء نقية! لا يوجد أي متطوعين في القائمة السوداء حالياً. 
           </Typography>
         </Box>
       ),
@@ -172,12 +220,11 @@ const BlackListPage = () => {
           <div style={{ width: "100%", overflowX: "auto", borderRadius: "8px" }}>
             <Table
               columns={columns}
-              // تمرير المصفوفة القادمة من الـ API، وفي حال الـ Loading نمرر مصفوفة فارغة ليعمل الـ locale المخصص
               dataSource={isLoading ? [] : blacklistItems}
-              rowKey={(record) => record.id || record.volunteer_name} // استخدام id الفريد من الـ API كـ key
+              rowKey={(record) => record.id || record.volunteer_name} 
               pagination={false}
-              scroll={{ x: 780 }}
-              locale={renderTableLocale()} // التحكم بالبودي (اللودر والرسائل اللطيفة)
+              scroll={{ x: 820 }}
+              locale={renderTableLocale()} 
               components={{
                 header: {
                   cell: (props) => (
@@ -212,9 +259,16 @@ const BlackListPage = () => {
         </>
       )}
 
-      {view === "finished" && (
-        <FinishedInterviewsTable onBack={() => setView("requests")} />
-      )}
+      {/* 🌟 استدعاء المودال المعدل لفك الحظر وتمرير الداتا والـ Refresh */}
+      <DeletList 
+        open={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setSelectedVolunteer(null);
+        }}
+        selectedCard={selectedVolunteer}
+        onSuccess={handleFetchData}
+      />
     </div>
   );
 };

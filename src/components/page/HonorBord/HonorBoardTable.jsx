@@ -1,15 +1,17 @@
 import React, { useMemo, useState } from "react";
-import { Table, Avatar, Space, Spin, Button, Dropdown, Menu } from "antd";
+import { Table, Avatar, Space, Dropdown, Menu } from "antd";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { white, yallow } from "../../../style/color-main/color";
+import { motion } from "framer-motion";
 
 const HonorBoardTable = ({ rawData, isLoading, error }) => {
   const theme = useTheme();
   const [selectedDepartment, setSelectedDepartment] = useState("الكل");
+  const MotionBox = motion(Box);
 
   const departmentsFilterData = ["الكل", "التصميم", "الصحة", "البيئة", "تنظيم الفعاليات", "التسويق"];
 
@@ -34,6 +36,7 @@ const HonorBoardTable = ({ rawData, isLoading, error }) => {
     </Menu>
   );
 
+  // ================= COLUMNS =================
   const columns = [
     {
       title: "الاسم",
@@ -87,20 +90,45 @@ const HonorBoardTable = ({ rawData, isLoading, error }) => {
     },
   ];
 
-  const renderTableBody = () => {
-    if (isLoading) {
-      return {
-        emptyText: (
-          <Box sx={{ py: 6, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-            <Spin size="large" />
-            <Typography sx={{ color: theme.palette.primary.chip, fontWeight: 500 }}>
-              جاري تحميل لوحة الصدارة...
-            </Typography>
-          </Box>
-        ),
-      };
-    }
+  // ================= 1. بناء الـ Skeleton Shimmer للوحة الصدارة =================
+  const skeletonData = Array.from({ length: 5 }, (_, index) => ({
+    key: `skeleton-honor-${index}`,
+  }));
 
+  const loadingColumns = columns.map((col) => ({
+    ...col,
+    render: col.key === "name" ? () => (
+      <Space style={{ display: "flex", justifyContent: "center" }}>
+        <Box sx={{ width: "32px", height: "32px", bgcolor: "rgba(161, 169, 195, 0.15)", borderRadius: "50%" }} />
+        <Box sx={{ width: "100px", height: "14px", bgcolor: "rgba(161, 169, 195, 0.15)", borderRadius: "4px" }} />
+      </Space>
+    ) : col.key === "rank" ? () => (
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Box sx={{ width: "55px", height: "14px", bgcolor: "rgba(161, 169, 195, 0.15)", borderRadius: "4px" }} />
+      </Box>
+    ) : () => (
+      <Box sx={{ display: "flex", justifyContent: "center", width: "100%", position: "relative", overflow: "hidden" }}>
+        <Box sx={{ width: "65px", height: "14px", bgcolor: "rgba(161, 169, 195, 0.12)", borderRadius: "4px" }} />
+        
+        {/* تأثير وميض التحميل الفخم المتوافق مع باقي الجداول */}
+        <MotionBox
+          animate={{ x: ["-100%", "100%"] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "50%",
+            height: "100%",
+            background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)",
+          }}
+        />
+      </Box>
+    ),
+  }));
+
+  // ================= 2. دالة الرسائل للخطأ أو تفريغ البيانات فقط =================
+  const renderTableLocale = () => {
     if (error) {
       return {
         emptyText: (
@@ -113,7 +141,7 @@ const HonorBoardTable = ({ rawData, isLoading, error }) => {
       };
     }
 
-    if (honorData.length === 0) {
+    if (!isLoading && honorData.length === 0) {
       return {
         emptyText: (
           <Box sx={{ py: 8, display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
@@ -124,11 +152,14 @@ const HonorBoardTable = ({ rawData, isLoading, error }) => {
         ),
       };
     }
+
     return {};
   };
 
   return (
     <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 2, direction: "rtl" }}>
+      
+      {/* سأترك كود الفلتر مغلقاً كما كان لديك بالتعليقات جاهزاً للاستخدام */}
       {/* <Box sx={{ display: "flex", justifyContent: "flex-start", width: "100%" }}>
         <Dropdown overlay={filterMenu} trigger={["click"]}>
           <Button 
@@ -147,11 +178,12 @@ const HonorBoardTable = ({ rawData, isLoading, error }) => {
 
       <Box sx={{ width: "100%", overflowX: "auto", display: "block" }}>
         <Table
-          columns={columns}
-          dataSource={isLoading || error ? [] : honorData}
+          // التبديل هنا يفصل خلايا التحميل تماماً عن البيانات العادية مع ثبات عناوين الجدول (Header)
+          columns={isLoading ? loadingColumns : columns}
+          dataSource={isLoading ? skeletonData : honorData}
           pagination={false}
           scroll={{ x: 800 }}
-          locale={renderTableBody()}
+          locale={renderTableLocale()}
           components={{
             header: {
               cell: (props) => (

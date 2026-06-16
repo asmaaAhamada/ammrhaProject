@@ -27,6 +27,11 @@ import fetchEventsReducer from '../slice/events/fetchAll'
 import fetchDetailsEventsReducer from '../slice/events/deteails'
 import deletEventsReducer from '../slice/events/delet'
 import fetchDashboardReducer from '../slice/dashbord/fetchAll'
+import fetchvolunteersReducer from '../slice/volnteers/fetchAll'
+import fetchvolunteersHomeReducer from '../slice/dashbord/homePage'
+import fetchDetailsvolunteersReducer from '../slice/volnteers/details'
+import Add_black_ListReducer from '../slice/blakList/add'
+import DeletBlack_ListReducer from '../slice/blakList/delet'
 // import filter_HonorReducer from '../slice/honor/filter'
 const store = configureStore({
   reducer: {
@@ -58,7 +63,12 @@ Edit_Ranks:Edit_RanksReducer,
 fetchEvents:fetchEventsReducer,
 fetchDetailsEvents:fetchDetailsEventsReducer,
 deletEvents:deletEventsReducer,
-fetchDashboard :fetchDashboardReducer
+fetchDashboard :fetchDashboardReducer,
+fetchvolunteers:fetchvolunteersReducer,
+fetchvolunteersHome:fetchvolunteersHomeReducer,
+fetchDetailsvolunteers:fetchDetailsvolunteersReducer,
+Add_black_List:Add_black_ListReducer,
+DeletBlack_List:DeletBlack_ListReducer
 }})
 
 export default store

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Table, Avatar, Space, Tooltip, Spin } from "antd";
+import { Table, Avatar, Space, Tooltip } from "antd";
 import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
@@ -9,13 +9,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchComplaints } from "../../../backend/slice/complaints/fetchAll";
 import { fetchDetailsComplaints } from "../../../backend/slice/complaints/deteails";
 import ComplaintDetailsModal from "./ComplaintDetailsModal";
+import { motion } from "framer-motion";
 
 const ComplaintsTable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useDispatch();
   const theme = useTheme();
+  const MotionBox = motion(Box);
 
-  // 1. جلب البيانات وحالة التحميل والخطأ بشكل صحيح من الـ Store (data وليس data2)
+  // 1. جلب البيانات وحالة التحميل والخطأ بشكل صحيح من الـ Store
   const { data: rawData, isLoading, error } = useSelector((state) => state.fetchComplaints);
 
   // استدعاء البيانات عند تحميل الصفحة
@@ -32,149 +34,172 @@ const ComplaintsTable = () => {
     }));
   }, [rawData]);
 
+  // ================= COLUMNS =================
   const columns = [
-  {
-    title: "الرقم",
-    dataIndex: "id",
-    key: "id",
-    width: 100,
-    align: "center",
-  },
-  {
-    title: "المستخدم (المتطوع)",
-    dataIndex: "creator", // 👈 تم التعديل لأن الاسم يرجع داخل كائن الـ creator
-    key: "user",
-    width: 220,
-    align: "center",
-    render: (creator) => {
-      // نأخذ الاسم من داخل كائن السيرفر creator.name
-      const displayText = creator?.name || "مستخدم غير معروف";
-      return (
-        <Space>
-          <Avatar>{displayText.charAt(0).toUpperCase()}</Avatar>
-          <span>{displayText}</span>
-        </Space>
-      );
+    {
+      title: "الرقم",
+      dataIndex: "id",
+      key: "id",
+      width: 100,
+      align: "center",
     },
-  },
-  {
-    title: "القسم",
-    dataIndex: "department", // 👈 يرجع كـ Object من الباكيند {id, name}
-    key: "department",
-    align: "center",
-    render: (department) => {
-      // نصل مباشرة لاسم القسم
-      return department?.name || "عام";
+    {
+      title: "المستخدم (المتطوع)",
+      dataIndex: "creator", 
+      key: "user",
+      width: 220,
+      align: "center",
+      render: (creator) => {
+        const displayText = creator?.name || "مستخدم غير معروف";
+        return (
+          <Space>
+            <Avatar>{displayText.charAt(0).toUpperCase()}</Avatar>
+            <span>{displayText}</span>
+          </Space>
+        );
+      },
     },
-  },
-  {
-    title: "التاريخ",
-    dataIndex: "created_at", // 👈 تم التعديل لأن السيرفر يرسلها باسم created_at وليس date
-    key: "date",
-    align: "center",
-    render: (date) => date ? new Date(date).toLocaleDateString('ar-EG') : "-",
-  },
-  {
-    title: "الحالة",
-    dataIndex: "status",
-    key: "status",
-    align: "center",
-    render: (status) => {
-      let borderColor;
-      let textColor;
-      let backgroundColor;
-
-    switch (status) {
-  case " تمت المعالجة":
-  case "open":
-    borderColor = babygreen;
-    textColor = babygreen;
-    backgroundColor = "rgba(5, 223, 114, 0.08)";
-    break;
-
-  // 1. أضفنا الحالات البرتقالية هنا وضممنا إليها "قيد الانتظار"
-  case "قيد الانتظار": 
-  case "قيد المعالجة":
-  case "pending":
-  case "processing":
-    borderColor = yallow; // تأكدي أن متغير yallow معرف في الأعلى ويحمل لوناً برتقالياً/أصفراً واضحاً
-    textColor = yallow;
-    backgroundColor = "rgba(255, 152, 0, 0.08)";
-    break;
-
-  case "تمت المعالجة":
-  case "resolved":
-  case "closed":
-    borderColor = babygreen;
-    textColor = babygreen;
-    backgroundColor = "rgba(5, 223, 114, 0.08)";
-    break;
-
-  default:
-    borderColor = "#999";
-    textColor = "#999";
-    backgroundColor = "rgba(153,153,153,0.08)";
-}
-
-      return (
-        <span
-          style={{
-            display: "inline-block",
-            padding: "4px 12px",
-            borderRadius: "12px",
-            border: `1px solid ${borderColor}`,
-            color: textColor,
-            backgroundColor,
-            fontWeight: 600,
-            whiteSpace: "nowrap",
-            minWidth: "100px",
-          }}
-        >
-          {status || "غير محدد"}
-        </span>
-      );
+    {
+      title: "القسم",
+      dataIndex: "department", 
+      key: "department",
+      align: "center",
+      render: (department) => {
+        return department?.name || "عام";
+      },
     },
-  },
-  {
-    title: "الإجراءات",
-    key: "actions",
-    width: 120,
-    align: "center",
-    render: (_, record) => (
-      <Tooltip title="مشاهدة التفاصيل">
-        <VisibilityOutlinedIcon
-         onClick={() => {
-              // 👈 عند الضغط يتم جلب داتا التفاصيل بناءً على الـ id وفتح المودال
+    {
+      title: "التاريخ",
+      dataIndex: "created_at", 
+      key: "date",
+      align: "center",
+      render: (date) => date ? new Date(date).toLocaleDateString('ar-EG') : "-",
+    },
+    {
+      title: "الحالة",
+      dataIndex: "status",
+      key: "status",
+      align: "center",
+      render: (status) => {
+        let borderColor;
+        let textColor;
+        let backgroundColor;
+
+        switch (status) {
+          case " تمت المعالجة":
+          case "open":
+            borderColor = babygreen;
+            textColor = babygreen;
+            backgroundColor = "rgba(5, 223, 114, 0.08)";
+            break;
+
+          case "قيد الانتظار": 
+          case "قيد المعالجة":
+          case "pending":
+          case "processing":
+            borderColor = yallow; 
+            textColor = yallow;
+            backgroundColor = "rgba(255, 152, 0, 0.08)";
+            break;
+
+          case "تمت المعالجة":
+          case "resolved":
+          case "closed":
+            borderColor = babygreen;
+            textColor = babygreen;
+            backgroundColor = "rgba(5, 223, 114, 0.08)";
+            break;
+
+          default:
+            borderColor = "#999";
+            textColor = "#999";
+            backgroundColor = "rgba(153,153,153,0.08)";
+        }
+
+        return (
+          <span
+            style={{
+              display: "inline-block",
+              padding: "4px 12px",
+              borderRadius: "12px",
+              border: `1px solid ${borderColor}`,
+              color: textColor,
+              backgroundColor,
+              fontWeight: 600,
+              whiteSpace: "nowrap",
+              minWidth: "100px",
+            }}
+          >
+            {status || "غير محدد"}
+          </span>
+        );
+      },
+    },
+    {
+      title: "الإجراءات",
+      key: "actions",
+      width: 120,
+      align: "center",
+      render: (_, record) => (
+        <Tooltip title="مشاهدة التفاصيل">
+          <VisibilityOutlinedIcon
+            onClick={() => {
               dispatch(fetchDetailsComplaints(record.id));
               setIsModalOpen(true);
             }}
+            sx={{
+              cursor: "pointer",
+              color: theme.palette.primary.button1,
+            }}
+          />
+        </Tooltip>
+      ),
+    },
+  ];
+
+  // ================= 3. هيكل الـ Skeleton Shimmer للـ Body =================
+  const skeletonData = Array.from({ length: 5 }, (_, index) => ({
+    key: `skeleton-complaint-${index}`,
+  }));
+
+  const loadingColumns = columns.map((col) => ({
+    ...col,
+    render: col.key === "id" ? () => (
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Box sx={{ width: "40px", height: "14px", bgcolor: "rgba(161, 169, 195, 0.15)", borderRadius: "4px" }} />
+      </Box>
+    ) : col.key === "user" ? () => (
+      <Space style={{ display: "flex", justifyContent: "center" }}>
+        <Box sx={{ width: "32px", height: "32px", bgcolor: "rgba(161, 169, 195, 0.15)", borderRadius: "50%" }} />
+        <Box sx={{ width: "90px", height: "14px", bgcolor: "rgba(161, 169, 195, 0.15)", borderRadius: "4px" }} />
+      </Space>
+    ) : col.key === "actions" ? () => (
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Box sx={{ width: "24px", height: "24px", bgcolor: "rgba(161, 169, 195, 0.15)", borderRadius: "4px" }} />
+      </Box>
+    ) : () => (
+      <Box sx={{ display: "flex", justifyContent: "center", width: "100%", position: "relative", overflow: "hidden" }}>
+        <Box sx={{ width: "70px", height: "14px", bgcolor: "rgba(161, 169, 195, 0.12)", borderRadius: "4px" }} />
+        
+        {/* تأثير البرق الشفاف لوميض لودر الشكاوى */}
+        <MotionBox
+          animate={{ x: ["-100%", "100%"] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
           sx={{
-            cursor: "pointer",
-            color: theme.palette.primary.button1,
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "50%",
+            height: "100%",
+            background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)",
           }}
         />
-      </Tooltip>
+      </Box>
     ),
-  },
-];
+  }));
 
-  // 3. بناء دالة التحكم في عرض محتوى البودي (التحميل، الخطأ، الداتا الفاضية) دون لمس الهيدر
-  const renderTableBody = () => {
-    // حالة التحميل داخل البودي
-    if (isLoading) {
-      return {
-        emptyText: (
-          <Box sx={{ py: 6, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-            <Spin size="large" />
-            <Typography sx={{ color: theme.palette.primary.chip, fontWeight: 500 }}>
-              جاري تحميل الشكاوى...
-            </Typography>
-          </Box>
-        ),
-      };
-    }
-
-    // حالة وجود خطأ من السيرفر داخل البودي
+  // ================= 4. دالة التحكم في عرض الرسائل للـ الخطأ أو الداتا الفارغة فقط =================
+  const renderTableLocale = () => {
     if (error) {
       return {
         emptyText: (
@@ -187,8 +212,7 @@ const ComplaintsTable = () => {
       };
     }
 
-    // حالة عدم وجود شكاوى (مصفوفة فارغة) مطابقة تماماً لشكل صفحة الأخبار الفاضية
-    if (complaintsData.length === 0) {
+    if (!isLoading && complaintsData.length === 0) {
       return {
         emptyText: (
           <Box sx={{ py: 8, display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
@@ -203,26 +227,27 @@ const ComplaintsTable = () => {
       };
     }
 
-    return {}; // يعود بشكل طبيعي ويعرض الأسطر إذا وجدت بيانات
+    return {}; 
   };
 
   return (
-<Box 
+    <Box 
       sx={{ 
         width: "100%", 
-        maxWidth: "100%",     // 👈 يمنع الحاوية من تجاوز عرض الشاشة الأصلي مهما كان محتواها
-        overflowX: "auto",     // 👈 يُجبر السكرول الأفقي على الظهور هنا داخل حدود الحاوية
-        display: "block",      // يضمن تصرف الحاوية كعنصر كتلوي مستقر
-        boxSizing: "border-box"
+        maxWidth: "100%",     
+        overflowX: "auto",     
+        display: "block",      
+        boxSizing: "border-box",
+        direction: "rtl"
       }}
-    >      <Table
-        columns={columns}
-        // نمرر المصفوفة فقط إذا لم نكن في حالة تحميل أو خطأ لمنع تداخل الأسطر القديمة
-        dataSource={isLoading || error ? [] : complaintsData}
+    >
+      <Table
+        // التبديل الديناميكي للأعمدة والداتا يعتمد كلياً على حالة isLoading لضمان بقاء الهيدر الأصلي ثابتاً
+        columns={isLoading ? loadingColumns : columns}
+        dataSource={isLoading ? skeletonData : complaintsData}
         pagination={false}
         scroll={{ x: 800 }}
-        // دمج التحكم الديناميكي في البودي هنا
-        locale={renderTableBody()}
+        locale={renderTableLocale()}
         components={{
           header: {
             cell: (props) => (
@@ -253,13 +278,13 @@ const ComplaintsTable = () => {
           },
         }}
       />
-     <ComplaintDetailsModal 
-  isOpen={isModalOpen} 
-  onClose={() => setIsModalOpen(false)} 
-  onRefreshList={() => dispatch(fetchComplaints())} // 👈 إضافة الـ refresh التلقائي هنا
-/>
+      
+      <ComplaintDetailsModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onRefreshList={() => dispatch(fetchComplaints())} 
+      />
     </Box>
-    
   );
 };
 

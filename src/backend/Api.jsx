@@ -12,12 +12,12 @@ export const Create =`/create`
 export const Delete =`/delete`
 export const Update =`/update`
 export const Ranks =`/ranks`
-
+export const Volnteers =`/volunteers`
 export const Dashbord =`/dashboard`
 export const Stats =`/Stats`
 export const Complaints =`/complaints`
 export const Status =`/status`
 export const Honor =`/honor-board`
-
+export const HomePage =`/homePage`
 export const Event =`/events`
 
