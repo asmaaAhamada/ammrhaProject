@@ -1,20 +1,51 @@
-// Volunteerspage.jsx - الجزء العلوي من الملف بعد التعديل
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "@mui/material/styles";
-
-// 1. استيراد المكونات الخاصة بـ Ant Design فقط
 import { Space } from "antd"; 
-
-// 2. استيراد المكونات الخاصة بـ Material-UI (MUI) فقط ومعها الـ MenuItem الصحيح
 import { FormControl, Select, MenuItem } from "@mui/material"; 
-
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
+
+import { useDispatch, useSelector } from "react-redux";
+import { fetchDepartment } from "../../../backend/slice/department/fetchAll";
+import { fetchRanks } from "../../../backend/slice/Ranks/fetchAll";
+import { fetchvolunteers } from "../../../backend/slice/volnteers/fetchAll";
+
 import VolunteersTable from "./volintersTable";
 import VolunteersStatsCards from "./VolunteersStatsCards ";
 
 export default function Volunteerspage() {
   const theme = useTheme();
+  const dispatch = useDispatch();
+
+  // الفلاتر المعتمدة
+  const [statusFilter, setStatusFilter] = useState(""); // ستأخذ قيمة "نشط" أو "غير نشط"
+  const [deptFilter, setDeptFilter] = useState("");
+  const [rankFilter, setRankFilter] = useState("");
+
+  const { data: departments } = useSelector((state) => state.fetchDepartment);
+  const { data: ranks } = useSelector((state) => state.fetchRanks);
+
+  // جلب البيانات الأساسية للقوائم المنسدلة عند تحميل الصفحة
+  useEffect(() => {
+    dispatch(fetchDepartment());
+    dispatch(fetchRanks());
+  }, [dispatch]);
+
+  // إرسال طلب الفلترة فور تغيير أي فلتر
+  useEffect(() => {
+    // تحويل القيمة النصية إلى القيمة الرقمية التي يطلبها الـ Backend (1 للنشط، 0 لغير النشط)
+    let activeParam = "";
+    if (statusFilter === "نشط") activeParam = "1";
+    if (statusFilter === "غير نشط") activeParam = "0";
+    
+    dispatch(
+      fetchvolunteers({
+        department_id: deptFilter,
+        rank_id: rankFilter,
+        is_active: activeParam,
+      })
+    );
+  }, [statusFilter, deptFilter, rankFilter, dispatch]);
 
   return (
     <VolunteersTable
@@ -30,10 +61,11 @@ export default function Volunteerspage() {
             justifyContent: "flex-start",
           }}
         >
-          {/* فلتر الحالة */}
+          {/* 🌟 فلتر الحالة المعدل (نشط / غير نشط) */}
           <FormControl>
             <Select
-              defaultValue=""
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
               displayEmpty
               IconComponent={KeyboardArrowDownRoundedIcon}
               sx={{
@@ -48,17 +80,17 @@ export default function Volunteerspage() {
                 "& .MuiSelect-select": { padding: "10px 14px", textAlign: "right" },
               }}
             >
-              {/* 👇 الآن ستعمل الـ MenuItem هنا بشكل طبيعي وبدون أي Error */}
-              <MenuItem sx={{ color: theme.palette.primary.button3 }} value="">حسب الحالة</MenuItem>
+              <MenuItem sx={{ color: theme.palette.primary.button3 }} value="">حسب الحالة (الكل)</MenuItem>
               <MenuItem sx={{ color: theme.palette.primary.button3 }} value="نشط">نشط</MenuItem>
-              <MenuItem sx={{ color: theme.palette.primary.button3 }} value="مجمّد">مجمّد</MenuItem>
+              <MenuItem sx={{ color: theme.palette.primary.button3 }} value="غير نشط">غير نشط</MenuItem>
             </Select>
           </FormControl>
 
           {/* فلتر القسم */}
           <FormControl>
             <Select
-              defaultValue=""
+              value={deptFilter}
+              onChange={(e) => setDeptFilter(e.target.value)}
               displayEmpty
               IconComponent={KeyboardArrowDownRoundedIcon}
               sx={{
@@ -73,17 +105,20 @@ export default function Volunteerspage() {
                 "& .MuiSelect-select": { padding: "10px 14px", textAlign: "right" },
               }}
             >
-              <MenuItem sx={{ color: theme.palette.primary.button3 }} value="">حسب القسم</MenuItem>
-              <MenuItem sx={{ color: theme.palette.primary.button3 }} value="الإعلام">الإعلام</MenuItem>
-              <MenuItem sx={{ color: theme.palette.primary.button3 }} value="التنظيم">التنظيم</MenuItem>
-              <MenuItem sx={{ color: theme.palette.primary.button3 }} value="العلاقات">العلاقات</MenuItem>
+              <MenuItem sx={{ color: theme.palette.primary.button3 }} value="">حسب القسم (الكل)</MenuItem>
+              {departments?.map((dept) => (
+                <MenuItem key={dept.id} sx={{ color: theme.palette.primary.button3 }} value={dept.id}>
+                  {dept.name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
           {/* فلتر الرتبة */}
           <FormControl>
             <Select
-              defaultValue=""
+              value={rankFilter}
+              onChange={(e) => setRankFilter(e.target.value)}
               displayEmpty
               IconComponent={KeyboardArrowDownRoundedIcon}
               sx={{
@@ -98,10 +133,12 @@ export default function Volunteerspage() {
                 "& .MuiSelect-select": { padding: "10px 14px", textAlign: "right" },
               }}
             >
-              <MenuItem sx={{ color: theme.palette.primary.button3 }} value="">حسب الرتبة</MenuItem>
-              <MenuItem sx={{ color: theme.palette.primary.button3 }} value="ذهبي">ذهبي</MenuItem>
-              <MenuItem sx={{ color: theme.palette.primary.button3 }} value="فضي">فضي</MenuItem>
-              <MenuItem sx={{ color: theme.palette.primary.button3 }} value="بلاتيني">بلاتيني</MenuItem>
+              <MenuItem sx={{ color: theme.palette.primary.button3 }} value="">حسب الرتبة (الكل)</MenuItem>
+              {ranks?.map((rank) => (
+                <MenuItem key={rank.id} sx={{ color: theme.palette.primary.button3 }} value={rank.id}>
+                  {rank.name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Space>

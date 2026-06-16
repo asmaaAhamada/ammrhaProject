@@ -33,9 +33,9 @@ const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
     dispatch(fetchvolunteers());
   };
 
-  React.useEffect(() => {
-    refreshTableData();
-  }, [dispatch]);
+  // React.useEffect(() => {
+  //   refreshTableData();
+  // }, [dispatch]);
 
   const volunteersList = rawData?.data?.data || [];
   const displayedVolunteers = isHomePage ? volunteersList.slice(0, 2) : volunteersList;

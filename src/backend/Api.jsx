@@ -23,4 +23,5 @@ export const Event =`/events`
 export const Freezen = `/volunteer-freeze`
 export const Transfer = `/transfer-department`
 export const Position = `/assign-position`
+export const STATUS =`/enums/statuses`
 

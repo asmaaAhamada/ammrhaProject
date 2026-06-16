@@ -5,7 +5,6 @@ import {
   Button, 
   Grid, 
   FormControl, 
-  InputLabel, 
   Select, 
   MenuItem,
   Alert,
@@ -15,9 +14,11 @@ import EventCard from "./EventCard";
 import { useTheme } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined"; 
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded"; 
 import { white } from "../../../style/color-main/color";
 import { useNavigate } from "react-router-dom";
 import { fetchEvents } from "../../../backend/slice/events/fetchAll";
+import { fetchstatus } from "../../../backend/slice/events/fetchstatus"; 
 import { useDispatch, useSelector } from "react-redux";
 import { Spin } from "antd";
 import { fetchDepartment } from "../../../backend/slice/department/fetchAll";
@@ -34,15 +35,18 @@ export default function EventsPage() {
   const [opendelet, setOpendelet] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
 
-  // 🔹 فلاتر التصفية المحلية الصحيحة الخاصة بالصفحة
+  // الفلاتر المحلية لصفحة الفعاليات
   const [selectedDepartmentId, setSelectedDepartmentId] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
 
-  // جلب قائمة الأقسام من الستيت لتغذية الفلتر
+  // 1. جلب بيانات الأقسام من الستيت
   const { data: departmentsData } = useSelector((state) => state.fetchDepartment);
   const departmentsList = Array.isArray(departmentsData) ? departmentsData : departmentsData?.data || [];
 
-  // جلب الفعاليات من السلايس
+  // 2. جلب بيانات حالات الفعاليات ديناميكياً وحالة التحميل
+  const { data: statusesData, isLoading: isStatusLoading } = useSelector((state) => state.fetchstatus);
+
+  // 3. جلب الفعاليات لتحديث الكروت في الواجهة
   const { data: eventsResponse, isLoading, error } = useSelector((state) => state.fetchEvents);
 
   const actualEventsData = useMemo(() => {
@@ -52,55 +56,30 @@ export default function EventsPage() {
 
   // دالة جلب البيانات ممرر لها الفلاتر الحالية لطلبها من السيرفر
   const loadEvents = useCallback(() => {
+    const deptParam = selectedDepartmentId === "all" ? "" : selectedDepartmentId;
+    const statusParam = selectedStatus === "all" ? "" : selectedStatus;
+
     dispatch(fetchEvents({
-      department_id: selectedDepartmentId,
-      status: selectedStatus
+      department_id: deptParam,
+      status: statusParam
     }));
   }, [dispatch, selectedDepartmentId, selectedStatus]);
 
-  // تحديث البيانات تلقائياً فور تغيير الفلاتر بالواجهة
+  // جلب البيانات الثابتة للقوائم المنسدلة عند تحميل الصفحة لأول مرة
+  useEffect(() => {
+    dispatch(fetchDepartment());
+    dispatch(fetchstatus()); 
+  }, [dispatch]);
+
+  // تحديث كروت الفعاليات تلقائياً فور تغيير الفلاتر بالواجهة
   useEffect(() => {
     loadEvents(); 
   }, [loadEvents]);
 
-  // جلب قائمة الأقسام الشاملة عند فتح الصفحة لتعبئة خيارات الفلتر
-  useEffect(() => {
-    dispatch(fetchDepartment());
-  }, [dispatch]);
-
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const topFieldWidth = isMobile ? "100%" : "200px";
   const primaryButtonColor = theme?.palette?.primary?.button1 || "#162d6b";
 
-  // التنسيقات الموحدة للمنسدلات
-  const selectStyles = {
-    borderRadius: "10px", 
-    fontSize: "14px", 
-    fontWeight: 500,
-    backgroundColor: theme?.palette?.primary?.inputt,
-    color: theme?.palette?.primary?.text3 || "#000",
-    "& .MuiOutlinedInput-notchedOutline": {
-      borderColor: primaryButtonColor,
-      borderWidth: "1px"
-    },
-    "&:hover .MuiOutlinedInput-notchedOutline": {
-      borderColor: primaryButtonColor,
-      borderWidth: "1.5px"
-    },
-    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-      borderColor: primaryButtonColor,
-    }
-  };
-
-  const labelStyles = { 
-    fontSize: "14px", 
-    fontWeight: 500,
-    color: primaryButtonColor,
-    "&.Mui-focused": {
-      color: primaryButtonColor
-    }
-  };
-
+  // 🌟 دوال التحكم بالفعاليات (تم إعادتها لإصلاح الـ ReferenceError) ✅
   const handleEdit = useCallback((eventItem) => {
     console.log("تعديل الفعالية:", eventItem);
   }, []);
@@ -113,6 +92,42 @@ export default function EventsPage() {
   const handleView = useCallback((eventItem) => {
     navigate(`/Events/${eventItem.id}`);
   }, [navigate]);
+
+  // تطبيق نفس ألوان وتنسيقات الـ Select المأخوذة من صفحة المتطوعين تماماً
+  const selectStyles = {
+    height: { xs: "40px", md: "48px" },
+    width: { xs: "180px", md: "217px" },
+    borderRadius: "12px", 
+    backgroundColor: theme.palette.primary.logo,
+    color: theme.palette.primary.button3,
+    direction: "rtl",
+    "& .MuiOutlinedInput-notchedOutline": { 
+      border: `1px solid ${theme.palette.primary.moreborder}` 
+    },
+    "&:hover .MuiOutlinedInput-notchedOutline": {
+      border: `1px solid ${theme.palette.primary.moreborder}`
+    },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+      border: `1px solid ${theme.palette.primary.moreborder}`
+    },
+    "& .MuiSelect-icon": { 
+      color: theme.palette.primary.button3, 
+      fontSize: "30px", 
+      left: "10px", 
+      right: "auto" 
+    },
+    "& .MuiSelect-select": { 
+      padding: "10px 14px", 
+      textAlign: "right" 
+    },
+  };
+
+  // تنسيق عناصر القائمة المنسدلة ليتوافق مع لون النص
+  const menuItemStyles = {
+    color: theme.palette.primary.button3,
+    fontSize: "14px",
+    fontWeight: 500
+  };
 
   return (
     <Box sx={{ width: "100%", p: { xs: 1, sm: 2, md: 3 }, boxSizing: "border-box", direction: "rtl" }}>
@@ -139,43 +154,49 @@ export default function EventsPage() {
           الفعاليات
         </Typography>
 
-        <Box sx={{ display: "flex", alignItems: "flex-end", gap: 2, flexWrap: "wrap", width: isMobile ? "100%" : "auto" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap", width: isMobile ? "100%" : "auto" }}>
           
-          {/* فلتر الأقسام الأحادي المربوط بالستيت الصحيحة للصفحة */}
-          <Box sx={{ width: topFieldWidth }}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="dept-filter-label" sx={labelStyles}>حسب القسم</InputLabel>
-              <Select
-                labelId="dept-filter-label"
-                value={selectedDepartmentId}
-                label="حسب القسم"
-                onChange={(e) => setSelectedDepartmentId(e.target.value)}
-                sx={selectStyles}
-              >
-                <MenuItem value="all">الكل</MenuItem>
-                {departmentsList.map((dept) => (
-                  <MenuItem key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-
-          {/* فلتر الحالات     */}
-          <FormControl size="small" sx={{ minWidth: "140px", width: isMobile ? "100%" : "auto" }}>
-            <InputLabel id="status-filter-label" sx={labelStyles}>حسب الحالة</InputLabel>
+          {/* فلتر القسم الألوان المتطابقة */}
+          <FormControl size="small">
             <Select
-              labelId="status-filter-label"
-              value={selectedStatus}
-              label="حسب الحالة"
-              onChange={(e) => setSelectedStatus(e.target.value)}
+              value={selectedDepartmentId}
+              onChange={(e) => setSelectedDepartmentId(e.target.value)}
+              displayEmpty
+              IconComponent={KeyboardArrowDownRoundedIcon}
               sx={selectStyles}
             >
-              <MenuItem value="all">الكل</MenuItem>
-              <MenuItem value="upcoming">قادمة</MenuItem>
-              <MenuItem value="active">نشطة</MenuItem>
-              <MenuItem value="finished">منتهية</MenuItem>
+              <MenuItem sx={menuItemStyles} value="all">حسب القسم (الكل)</MenuItem>
+              {departmentsList.map((dept) => (
+                <MenuItem key={dept.id} sx={menuItemStyles} value={dept.id}>
+                  {dept.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {/* فلتر الحالات بالألوان المتطابقة مع إضافة نص حالة التحميل */}
+          <FormControl size="small">
+            <Select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              displayEmpty
+              disabled={isStatusLoading}
+              IconComponent={KeyboardArrowDownRoundedIcon}
+              sx={selectStyles}
+            >
+              <MenuItem sx={menuItemStyles} value="all">حسب الحالة (الكل)</MenuItem>
+              
+              {isStatusLoading ? (
+                <MenuItem value="loading" disabled sx={{ fontStyle: "italic", color: "#888" }}>
+                  جاري تحميل الحالات...
+                </MenuItem>
+              ) : (
+                statusesData?.map((statusItem) => (
+                  <MenuItem key={statusItem.id} sx={menuItemStyles} value={statusItem.value}>
+                    {statusItem.label}
+                  </MenuItem>
+                ))
+              )}
             </Select>
           </FormControl>
 
@@ -196,7 +217,7 @@ export default function EventsPage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              "&:hover": {
+              "& :hover": {
                 backgroundColor: primaryButtonColor,
                 opacity: 0.9,
                 boxShadow: "none",
