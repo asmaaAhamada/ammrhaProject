@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import Cards from "./cardStatcais";
 import DashboardSection from "./dashboard";
 import VolunteersTable from '../volinterr/volintersTable';
@@ -7,17 +7,28 @@ import { useTheme } from "@mui/material/styles";
 import { white } from "../../../style/color-main/color";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom"; // 👇 استيراد Navigate للتنقل بين الصفحات
+import { useSelector } from "react-redux";
 
 export default function HomePage() {
   const MotionButton = motion(Button);
   const theme = useTheme();
   const navigate = useNavigate(); // 👇 هاتف التنقل
+  const userRole = useSelector(
+    (state) => state.user?.userInfo?.role
+  );
 
   return (
     <>
-      <Cards />
-      <DashboardSection />
-      <VolunteersTable
+            {userRole === "admin" && <Cards />}
+
+<Box
+  sx={{
+    mt: userRole === "admin" ? 0 : 4,
+  }}
+>
+  <DashboardSection />
+</Box>    
+  <VolunteersTable
         isHomePage={true} // 👇 تفعيل وضع السطرين فقط والمظهر المخصص للرئيسية
         topContent={
           <MotionButton

@@ -16,6 +16,9 @@ const DeletRankModal = lazy(() => import("./delet"));
 const AddRankModal = lazy(() => import("./addRank"));
 
 const RankPage = () => {
+  const userRole = useSelector(
+  (state) => state.user?.userInfo?.role
+);
   const dispatch = useDispatch();
   const theme = useTheme();
 
@@ -63,79 +66,60 @@ const RankPage = () => {
   }, []);
 
   // إعدادات أعمدة الجدول
-  const columns = useMemo(
-    () => [
-      {
-        title: "المعيار / الرتبة",
-        dataIndex: "name",
-        key: "name",
-        width: 250,
-        render: (text) => (
-          <Tooltip title={text}>
-            <div
-              style={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-                maxWidth: "220px",
-                margin: "0 auto",
-                fontWeight: 600
-              }}
-            >
-              {text}
-            </div>
-          </Tooltip>
-        ),
-      },
-      {
-        title: "عدد الساعات المطلوب",
-        dataIndex: "min_hours",
-        key: "min_hours",
-        width: 180,
-        render: (text) => text !== undefined && text !== null ? `${text} ساعة` : "-",
-      },
-      {
-        title: "عدد النقاط المطلوب",
-        dataIndex: "min_points",
-        key: "min_points",
-        width: 180,
-        render: (text) => text !== undefined && text !== null ? `${text} نقطة` : "-",
-      },
-      {
-        title: "الإجراءات",
-        key: "actions",
-        width: 150,
-        render: (_, row) => (
-          <Space size="middle">
-            {/* الحذف */}
-            <Tooltip title="حذف المعيار">
-              <DeleteOutlined
-                onClick={() => handleDelete(row)}
-                style={{
-                  color: "red",
-                  fontSize: "18px",
-                  cursor: "pointer",
-                }}
-              />
-            </Tooltip>
+ const columns = useMemo(() => {
+  const baseColumns = [
+    {
+      title: "المعيار / الرتبة",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "عدد الساعات المطلوب",
+      dataIndex: "min_hours",
+      key: "min_hours",
+    },
+    {
+      title: "عدد النقاط المطلوب",
+      dataIndex: "min_points",
+      key: "min_points",
+    },
+  ];
 
-            {/* التعديل */}
-            <Tooltip title="تعديل المعيار">
-              <EditOutlined
-                onClick={() => handleEdit(row)}
-                style={{
-                  color: theme.palette.primary.text3,
-                  fontSize: "18px",
-                  cursor: "pointer",
-                }}
-              />
-            </Tooltip>
-          </Space>
-        ),
-      },
-    ],
-    [handleEdit, handleDelete, theme]
-  );
+  if (userRole === "admin") {
+    baseColumns.push({
+      title: "الإجراءات",
+      key: "actions",
+      width: 150,
+      render: (_, row) => (
+        <Space size="middle">
+          <Tooltip title="حذف المعيار">
+            <DeleteOutlined
+              onClick={() => handleDelete(row)}
+              style={{
+                color: "red",
+                fontSize: "18px",
+                cursor: "pointer",
+              }}
+            />
+          </Tooltip>
+
+          <Tooltip title="تعديل المعيار">
+            <EditOutlined
+              onClick={() => handleEdit(row)}
+              style={{
+                color: theme.palette.primary.text3,
+                fontSize: "18px",
+                cursor: "pointer",
+              }}
+            />
+          </Tooltip>
+        </Space>
+      ),
+    });
+  }
+
+  return baseColumns;
+}, [userRole, handleEdit, handleDelete, theme]);
 
   return (
     <>
@@ -170,6 +154,7 @@ const RankPage = () => {
           >
             صفحة المعايير
           </Typography>
+{userRole === "admin" && (
 
           <Button
             onClick={handleAdd}
@@ -192,7 +177,7 @@ const RankPage = () => {
           >
             إضافة معيار
             <AddIcon sx={{ width: "18px", height: "18px", mr: 1.5 }} />
-          </Button>
+          </Button>)}
         </Box>
 
         {/* حاوية الجدول */}

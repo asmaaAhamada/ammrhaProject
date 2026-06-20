@@ -4,6 +4,7 @@ import { useTheme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import MailOutlineIcon from "@mui/icons-material/MailOutline"; // أيقونة الشكاوى والرسائل الواردة المتناسقة
 import { babygreen, white, yallow } from "../../../style/color-main/color";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchComplaints } from "../../../backend/slice/complaints/fetchAll";
@@ -181,7 +182,6 @@ const ComplaintsTable = () => {
       <Box sx={{ display: "flex", justifyContent: "center", width: "100%", position: "relative", overflow: "hidden" }}>
         <Box sx={{ width: "70px", height: "14px", bgcolor: "rgba(161, 169, 195, 0.12)", borderRadius: "4px" }} />
         
-        {/* تأثير البرق الشفاف لوميض لودر الشكاوى */}
         <MotionBox
           animate={{ x: ["-100%", "100%"] }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
@@ -198,7 +198,7 @@ const ComplaintsTable = () => {
     ),
   }));
 
-  // ================= 4. دالة التحكم في عرض الرسائل للـ الخطأ أو الداتا الفارغة فقط =================
+  // ================= 4. دالة التحكم في عرض واجهة عدم وجود شكاوى =================
   const renderTableLocale = () => {
     if (error) {
       return {
@@ -215,12 +215,42 @@ const ComplaintsTable = () => {
     if (!isLoading && complaintsData.length === 0) {
       return {
         emptyText: (
-          <Box sx={{ py: 8, display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
-            <Typography sx={{ color: theme.palette.primary.text4, fontSize: "18px", fontWeight: 700 }}>
-              لا توجد شكاوى حالياً
+          <Box 
+            sx={{ 
+              display: "flex", flexDirection: "column", alignItems: "center", 
+              justifyContent: "center", py: 6, textAlign: "center", width: "100%" 
+            }}
+          >
+            {/* الدائرة البيضاء الحاضنة للأيقونة مثل تصميم الأخبار تماماً */}
+            <Box 
+              sx={{ 
+                width: 90, height: 90, borderRadius: "50%", 
+                backgroundColor: "#ffffff", display: "flex", 
+                alignItems: "center", justifyContent: "center",
+                boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.05)", mb: 2 
+              }}
+            >
+              <MailOutlineIcon style={{ fontSize: "40px", color: theme.palette.primary.button1 }} />
+            </Box>
+
+            {/* عنوان الواجهة الفارغة الفريندلي */}
+            <Typography 
+              sx={{ 
+                fontSize: "18px", fontWeight: 700, 
+                color: theme.palette.primary.button1, mb: 1 
+              }}
+            >
+              سجل الشكاوى فارغ حالياً
             </Typography>
-            <Typography sx={{ color: theme.palette.primary.text5, fontSize: "14px" }}>
-              سيتم عرض الشكاوى الواردة من المستخدمين هنا فور إرسالها.
+
+            {/* الوصف المساعد للمستخدم */}
+            <Typography 
+              sx={{ 
+                fontSize: "13px", color: theme.palette.primary.chip, 
+                maxWidth: "420px", lineHeight: 1.6 
+              }}
+            >
+              لا توجد شكاوى مقدمة من قبل المتطوعين حالياً. سيتم عرض كافة الشكاوى الواردة في النظام هنا فور إرسالها.
             </Typography>
           </Box>
         ),
@@ -242,7 +272,6 @@ const ComplaintsTable = () => {
       }}
     >
       <Table
-        // التبديل الديناميكي للأعمدة والداتا يعتمد كلياً على حالة isLoading لضمان بقاء الهيدر الأصلي ثابتاً
         columns={isLoading ? loadingColumns : columns}
         dataSource={isLoading ? skeletonData : complaintsData}
         pagination={false}

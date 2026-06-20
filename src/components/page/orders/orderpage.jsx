@@ -1,62 +1,67 @@
 import React, { useState } from "react";
 import { Table, Avatar, Space, Tooltip } from "antd";
-import {
-  EyeOutlined,
-  CalendarOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import FinishedInterviewsTable from "./InterviewsPage";
 import { useTheme } from "@mui/material/styles";
 
 import { white, yallow } from "../../../style/color-main/color";
 import { Box, Button, Typography } from "@mui/material";
+import { fetchrequest_pinding } from "../../../backend/slice/volnteers/request/pinding";
+import { fetchrequest_details, resetrequest_details } from "../../../backend/slice/volnteers/request/details";
+import { useDispatch, useSelector } from "react-redux";
+import { motion } from "framer-motion"; 
+
+import VolunteerDetailsModal from "./VolunteerDetailsModal";
+import CreateInterviewModal from "./CreateInterviewModal";
+import AvailableInterviewsTable from "./AvailableInterviewsTable";
 
 const RequestsComponent = () => {
+  const { data, isLoading, error } = useSelector((state) => state.fetchrequest_pinding);
+  const dispatch = useDispatch();
   const [view, setView] = useState("requests");
   const theme = useTheme();
 
-  const requestsData = [
-    {
-      key: "1",
-      name: "Ahmed Ali",
-      date: "2026-05-20",
-      status: "قيد الانتظار",
-    },
-    {
-      key: "2",
-      name: "Sara Mohamed",
-      date: "2026-05-21",
-      status: "قيد الانتظار",
-    },
-  ];
+  // ستيت التحكم في المودالات
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false); 
 
-  const handleCreateInterview = () => {
-    console.log("Create Interview");
-    // لاحقاً افتح Dialog أو Modal لإنشاء موعد جديد
+  const MotionBox = motion(Box);
+
+  const handleFetchData = () => {
+    dispatch(fetchrequest_pinding());
   };
 
+  React.useEffect(() => {
+    console.log("dispatching...");
+    handleFetchData();
+  }, [dispatch]);
+
+  const handleCreateInterview = () => {
+    setIsInterviewModalOpen(true);
+  };
+
+  // ================= COLUMNS CONFIGURATION =================
   const columns = [
     {
       title: "الاسم",
-      dataIndex: "name",
-      key: "name",
+      dataIndex: "full_name",
+      key: "full_name",
       fixed: "left",
       width: 180,
       render: (text) => (
         <Space>
-          <Avatar>{text.charAt(0)}</Avatar>
-          <span>{text}</span>
+          <Avatar>{text ? text.charAt(0) : "؟"}</Avatar>
+          <span>{text || "بدون اسم"}</span>
         </Space>
       ),
     },
-
     {
       title: "التاريخ",
-      dataIndex: "date",
-      key: "date",
+      dataIndex: "interview_date",
+      key: "interview_date",
       width: 140,
+      render: (date) => <span>{date || "لم يحدد بعد"}</span>,
     },
-
     {
       title: "الحالة",
       dataIndex: "status",
@@ -75,32 +80,61 @@ const RequestsComponent = () => {
             whiteSpace: "nowrap",
           }}
         >
-          {status}
+          {status || "قيد الانتظار"}
         </span>
       ),
     },
-
     {
       title: "الإجراءات",
       key: "actions",
       fixed: "right",
       width: 140,
-
-      render: () => (
+      render: (_, record) => (
         <Space size="middle">
-          <Tooltip title="عرض">
-            <Button size="small" sx={{ minWidth: "auto" }}>
-              <EyeOutlined
-                style={{ color: theme.palette.primary.card1 }}
-              />
+          <Tooltip title="عرض التفاصيل">
+            <Button 
+              size="small" 
+              sx={{ minWidth: "auto" }}
+              onClick={() => {
+                dispatch(fetchrequest_details(record.id));
+                setIsDetailsModalOpen(true);
+              }}
+            >
+              <EyeOutlined style={{ color: theme.palette.primary.card1 }} />
             </Button>
           </Tooltip>
-
-         
         </Space>
       ),
     },
   ];
+
+  // ====== هيكل الـ Skeleton Shimmer ======
+  const skeletonData = Array.from({ length: 3 }, (_, index) => ({
+    key: `skeleton-${index}`,
+    isSkeleton: true,
+  }));
+
+  const loadingColumns = columns.map((col) => ({
+    ...col,
+    render: col.key === "full_name" ? () => (
+      <Space>
+        <Box sx={{ width: "32px", height: "32px", bgcolor: "rgba(161, 169, 195, 0.15)", borderRadius: "50%" }} />
+        <Box sx={{ width: "90px", height: "14px", bgcolor: "rgba(161, 169, 195, 0.15)", borderRadius: "4px" }} />
+      </Space>
+    ) : () => (
+      <Box sx={{ display: "flex", justifyContent: "center", width: "100%", position: "relative", overflow: "hidden" }}>
+        <Box sx={{ width: "70px", height: "14px", bgcolor: "rgba(161, 169, 195, 0.12)", borderRadius: "4px" }} />
+        <MotionBox
+          animate={{ x: ["-100%", "100%"] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          sx={{
+            position: "absolute", top: 0, left: 0, width: "50%", height: "100%",
+            background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)",
+          }}
+        />
+      </Box>
+    ),
+  }));
 
   return (
     <div
@@ -110,6 +144,7 @@ const RequestsComponent = () => {
         maxWidth: "100vw",
         overflowX: "hidden",
         boxSizing: "border-box",
+        direction: "rtl",
       }}
     >
       {view === "requests" && (
@@ -136,31 +171,19 @@ const RequestsComponent = () => {
               المقابلات قيد المراجعة
             </Typography>
 
-            <Box
-              sx={{
-                display: "flex",
-                gap: 2,
-                flexWrap: "wrap",
-              }}
-            >
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
               <Button
                 startIcon={<PlusOutlined />}
-                onClick={handleCreateInterview}
+                onClick={handleCreateInterview} 
                 sx={{
-                  width: {
-                    xs: "160px",
-                    sm: "190px",
-                    md: "220px",
-                  },
+                  width: { xs: "160px", sm: "190px", md: "220px" },
                   height: "43px",
                   backgroundColor: theme.palette.primary.button1,
                   color: white,
                   borderRadius: "12px",
                   fontWeight: 600,
-
                   "&:hover": {
-                    backgroundColor:
-                      theme.palette.primary.button1,
+                    backgroundColor: theme.palette.primary.button1,
                     boxShadow: "none",
                   },
                 }}
@@ -171,20 +194,14 @@ const RequestsComponent = () => {
               <Button
                 onClick={() => setView("finished")}
                 sx={{
-                  width: {
-                    xs: "160px",
-                    sm: "190px",
-                    md: "220px",
-                  },
+                  width: { xs: "160px", sm: "190px", md: "220px" },
                   height: "43px",
                   backgroundColor: theme.palette.primary.button1,
                   color: white,
                   borderRadius: "12px",
                   fontWeight: 600,
-
                   "&:hover": {
-                    backgroundColor:
-                      theme.palette.primary.button1,
+                    backgroundColor: theme.palette.primary.button1,
                     boxShadow: "none",
                   },
                 }}
@@ -194,45 +211,67 @@ const RequestsComponent = () => {
             </Box>
           </Box>
 
-          <Table
-            columns={columns}
-            dataSource={requestsData}
-            pagination={false}
-            scroll={{ x: "max-content" }}
-            components={{
-              header: {
-                cell: (props) => (
-                  <th
-                    {...props}
-                    style={{
-                      backgroundColor:
-                        theme.palette.primary.button1,
-                      color: white,
-                      padding: "12px 8px",
-                      textAlign: "center",
-                      whiteSpace: "nowrap",
-                    }}
-                  />
-                ),
-              },
+          {error && (
+            <Box sx={{ width: "100%", p: 4, display: "flex", justifyContent: "center" }}>
+              <Typography color="error" variant="body1" sx={{ fontWeight: 600 }}>
+                حدث خطأ أثناء تحميل مقابلات قيد المراجعة: {error}
+              </Typography>
+            </Box>
+          )}
 
-              body: {
-                cell: (props) => (
-                  <td
-                    {...props}
-                    style={{
-                      backgroundColor:
-                        theme.palette.primary.Appar2,
-                      color: theme.palette.primary.chip,
-                      padding: "12px 8px",
-                      textAlign: "center",
-                      whiteSpace: "nowrap",
-                    }}
-                  />
-                ),
-              },
-            }}
-          />
+          {!error && (
+            <div style={{ width: "100%", overflowX: "auto", borderRadius: "8px" }}>
+              <Table
+                columns={isLoading ? loadingColumns : columns}
+                dataSource={isLoading ? skeletonData : (data || [])}
+                rowKey={(record) => record.id || record.key}
+                pagination={false}
+                scroll={{ x: 850 }}
+                locale={{
+                  emptyText: (
+                    <Box sx={{ p: 4, textAlign: "center" }}>
+                      <Typography sx={{ color: theme.palette.primary.text3, fontWeight: 500, fontSize: "15px" }}>
+                        لا توجد مقابلات قيد المراجعة حالياً في النظام.
+                      </Typography>
+                    </Box>
+                  ),
+                }}
+                components={{
+                  header: {
+                    cell: (props) => (
+                      <th
+                        {...props}
+                        style={{
+                          backgroundColor: theme.palette.primary.button1,
+                          color: white,
+                          padding: "12px 8px",
+                          textAlign: "center",
+                          whiteSpace: "nowrap",
+                        }}
+                      />
+                    ),
+                  },
+                  body: {
+                    cell: (props) => (
+                      <td
+                        {...props}
+                        style={{
+                          backgroundColor: theme.palette.primary.Appar2,
+                          color: theme.palette.primary.chip,
+                          padding: "12px 8px",
+                          textAlign: "center",
+                          whiteSpace: "nowrap",
+                        }}
+                      />
+                    ),
+                  },
+                }}
+              />
+            </div>
+          )}
+
+          {/* تم نقل الكومبوننت إلى هنا ليصبح تابعاً لشرط الـ requests فقط وتحت الجدول الأول 🌟 */}
+          <AvailableInterviewsTable />
         </>
       )}
 
@@ -241,6 +280,21 @@ const RequestsComponent = () => {
           onBack={() => setView("requests")}
         />
       )}
+
+      {/* مودال التفاصيل */}
+      <VolunteerDetailsModal
+        open={isDetailsModalOpen}
+        onClose={() => {
+          setIsDetailsModalOpen(false);
+          dispatch(resetrequest_details()); 
+        }}
+      />
+
+      {/* مودال الإنشاء العام */}
+      <CreateInterviewModal
+        open={isInterviewModalOpen}
+        onClose={() => setIsInterviewModalOpen(false)}
+      />
     </div>
   );
 };

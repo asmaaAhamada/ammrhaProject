@@ -24,4 +24,13 @@ export const Freezen = `/volunteer-freeze`
 export const Transfer = `/transfer-department`
 export const Position = `/assign-position`
 export const STATUS =`/enums/statuses`
+export const Type =`/enums/types`
+export const TRANSFER =`/transfer-to-public`
+export const Volunteer_Request =`/volunteer-requests`
+export const Pinding = `/pending`
+export const HR = `/HR`
+export const finished = `/finished`
+export const Intervews = `/interviews`
+export const Finilize = `/finalize`
+
 

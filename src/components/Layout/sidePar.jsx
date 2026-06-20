@@ -23,6 +23,7 @@ import {
 
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
+import { useSelector } from "react-redux"; 
 
 import MenuIcon from "@mui/icons-material/Menu";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
@@ -204,54 +205,75 @@ function Sidebar({ toggleMode, mode }) {
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // MEMOIZED TOGGLE
+const userRole = useSelector(
+  (state) => state.user?.userInfo?.role
+);
+const adminPages = [
+  "/section",
+  "/analyse",
+  "/Complaints"
+  
+];
+console.log("role =", userRole);
+  const filteredMenuItems = useMemo(() => {
+    return menuItems.filter((item) => {
+      if (item.path === "/orders") {
+        return userRole === "hr_general";
+      
+      }
+    if (adminPages.includes(item.path)) {
+        return userRole === "admin"
+      }
+      return true;
+    });
+  }, [userRole]);
+
   const handleDrawerToggle = useCallback(() => {
     setMobileOpen((prev) => !prev);
   }, []);
 
-  // MEMOIZED DRAWER CONTENT
   const drawerContent = (
-  <Box
-  sx={{
-    width: "256px",
-    height: "100vh",
-    backgroundColor: theme.palette.primary.Appar,
-    color: mainColor,
-    direction: "rtl",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    overflow: "hidden",   // ← أضف هذا
-  }}
->
-    <LogoHeader />
+    <Box
+      sx={{
+        width: "256px",
+        height: "100vh",
+        backgroundColor: theme.palette.primary.Appar,
+        color: mainColor,
+        direction: "rtl",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        overflow: "hidden", 
+      }}
+    >
+      <LogoHeader />
 
-<List sx={{ 
-  mt: 0, 
-  flex: 1,           // ← يأخذ المساحة المتبقية
-  overflowY: "auto", // ← يسمح بالسكرول
-  // إخفاء الـ scrollbar في كل المتصفحات
-  "&::-webkit-scrollbar": { display: "none" },
-  msOverflowStyle: "none",
-  scrollbarWidth: "none",
-}}>      {menuItems.map((item, index) => (
-        <SidebarItem
-          key={index}
-          item={item}
-          active={location.pathname === item.path}
-          navigate={navigate}
-          isDesktop={isDesktop}
-          setMobileOpen={setMobileOpen}
-          theme={theme}
-        />
-      ))}
-    </List>
+      <List sx={{ 
+        mt: 0, 
+        flex: 1,         
+        overflowY: "auto", 
+        "&::-webkit-scrollbar": { display: "none" },
+        msOverflowStyle: "none",
+        scrollbarWidth: "none",
+      }}>      
+        {filteredMenuItems.map((item, index) => (
+          <SidebarItem
+            key={index}
+            item={item}
+            active={location.pathname === item.path}
+            navigate={navigate}
+            isDesktop={isDesktop}
+            setMobileOpen={setMobileOpen}
+            theme={theme}
+          />
+        ))}
+      </List>
 
-    <Suspense fallback={null}>
-      <UserMenuSection />
-    </Suspense>
-  </Box>
-);
+      <Suspense fallback={null}>
+        <UserMenuSection />
+      </Suspense>
+    </Box>
+  );
 
   return (
     <Box sx={{ display: "flex", direction: "rtl" }}>
@@ -294,22 +316,20 @@ function Sidebar({ toggleMode, mode }) {
           sx={{
             width: "256px",
             flexShrink: 0,
-
-             "& .MuiDrawer-paper": {
-  width: 266,
-  height: "100vh",
-  backgroundColor: theme.palette.primary.Appar,
-  border: "none",
-  boxSizing: "border-box",
-  overflow: "hidden",   // ← أضف هذا
-
-    },
+            "& .MuiDrawer-paper": {
+              width: 266,
+              height: "100vh",
+              backgroundColor: theme.palette.primary.Appar,
+              border: "none",
+              boxSizing: "border-box",
+              overflow: "hidden", 
+            },
           }}
         >
           {drawerContent}
         </Drawer>
       ) : (
-        // MOBILE DRAWER
+        // MOBILE DRAWER - تم تصحيح الـ sx والأقواس وعلامات التنصيص هنا بالأسفل
         <Drawer
           variant="temporary"
           anchor="right"
@@ -320,13 +340,13 @@ function Sidebar({ toggleMode, mode }) {
           }}
           sx={{
             "& .MuiDrawer-paper": {
-  width: 276,
-  height: "100vh",
-  backgroundColor: theme.palette.primary.Appar,
-  border: "none",
-  boxSizing: "border-box",
-  overflow: "hidden",   // ← أضف هذا
-},
+              width: 276,
+              height: "100vh",
+              backgroundColor: theme.palette.primary.Appar,
+              border: "none",
+              boxSizing: "border-box",
+              overflow: "hidden",
+            },
           }}
         >
           {drawerContent}

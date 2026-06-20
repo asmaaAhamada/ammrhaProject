@@ -48,13 +48,22 @@ export default function App({ toggleMode, mode }) {
 
           <Route path="News" element={<NeWsPage />} />
           <Route path="News/:id" element={<NewsDetails />} />
-          <Route path="orders" element={<RequestsComponent />} />
-          <Route path="frazing" element={<FrazzenPage />} />
+<Route element={<ProtectedRoute allowedRole={["hr_general"]} />}>
+              <Route path="orders" element={<RequestsComponent />} />
+            </Route>          <Route path="frazing" element={<FrazzenPage />} />
           <Route path="black" element={<BlackListPage />} />
           <Route path="Criteria" element={<CriteriaPage />} />
-          <Route path="section" element={<SectionPage />} />
-          <Route path="Complaints" element={<ComplaintsPage />} />
+         
+
+         {/* admin only */}
+                    <Route element={<ProtectedRoute allowedRole={["admin"]} />}>
           <Route path="analyse" element={<AnalysePage />} />
+          <Route path="section" element={<SectionPage />} />
+
+          <Route path="Complaints" element={<ComplaintsPage />} />
+          </Route>
+                             {/* admin only */}
+
                     <Route path="Honor" element={<HonorPage />} />
                     <Route path="Rank" element={<RankPage />} />
 <Route path="/Events" element={<EventsPage />} />

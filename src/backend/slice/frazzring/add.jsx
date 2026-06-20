@@ -23,7 +23,6 @@ export const volunteer_freeze = createAsyncThunk(
       formData.append('volunteer_id', volunteer_id);
       formData.append('reason', reason);
 
-      // نرسلها كـ POST مع الـ _method لتفادي مشاكل الـ PUT المشهورة في لارافل
       const response = await postData(
         `${BaseUrl}${Procedures}${Freezen}`,
         formData,
@@ -31,8 +30,15 @@ export const volunteer_freeze = createAsyncThunk(
         true
       );
 
+      // ---- 🛑 كونسول للنجاح ----
+      console.log("الرد الكامل من السيرفر (Thunk Success):", response);
+
       return response;
     } catch (error) {
+      // ---- 🛑 كونسول للخطأ والـ Response القادم من السيرفر ----
+      console.log("الخطأ الكامل من السيرفر (Thunk Catch):", error.response);
+
+      // هنا يتم فحص رسالة الخطأ المتوقعة من لارافل
       const serverMessage = error?.response?.data?.message || error?.message || 'حدث خطأ ما أثناء التعديل';
       return rejectWithValue(serverMessage);
     }

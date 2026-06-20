@@ -1,7 +1,7 @@
 import React, { useState, lazy } from "react";
 import { Table, Avatar, Space, Tooltip } from "antd";
 import { useTheme } from "@mui/material/styles";
-import { Button, Typography, Box } from "@mui/material";
+import { Button, Typography, Box, CircularProgress } from "@mui/material"; 
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,28 +16,26 @@ import Frezzen_Modal from "../frazzening/frazingModal";
 import AddBlack_ListModal from "./blacklistModal";
 import TransferModal from "./TransferModal";
 import PromoteModal from "./PromoteModal";
-// 🌟 تأكدي من استيراد المودال الخاص بالحظر من مساره الصحيح هنا:
 
 export default function VolunteersTable({ topContent, statsContent, isHomePage = false }) {
+  const userRole = useSelector((state) => state.user?.userInfo?.role);
   const dispatch = useDispatch();
   const theme = useTheme();
   const navigate = useNavigate();
-const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [isFreezeModalOpen, setIsFreezeModalOpen] = useState(false);
-  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false); // 🌟 إضافة الـ State لمودال الحظر
+  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false); 
   const [selectedVolunteer, setSelectedVolunteer] = useState(null);
-const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
+  const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
+
   const { data: rawData, isLoading, error } = useSelector((state) => state.fetchvolunteers);
   
   const refreshTableData = () => {
     dispatch(fetchvolunteers());
   };
 
-  // React.useEffect(() => {
-  //   refreshTableData();
-  // }, [dispatch]);
-
-  const volunteersList = rawData?.data?.data || [];
+  const volunteersList = rawData?.data || [];
   const displayedVolunteers = isHomePage ? volunteersList.slice(0, 2) : volunteersList;
   const MotionBox = motion(Box);
 
@@ -114,7 +112,33 @@ const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
       dataIndex: "status",
       key: "status",
       width: 120,
-      render: (status) => {
+      render: (status, record) => {
+        // 🌟 فحص طلب التجميد المعلق
+        const isFreezePending = record.freeze_status === "قيد الانتظار" || record.is_freeze_pending === true;
+        
+        // 🌟 فحص طلب البلاك ليست المعلق بناءً على الستركتشر الراجع من الباك إند (سواء كـ Object مستقل أو خصائص مدمجة)
+        const isBlacklistPending = 
+          record.blacklist_status === "قيد الانتظار" || 
+          record.black_list_status === "قيد الانتظار" ||
+          record.blacklist?.status === "قيد الانتظار" || // في حال كان يرجع كـ العلاقة Model Relationship
+          record.is_blacklist_pending === true;
+
+        if (isFreezePending) {
+          return (
+            <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "12px", border: `1px solid ${yallow}`, color: yallow, backgroundColor: "rgba(255, 152, 0, 0.08)", fontWeight: 600, whiteSpace: "nowrap", fontSize: "12px" }}>
+              معلق (طلب تجميد)
+            </span>
+          );
+        }
+
+        if (isBlacklistPending) {
+          return (
+            <span style={{ display: "inline-block", padding: "4px 12px", borderRadius: "12px", border: `1px solid ${red2}`, color: red2, backgroundColor: "rgba(244, 67, 54, 0.08)", fontWeight: 600, whiteSpace: "nowrap", fontSize: "12px" }}>
+              معلق (طلب حظر)
+            </span>
+          );
+        }
+
         const isActive = status === "نشط";
         const statusColor = isActive ? babygreen : yallow; 
         
@@ -137,6 +161,17 @@ const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
       width: 220,
       render: (_, record) => {
         const isNotActive = record.status === "غير نشط" || record.status === "مجمد" || record.status === "محظور";
+        
+        const isFreezePending = record.freeze_status === "قيد الانتظار" || record.is_freeze_pending === true;
+        
+        // فحص البلاك ليست المعلق للإجراءات
+        const isBlacklistPending = 
+          record.blacklist_status === "قيد الانتظار" || 
+          record.black_list_status === "قيد الانتظار" ||
+          record.blacklist?.status === "قيد الانتظار" ||
+          record.is_blacklist_pending === true;
+
+        const isAnyActionPending = isFreezePending || isBlacklistPending;
 
         return (
           <Space size="middle">
@@ -146,82 +181,126 @@ const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
               </Button>
             </Tooltip>
 
-            {/* زر التجميد */}
-            <Tooltip title={isNotActive ? "عرض تفاصيل الحساب وإلغاء التجميد" : "تجميد الحساب"}>
-              <Button 
-                size="small" 
-                sx={{ 
-                  minWidth: "auto",
-                  backgroundColor: isNotActive ? "rgba(255, 152, 0, 0.12)" : "transparent",
-                  borderRadius: "6px",
-                  p: "4px",
-                  border: isNotActive ? `1px solid ${yallow}` : "none",
-                  "& svg": {
-                    color: isNotActive ? yallow : "inherit",
-                    fill: isNotActive ? yallow : "inherit"
-                  }
-                }}
-                onClick={() => {
-                  if (isNotActive) {
-                    navigate("/frazing", { state: { searchName: record.full_name } });
-                  } else {
-                    setSelectedVolunteer(record);
-                    setIsFreezeModalOpen(true);
-                  }
-                }}
-              >
-                <FrazenIcon />
-              </Button>
+            {/* زر التجميد الذكي */}
+            <Tooltip title={isFreezePending ? "بانتظار موافقة المدير على التجميد" : isNotActive ? "عرض تفاصيل الحساب وإلغاء التجميد" : "تجميد الحساب"}>
+              <span>
+                <Button 
+                  size="small" 
+                  disabled={isAnyActionPending} 
+                  sx={{ 
+                    minWidth: "auto",
+                    backgroundColor: isFreezePending 
+                      ? "rgba(255, 152, 0, 0.15)" 
+                      : isNotActive ? "rgba(255, 152, 0, 0.12)" : "transparent",
+                    borderRadius: "6px",
+                    p: "4px",
+                    border: (isNotActive || isFreezePending) ? `1px solid ${yallow}` : "none",
+                    position: "relative",
+                    "& svg": {
+                      color: (isNotActive || isFreezePending) ? yallow : "inherit",
+                      fill: (isNotActive || isFreezePending) ? yallow : "inherit",
+                      opacity: isFreezePending ? 0.4 : 1 
+                    }
+                  }}
+                  onClick={() => {
+                    if (isNotActive) {
+                      navigate("/frazing", { state: { searchName: record.full_name } });
+                    } else {
+                      setSelectedVolunteer(record);
+                      setIsFreezeModalOpen(true);
+                    }
+                  }}
+                >
+                  {isFreezePending ? (
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: 20, height: 20 }}>
+                      <CircularProgress size={16} sx={{ color: yallow }} />
+                    </Box>
+                  ) : (
+                    <FrazenIcon />
+                  )}
+                </Button>
+              </span>
             </Tooltip>
 
             {/* زر الحظر والقائمة السوداء */}
-            <Tooltip title={isNotActive ? "مراجعة المتطوع في القائمة السوداء" : "إضافة للقائمة السوداء"}>
-              <Button 
-                size="small" 
-                sx={{ 
-                  minWidth: "auto",
-                  backgroundColor: isNotActive ? "rgba(244, 67, 54, 0.12)" : "transparent",
-                  borderRadius: "6px",
-                  p: "4px",
-                  border: isNotActive ? `1px solid ${red2 || "#f44336"}` : "none",
-                }}
-                onClick={() => {
-                  if (isNotActive) {
-                    navigate("/black", { state: { searchName: record.full_name } });
-                  } else {
-                    // 🌟 تم التعديل هنا لفتح مودال الحظر للحساب النشط
-                    setSelectedVolunteer(record);
-                    setIsBlockModalOpen(true); 
-                  }
-                }}
-              >
-                <BlockIcon 
-                  width={20} 
-                  height={20} 
-                  style={{ color: isNotActive ? (red2 || "#f44336") : "inherit" }} 
-                />
-              </Button>
+            {/* 🌟 تم تعديل الـ Tooltip ليظهر رسالة الباك إند تماماً (بانتظار موافقة المدير للمراجعة) */}
+            <Tooltip title={isBlacklistPending ? "تم إرسال طلب الإضافة للمدير للمراجعة" : isNotActive ? "مراجعة المتطوع في القائمة السوداء" : "إضافة للقائمة السوداء"}>
+              <span>
+                <Button 
+                  size="small" 
+                  disabled={isAnyActionPending} 
+                  sx={{ 
+                    minWidth: "auto",
+                    backgroundColor: isBlacklistPending 
+                      ? "rgba(244, 67, 54, 0.15)"
+                      : isNotActive ? "rgba(244, 67, 54, 0.12)" : "transparent",
+                    borderRadius: "6px",
+                    p: "4px",
+                    border: (isNotActive || isBlacklistPending) ? `1px solid ${red2 || "#f44336"}` : "none",
+                    position: "relative"
+                  }}
+                  onClick={() => {
+                    if (isNotActive) {
+                      navigate("/black", { state: { searchName: record.full_name } });
+                    } else {
+                      setSelectedVolunteer(record);
+                      setIsBlockModalOpen(true); 
+                    }
+                  }}
+                >
+                  {isBlacklistPending ? (
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: 20, height: 20 }}>
+                      <CircularProgress size={16} sx={{ color: red2 }} />
+                    </Box>
+                  ) : (
+                    <BlockIcon 
+                      width={20} 
+                      height={20} 
+                      style={{ color: (isNotActive || isBlacklistPending) ? (red2 || "#f44336") : "inherit" }} 
+                    />
+                  )}
+                </Button>
+              </span>
             </Tooltip>
 
-{/* تعديل سطر النقل الحالي ليكون تفاعلياً */}
-<span 
-  style={{ textDecoration: "underline", cursor: "pointer", fontWeight: 600, color: theme.palette.primary.chip }}
-  onClick={() => {
-    setSelectedVolunteer(record);
-    setIsTransferModalOpen(true);
-  }}
-> 
-  نقل 
-</span>          
-<span 
-    style={{ textDecoration: "underline", cursor: "pointer", fontWeight: 600, color: babygreen }}
-    onClick={() => {
-      setSelectedVolunteer(record); // تحديد المتطوع الحالي من السطر
-      setIsPromoteModalOpen(true); // فتح المودال فورا
-    }}
-  > 
-    ترقية 
-  </span>          </Space>
+            {/* إجراء النقل للـ HR */}
+            {userRole === "hr_general" && (
+              <span
+                style={{
+                  textDecoration: "underline",
+                  cursor: isAnyActionPending ? "not-allowed" : "pointer",
+                  fontWeight: 600,
+                  color: theme.palette.primary.chip,
+                  opacity: isAnyActionPending ? 0.5 : 1
+                }}
+                onClick={() => {
+                  if (isAnyActionPending) return;
+                  setSelectedVolunteer(record);
+                  setIsTransferModalOpen(true);
+                }}
+              >
+                نقل
+              </span>
+            )}
+
+            {/* إجراء الترقية للـ Admin */}
+            {userRole === "admin" && (
+              <span
+                style={{
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                  fontWeight: 600,
+                  color: babygreen,
+                }}
+                onClick={() => {
+                  setSelectedVolunteer(record);
+                  setIsPromoteModalOpen(true);
+                }}
+              >
+                ترقية
+              </span>
+            )}        
+          </Space>
         );
       },
     },
@@ -293,7 +372,6 @@ const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
         }}
       />
 
-      {/* مودال التجميد الحالي */}
       <Frezzen_Modal 
         open={isFreezeModalOpen}
         onClose={() => {
@@ -304,7 +382,6 @@ const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
         onSuccess={refreshTableData}
       />
 
-      {/*   مودال الحظر */}
       <AddBlack_ListModal 
         open={isBlockModalOpen}
         onClose={() => {
@@ -315,17 +392,17 @@ const [isPromoteModalOpen, setIsPromoteModalOpen] = useState(false);
         onSuccess={refreshTableData}
       />
 
-      {/* مودال نقل المتطوع إلى قسم آخر */}
-<TransferModal 
-  open={isTransferModalOpen}
-  onClose={() => {
-    setIsTransferModalOpen(false);
-    setSelectedVolunteer(null);
-  }}
-  selectedVolunteer={selectedVolunteer}
-  onSuccess={refreshTableData}
-/>
-<PromoteModal 
+      <TransferModal 
+        open={isTransferModalOpen}
+        onClose={() => {
+          setIsTransferModalOpen(false);
+          setSelectedVolunteer(null);
+        }}
+        selectedVolunteer={selectedVolunteer}
+        onSuccess={refreshTableData}
+      />
+
+      <PromoteModal 
         open={isPromoteModalOpen}
         onClose={() => {
           setIsPromoteModalOpen(false);

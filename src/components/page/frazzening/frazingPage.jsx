@@ -2,15 +2,16 @@ import React, { useState } from "react";
 import { Table, Avatar, Space, Tooltip } from "antd";
 import { useTheme } from "@mui/material/styles";
 import { Box, Button, Typography } from "@mui/material";
-import { white } from "../../../style/color-main/color";
+import AcUnitIcon from "@mui/icons-material/AcUnit"; // أيقونة التجميد المتناسقة مع الصفحة
+import { white, yallow, babygreen, red2 } from "../../../style/color-main/color";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchvolunteer_freeze } from "../../../backend/slice/frazzring/fetchAll";
 import { motion } from "framer-motion";
 import DeletList from "./retrayFreezen";
 
-// 1. استيراد مودال التجميد/إلغاء الحظر
-
 const FrazzenPage = () => {
+  const userRole = useSelector((state) => state.user?.userInfo?.role);
+  
   const [view, setView] = useState("requests");
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -28,13 +29,24 @@ const FrazzenPage = () => {
   }, [dispatch]);
 
   // استخراج المصفوفة الفعلية ديناميكياً
-  const freezeList = rawData?.data || (Array.isArray(rawData) ? rawData : []);
+  const freezeList = rawData?.data?.data || rawData?.data || (Array.isArray(rawData) ? rawData : []);
 
   const MotionBox = motion(Box);
 
   // دالة لتحديث الجدول بعد إتمام العملية بنجاح
   const handleSuccessRefresh = () => {
     dispatch(fetchvolunteer_freeze());
+  };
+
+  // دالتين للتحكم بقبول أو رفض الطلب من قبل الأدمن مباشرة (يمكنك ربطهم مع الـ API الخاص بك)
+  const handleApprove = (record) => {
+    console.log("تم قبول طلب تجميد المتطوع:", record);
+    // هنا تضع أكشن القبول الخاص بك أو تفتح مودال التأكيد
+  };
+
+  const handleReject = (record) => {
+    console.log("تم رفض طلب تجميد المتطوع:", record);
+    // هنا تضع أكشن الرفض الخاص بك أو تفتح مودال التأكيد
   };
 
   // ================= COLUMNS CONFIGURATION =================
@@ -96,38 +108,81 @@ const FrazzenPage = () => {
       },
     },
     {
-      title: "الإجراءات",
+      title: "الإجراءات / الحالة",
       key: "actions",
       fixed: "right",
-      width: 160,
+      width: 220, // تم زيادة العرض ليستوعب الزرين بشكل مريح متجاورين
       render: (_, record) => (
-        <Space size="middle">
-          <Button
-            type="primary"
-            onClick={() => {
-              // 2. تحديث السطر المختار وفتح المودال عند الضغط
-              setSelectedCard(record);
-              setIsModalOpen(true);
-            }}
-            style={{
-              color: theme.palette.primary.text3,
-              width: "130px",
-              height: "32px",
-              borderRadius: "6px",
-              fontSize: "12px",
-              backgroundColor: "transparent",
-              border: `1px solid ${theme.palette.primary.text3}`,
-              transition: "all 0.3s ease",
-            }}
-            sx={{
-              "&:hover": {
-                backgroundColor: "rgba(255, 255, 255, 0.05)",
-                borderColor: theme.palette.primary.main,
-              }
-            }}
-          >
-            إزالة من التجميد
-          </Button>
+        <Space size="small">
+          {/* 🌟 إذا كان المستخدم آدمن: تعرض له أزرار القبول والرفض */}
+          {userRole === "admin" && (
+            <>
+              {/* زر القبول الأخضر */}
+              <Button
+                variant="contained"
+                onClick={() => handleApprove(record)}
+                style={{
+                  color: white,
+                  backgroundColor: babygreen,
+                  minWidth: "75px",
+                  height: "32px",
+                  borderRadius: "6px",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  boxShadow: "none"
+                }}
+                sx={{
+                  "&:hover": {
+                    backgroundColor: babygreen,
+                    opacity: 0.9,
+                  }
+                }}
+              >
+                قبول
+              </Button>
+
+              {/* زر الرفض الأحمر */}
+              <Button
+                variant="contained"
+                onClick={() => handleReject(record)}
+                style={{
+                  color: white,
+                  backgroundColor: red2 || "#f44336",
+                  minWidth: "75px",
+                  height: "32px",
+                  borderRadius: "6px",
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  boxShadow: "none"
+                }}
+                sx={{
+                  "&:hover": {
+                    backgroundColor: red2 || "#f44336",
+                    opacity: 0.9,
+                  }
+                }}
+              >
+                رفض
+              </Button>
+            </>
+          )}
+
+          {/* 🌟 إذا كان المستخدم مدير موارد بشرية (hr_general): تعرض له الحالة الحالية فقط للطلب */}
+          {userRole === "hr_general" && (
+            <span style={{
+              display: "inline-block", 
+              padding: "4px 14px", 
+              borderRadius: "12px",
+              border: `1px solid ${yallow}`, 
+              color: yallow,
+              backgroundColor: "rgba(255, 152, 0, 0.08)",
+              fontWeight: 600, 
+              whiteSpace: "nowrap",
+              fontSize: "13px"
+            }}>
+              {record.status || "قيد الانتظار"}
+            </span>
+          )}
         </Space>
       ),
     },
@@ -213,9 +268,39 @@ const FrazzenPage = () => {
                 scroll={{ x: 850 }}
                 locale={{
                   emptyText: (
-                    <Box sx={{ p: 4, textAlign: "center" }}>
-                      <Typography sx={{ color: theme.palette.primary.text3, fontWeight: 500, fontSize: "15px" }}>
-                        لا يوجد حسابات متطوعين مجمدة حالياً في النظام.
+                    <Box 
+                      sx={{ 
+                        display: "flex", flexDirection: "column", alignItems: "center", 
+                        justifyContent: "center", py: 6, textAlign: "center", width: "100%" 
+                      }}
+                    >
+                      <Box 
+                        sx={{ 
+                          width: 90, height: 90, borderRadius: "50%", 
+                          backgroundColor: "#ffffff", display: "flex", 
+                          alignItems: "center", justifyContent: "center",
+                          boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.05)", mb: 2 
+                        }}
+                      >
+                        <AcUnitIcon style={{ fontSize: "40px", color: theme.palette.primary.button1 }} />
+                      </Box>
+
+                      <Typography 
+                        sx={{ 
+                          fontSize: "18px", fontWeight: 700, 
+                          color: theme.palette.primary.button1, mb: 1 
+                        }}
+                      >
+                        لا توجد حسابات مجمدة حالياً
+                      </Typography>
+
+                      <Typography 
+                        sx={{ 
+                          fontSize: "13px", color: theme.palette.primary.chip, 
+                          maxWidth: "420px", lineHeight: 1.6 
+                        }}
+                      >
+                        جميع حسابات المتطوعين نشطة وتعمل بشكل طبيعي في النظام. عند تجميد أي حساب، سيظهر في هذا الجدول مباشرة.
                       </Typography>
                     </Box>
                   ),
@@ -255,11 +340,7 @@ const FrazzenPage = () => {
         </>
       )}
 
-      {view === "finished" && (
-        <FinishedInterviewsTable onBack={() => setView("requests")} />
-      )}
-
-      {/* 3. استدعاء المودال وتمرير الخصائص المناسبة */}
+      {/* الـ Modal الحالي إذا كنت بحاجة إليه لاحقاً للإزالة من التجميد */}
       <DeletList
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}

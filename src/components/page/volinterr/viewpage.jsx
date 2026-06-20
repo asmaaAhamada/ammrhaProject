@@ -14,6 +14,9 @@ import VolunteersTable from "./volintersTable";
 import VolunteersStatsCards from "./VolunteersStatsCards ";
 
 export default function Volunteerspage() {
+  const userRole = useSelector(
+  (state) => state.user?.userInfo?.role
+);
   const theme = useTheme();
   const dispatch = useDispatch();
 
@@ -50,8 +53,9 @@ export default function Volunteerspage() {
   return (
     <VolunteersTable
       isHomePage={false}
-      statsContent={<VolunteersStatsCards />} 
-      topContent={
+statsContent={
+  userRole === "admin" && <VolunteersStatsCards />
+}      topContent={
         <Space
           wrap
           size="middle"

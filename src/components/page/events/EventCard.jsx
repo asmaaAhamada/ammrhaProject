@@ -4,13 +4,12 @@ import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import EventIcon from "@mui/icons-material/Event";
-import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import LayersOutlinedIcon from "@mui/icons-material/LayersOutlined";
 import ImageNotSupportedOutlinedIcon from "@mui/icons-material/ImageNotSupportedOutlined";
 import { babygreen, red1 } from "../../../style/color-main/color";
+import PublicIcon from "@mui/icons-material/Public";
 
-export default function EventCard({ card, theme, onEdit, onDelete, onView }) {
-  
+export default function EventCard({ card, theme, onEdit, onDelete, onView, onTransfer ,props}) {  
   // تخصيص الألوان بناءً على نوع الفعالية من الباك إند
   const getTypeDetail = (type) => {
     if (type === "مستعجلة" || type === "urgent") {
@@ -44,7 +43,7 @@ export default function EventCard({ card, theme, onEdit, onDelete, onView }) {
         sx={{
           borderRadius: "16px",
           overflow: "hidden",
-        backgroundColor: theme.palette.primary.Appar2,
+          backgroundColor: theme.palette.primary.Appar2,
           boxShadow: "0px 4px 20px rgba(0,0,0,0.04)",
           display: "flex",
           flexDirection: "column",
@@ -90,12 +89,12 @@ export default function EventCard({ card, theme, onEdit, onDelete, onView }) {
         {/* تفاصيل الكارد ومحتواه الداخلي */}
         <CardContent sx={{ p: 2.5, display: "flex", flexDirection: "column", flexGrow: 1 }}>
           
-          {/* العنوان (اسم الفعالية الحقيقي من الباك إند) */}
+          {/* العنوان */}
           <Typography sx={{ color: theme?.palette?.primary?.text3 || "#000", fontSize: "17px", fontWeight: 700, mb: 2 }}>
             {card.name || "بدون عنوان"}
           </Typography>
 
-          {/* تفاصيل القسم والتوقيت مدعومة بأيقونات واضحة وعصرية */}
+          {/* تفاصيل القسم والتوقيت */}
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1.2, mb: 3 }}>
             
             {/* القسم */}
@@ -115,19 +114,9 @@ export default function EventCard({ card, theme, onEdit, onDelete, onView }) {
                 التاريخ: <Box component="span" sx={{ fontWeight: 600 ,color:theme?.palette?.primary?.text6}}>{card.date || "غير محدد"}</Box>
               </Typography>
             </Box>
-
-            {/* وقت البدء والنهاية */}
-            {/* {(card.start_time || card.end_time) && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <AccessTimeOutlinedIcon sx={{ fontSize: "17px", color: "#0288d1" }} />
-                <Typography sx={{ color: "#555", fontSize: "13.5px", fontWeight: 500 }}>
-                  التوقيت: من <Box component="span" sx={{ fontWeight: 600 }}>{card.start_time || "--"}</Box> إلى <Box component="span" sx={{ fontWeight: 600 }}>{card.end_time || "--"}</Box>
-                </Typography>
-              </Box>
-            )} */}
           </Box>
 
-          {/* أزرار الإجراءات المتساوية هندسياً (Gap متوازن تماماً) */}
+          {/* أزرار الإجراءات المتساوية هندسياً */}
           <Box 
             sx={{ 
               mt: "auto", 
@@ -159,7 +148,7 @@ export default function EventCard({ card, theme, onEdit, onDelete, onView }) {
               </Button>
             </Box>
 
-            <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
+            <Box sx={{ flex: 1, display: "flex", justifyContent: "center", gap: 1 }}>
               <Button
                 onClick={() => onDelete && onDelete(card)}
                 startIcon={<DeleteOutlineOutlinedIcon sx={{ ml: 0.5, mr: 0 }} />}
@@ -167,6 +156,26 @@ export default function EventCard({ card, theme, onEdit, onDelete, onView }) {
               >
                 حذف
               </Button>
+
+              {/* 🌟 تعديل الشرط البرمجي ليفحص كائن القسم الداخلي بشكل صحيح لكي يختفي الزر بقسم علاقات عامة */}
+              {card.department?.id !== 10 && (
+                <Button 
+                  onClick={() => onTransfer}
+                  startIcon={<PublicIcon sx={{ ml: 1, mr: 0, color: "#2196f3" }} />}
+                  sx={{ 
+                    color: "#1e88e5", 
+                    fontWeight: 600,
+                    fontSize: "14px",
+                    p: 0,
+                    minWidth: "auto",
+                    "&:hover": {
+                      backgroundColor: "rgba(33, 150, 243, 0.08)"
+                    }
+                  }}
+                >
+                  نقل للعام
+                </Button>
+              )}
             </Box>
           </Box>
 

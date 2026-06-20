@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { BaseUrl, BLACK_LIST, Procedures } from '../../Api';
-import { postData } from '../../ApiServecies'; // استيراد postData بدلاً من putData لتوافق الـ FormData مع لارافل
+import { postData } from '../../ApiServecies';
 
 const initialState = {
   formInfo: {
@@ -10,6 +10,7 @@ const initialState = {
   isLoading: false,
   error: null,
   success: false,
+  message: null, // 🌟 لإستقبال رسالة النجاح القادمة من الباك إند
 };
 
 export const Add_black_List = createAsyncThunk(
@@ -23,7 +24,6 @@ export const Add_black_List = createAsyncThunk(
       formData.append('volunteer_id', volunteer_id);
       formData.append('reason', reason);
 
-      // نرسلها كـ POST مع الـ _method لتفادي مشاكل الـ PUT المشهورة في لارافل
       const response = await postData(
         `${BaseUrl}${Procedures}${BLACK_LIST}`,
         formData,
@@ -31,7 +31,7 @@ export const Add_black_List = createAsyncThunk(
         true
       );
 
-      return response;
+      return response; // 🌟 يحتوي عادة على { success: true, message: "..." }
     } catch (error) {
       const serverMessage = error?.response?.data?.message || error?.message || 'حدث خطأ ما أثناء التعديل';
       return rejectWithValue(serverMessage);
@@ -57,16 +57,19 @@ const formSlice = createSlice({
         state.isLoading = true;
         state.error = null;
         state.success = false;
+        state.message = null;
       })
-      .addCase(Add_black_List.fulfilled, (state) => {
+      .addCase(Add_black_List.fulfilled, (state, action) => {
         state.isLoading = false;
         state.success = true;
         state.error = null;
+        state.message = action.payload?.message || "تم إرسال الطلب بنجاح بانتظار موافقة الإدارة";
       })
       .addCase(Add_black_List.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
         state.success = false;
+        state.message = null;
       });
   },
 });

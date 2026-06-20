@@ -1,18 +1,17 @@
-import React from 'react';
-import { Box, Typography, Avatar, Button, Stack } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import LogoutIcon from '@mui/icons-material/Logout';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import React, { useState } from 'react';
+import { Box } from '@mui/material';
 import LogoutSection from './logout';
 import ProfileSection from './profile';
+import Log_outModal from './logout';
 
 export default function UserMenuSection() {
-  const theme = useTheme();
+  // حالة التحكم بفتح وإغلاق مودال تسجيل الخروج
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   return (
     <Box
       sx={{
-        width: '100%', // يمكنك تعديل العرض حسب الحاجة
+        width: '100%',
         padding: 2,
         display: 'flex',
         flexDirection: 'column',
@@ -22,10 +21,18 @@ export default function UserMenuSection() {
       }}
     >
       {/* بوكس معلومات المستخدم العلوي */}
+      <ProfileSection />
       
-<ProfileSection/>
-      {/* زر تسجيل الخروج */}
-     <LogoutSection/>
+      {/* زر تسجيل الخروج - نمرر أكشن الفتح عند النقر */}
+      <Box onClick={() => setIsLogoutOpen(true)} sx={{ width: '100%', cursor: 'pointer' }}>
+        <LogoutSection />
+      </Box>
+
+      {/* استدعاء المودال هنا وتمرير الحالات له */}
+      <Log_outModal 
+        open={isLogoutOpen} 
+        onClose={() => setIsLogoutOpen(false)} 
+      />
     </Box>
   );
 }

@@ -38,6 +38,17 @@ import Deletvolunteer_freezeReducer from '../slice/frazzring/delet'
 import transferrReducer from '../slice/volnteers/transfer'
 import PostionReducer from '../slice/volnteers/postion'
 import fetchstatusReducer from '../slice/events/fetchstatus'
+import fetchTypeReducer from '../slice/events/typeEvent'
+import transfer_to_publicReducer from '../slice/events/transfer-to-public'
+import fetchrequest_pindingReducer from '../slice/volnteers/request/pinding'
+import fetchrequest_finishedReducer from '../slice/volnteers/request/finished'
+import fetchrequest_detailsReducer from '../slice/volnteers/request/details'
+import volunteer_calenerReducer from '../slice/volnteers/request/calendr'
+import Add_eventsReducer from '../slice/events/addEvents'
+import LogoutReducer from '../slice/auth/logout'
+import fetchrequest_avalaibleReducer from '../slice/volnteers/request/avalible'
+import Edit_requestReducer from '../slice/volnteers/request/edit'
+import cancelHrReducer from '../slice/volnteers/request/cancelHrSlice'
 // import filter_HonorReducer from '../slice/honor/filter'
 const store = configureStore({
   reducer: {
@@ -80,7 +91,18 @@ volunteer_freeze:volunteer_freezeReducer,
 Deletvolunteer_freeze:Deletvolunteer_freezeReducer,
 Postion:PostionReducer,
 transferr:transferrReducer,
-fetchstatus:fetchstatusReducer
+fetchstatus:fetchstatusReducer,
+fetchType:fetchTypeReducer,
+transfer_to_public:transfer_to_publicReducer,
+fetchrequest_pinding:fetchrequest_pindingReducer,
+fetchrequest_finished:fetchrequest_finishedReducer,
+fetchrequest_details:fetchrequest_detailsReducer,
+volunteer_calener:volunteer_calenerReducer,
+Add_events:Add_eventsReducer,
+Logout:LogoutReducer,
+fetchrequest_avalaible:fetchrequest_avalaibleReducer,
+Edit_request:Edit_requestReducer,
+cancelHr:cancelHrReducer
 }})
 
 export default store

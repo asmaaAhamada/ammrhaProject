@@ -49,10 +49,13 @@ export const counterSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchvolunteers.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.data = action.payload;
-      })
+     // ... داخل الـ Slice الخاص بالمتطوعين
+.addCase(fetchvolunteers.fulfilled, (state, action) => {
+  state.isLoading = false;
+  // استخراج حقل الـ data مباشرة لتوحيد البنية مع الأقسام
+  // إذا كان السيرفر يستعمل نظام الـ Pagination الافتراضي لـ Laravel جرب: action.payload.data.data
+  state.data = action.payload.data || action.payload; 
+})
       .addCase(fetchvolunteers.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
