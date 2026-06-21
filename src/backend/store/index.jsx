@@ -49,6 +49,7 @@ import LogoutReducer from '../slice/auth/logout'
 import fetchrequest_avalaibleReducer from '../slice/volnteers/request/avalible'
 import Edit_requestReducer from '../slice/volnteers/request/edit'
 import cancelHrReducer from '../slice/volnteers/request/cancelHrSlice'
+import ExportFileReducer from '../slice/dashbord/exportFile'
 // import filter_HonorReducer from '../slice/honor/filter'
 const store = configureStore({
   reducer: {
@@ -102,7 +103,8 @@ Add_events:Add_eventsReducer,
 Logout:LogoutReducer,
 fetchrequest_avalaible:fetchrequest_avalaibleReducer,
 Edit_request:Edit_requestReducer,
-cancelHr:cancelHrReducer
+cancelHr:cancelHrReducer,
+ExportFile:ExportFileReducer
 }})
 
 export default store
