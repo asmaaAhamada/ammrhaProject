@@ -7,8 +7,11 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { white, yallow } from "../../../style/color-main/color";
 import { motion } from "framer-motion";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 
-const HonorBoardTable = ({ rawData, isLoading, error }) => {
+const HonorBoardTable = ({ rawData, isLoading, error ,onView}) => {
   const theme = useTheme();
   const [selectedDepartment, setSelectedDepartment] = useState("الكل");
   const MotionBox = motion(Box);
@@ -46,7 +49,6 @@ const HonorBoardTable = ({ rawData, isLoading, error }) => {
       align: "center",
       render: (text, record) => (
         <Space style={{ direction: "rtl" }}>
-          <Avatar src={record.avatar}>{!record.avatar && text?.charAt(0).toUpperCase()}</Avatar>
           <span style={{ fontWeight: 600 }}>{text || "متطوع غير معروف"}</span>
         </Space>
       ),
@@ -88,6 +90,27 @@ const HonorBoardTable = ({ rawData, isLoading, error }) => {
         </span>
       ),
     },
+    {
+  title: "التفاصيل",
+  key: "actions",
+  align: "center",
+  width: 90,
+  render: (_, record) => (
+    <Tooltip title="عرض التفاصيل">
+      <IconButton
+        onClick={() => onView(record)}
+        sx={{
+          color: theme.palette.primary.button1,
+          "&:hover": {
+            backgroundColor: "rgba(22,45,107,0.08)",
+          },
+        }}
+      >
+        <VisibilityOutlinedIcon />
+      </IconButton>
+    </Tooltip>
+  ),
+},
   ];
 
   // ================= 1. بناء الـ Skeleton Shimmer للوحة الصدارة =================

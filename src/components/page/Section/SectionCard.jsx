@@ -17,6 +17,7 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { baby_gray, red1, yallow1 } from "../../../style/color-main/color";
 import { Tooltip } from "antd";
 import { BaseUrl } from "../../../backend/Api";
+import PlayArrowOutlinedIcon from "@mui/icons-material/PlayArrowOutlined";
 
 function SectionCard({
   card,
@@ -164,22 +165,49 @@ function SectionCard({
             </Box>
 
             {/* اليسار: الحالة */}
-            {card.status === "نشط" && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
-                <Box
-                  sx={{
-                    width: "8px",
-                    height: "8px",
-                    borderRadius: "50%",
-                    backgroundColor: "#22c55e",
-                    boxShadow: "0 0 6px #22c55e", 
-                  }}
-                />
-                <Typography sx={{ fontSize: "13px", fontWeight: 600, color: "#22c55e" }}>
-                  نشط
-                </Typography>
-              </Box>
-            )}
+          {/* اليسار: الحالة */}
+<Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+  {card.status === "نشط" ? (
+    <>
+      <Box
+        sx={{
+          width: "8px",
+          height: "8px",
+          borderRadius: "50%",
+          backgroundColor: "#22c55e",
+          boxShadow: "0 0 6px #22c55e",
+        }}
+      />
+      <Typography
+        sx={{
+          fontSize: "13px",
+          fontWeight: 600,
+          color: "#22c55e",
+        }}
+      >
+        نشط
+      </Typography>
+    </>
+  ) : card.status === "مجمد" ? (
+    <>
+      <AcUnitOutlinedIcon
+        sx={{
+          color: "#f59e0b",
+          fontSize: 16,
+        }}
+      />
+      <Typography
+        sx={{
+          fontSize: "13px",
+          fontWeight: 600,
+          color: "#f59e0b",
+        }}
+      >
+        مجمد
+      </Typography>
+    </>
+  ) : null}
+</Box>
           </Box>
         </Box>
         
@@ -215,23 +243,27 @@ function SectionCard({
             </Tooltip>
             
             {/* زر تجميد */}
-            <Tooltip title="تجميد القسم">
-              <Button
-                onClick={() => onFreeze(card)}
-                startIcon={<AcUnitOutlinedIcon sx={{ ml: 0.5 }} />}
-                sx={{
-                  p: 0,
-                  minWidth: "auto",
-                  background: "transparent",
-                  color: yallow1,
-                  textTransform: "none",
-                  fontWeight: 500,
-                  "&:hover": { background: "transparent" }
-                }}
-              >
-                تجميد
-              </Button>
-            </Tooltip>
+          <Tooltip title={card.status === "مجمد" ? "تفعيل القسم" : "تجميد القسم"}>
+  <Button
+    onClick={() => onFreeze(card)}
+    startIcon={
+      card.status === "مجمد"
+        ? <PlayArrowOutlinedIcon sx={{ ml: 0.5 }} />
+        : <AcUnitOutlinedIcon sx={{ ml: 0.5 }} />
+    }
+    sx={{
+      p: 0,
+      minWidth: "auto",
+      background: "transparent",
+      color: card.status === "مجمد" ? "#22c55e" : yallow1,
+      textTransform: "none",
+      fontWeight: 500,
+      "&:hover": { background: "transparent" }
+    }}
+  >
+    {card.status === "مجمد" ? "تفعيل" : "تجميد"}
+  </Button>
+</Tooltip>
 
             {/* زر تعديل */}
             <Tooltip title="تعديل القسم">

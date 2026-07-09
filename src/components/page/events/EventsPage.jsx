@@ -29,9 +29,9 @@ const EditeEventModal = lazy(() => import("./EditeEvents"));
 
 const DeletEvents = lazy(() => import("./deletEvents"));
 const AddEventModal = lazy(() => import("./AddEveents"));
-const TransferModal = lazy(() => import("./TransferModal")); 
-const TransferSuccessModal = lazy(() => import("./TransferModal")); // 🌟 استدعاء مودال النجاح الخاص بكِ
+const TransferModal = lazy(() => import("./TransferConfirmModal"));
 
+const TransferSuccessModal = lazy(() => import("./TransferModal"));
 export default function EventsPage() {
   const userRole = useSelector(
   (state) => state.user?.userInfo?.role
@@ -52,6 +52,7 @@ const [selectedEvent,setSelectedEvent]=useState(null);
   const [selectedStatus, setSelectedStatus] = useState("all");
 
   const { data: departmentsData } = useSelector((state) => state.fetchDepartment);
+  console.log(departmentsData)
   const departmentsList = Array.isArray(departmentsData) ? departmentsData : departmentsData?.data || [];
   const { data: statusesData, isLoading: isStatusLoading } = useSelector((state) => state.fetchstatus);
   const { data: eventsResponse, isLoading, error } = useSelector((state) => state.fetchEvents);
@@ -108,21 +109,36 @@ const [selectedEvent,setSelectedEvent]=useState(null);
     setOpenEdit(true);
 
 };
+const handleConfirmTransfer = async () => {
 
-  // 🌟 معالجة طلب النقل وتشغيل مودال النجاح المخصص بدلاً من رسائل antd
-  const handleConfirmTransfer = useCallback(async () => {
-    if (!selectedCard?.id) return;
+    try{
 
-    const result = await dispatch(transfer_to_public(selectedCard.id));
+        await dispatch(
+            transfer_to_public(selectedCard.id)
+        ).unwrap();
 
-    if (transfer_to_public.fulfilled.match(result)) {
-      setOpenTransfer(false); 
-      setOpenSuccess(true); // 🌟 فتح مودال واجهة النجاح الدائرية الزرقاء فوراً
-      loadEvents(); 
-    } else {
-      message.error(result.payload || "حدث خطأ أثناء نقل الفعالية.");
+        setOpenTransfer(false);
+
+        setOpenSuccess(true);
+
+        dispatch(fetchEvents());
+
+    }catch(err){
+ console.log("ERR:", err);
+  console.log("TYPE:", typeof err);
+
+  message.error(typeof err === "string" ? err : JSON.stringify(err));
+        Swal.fire({
+        icon: "error",
+        title: "فشل العملية",
+        text: err,
+    });
+
     }
-  }, [dispatch, selectedCard, loadEvents]);
+
+};
+
+
 
   const selectStyles = {
     height: { xs: "40px", md: "48px" },
@@ -218,8 +234,13 @@ const [selectedEvent,setSelectedEvent]=useState(null);
         {open && <AddEventModal open={open} onClose={() => setOpen(false)} onSuccess={loadEvents} />}
         
         {openTransfer && (
-          <TransferModal open={openTransfer} onClose={() => setOpenTransfer(false)} onConfirm={handleConfirmTransfer} eventName={selectedCard?.title || selectedCard?.name || "هذه الفعالية"} isLoading={isTransferLoading} />
-        )}
+<TransferModal
+    open={openTransfer}
+    onClose={() => setOpenTransfer(false)}
+    onConfirm={handleConfirmTransfer}
+    event={selectedCard}
+    isLoading={isTransferLoading}
+/>        )}
 
         {/* 🌟 رندرة مودال النجاح المتناسق في واجهتكِ البرمجية */}
         {openSuccess && (

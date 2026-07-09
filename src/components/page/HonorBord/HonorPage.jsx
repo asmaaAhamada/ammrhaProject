@@ -10,11 +10,17 @@ import { fetchHonor } from "../../../backend/slice/honor/fetchAll";
 // استيراد المكونات المنفصلة الجديدة
 import HonorPlatform from "./HonorPlatform";
 import HonorBoardTable from "./HonorBoardTable";
+import { useNavigate } from "react-router-dom";
 
 const MotionBox = motion.create(Box);
 const MotionTypography = motion.create(Typography);
 
 export default function RankingSection() {
+  const navigate = useNavigate();
+
+const handleView = (volunteer) => {
+   navigate(`/volunteers/${volunteer.id}`);
+};
   const dispatch = useDispatch();
   const theme = useTheme();
   
@@ -82,6 +88,7 @@ export default function RankingSection() {
             rawData={rawData} 
             isLoading={isLoading} 
             error={error} 
+              onView={handleView}
           />
         </Box>
       </Box>

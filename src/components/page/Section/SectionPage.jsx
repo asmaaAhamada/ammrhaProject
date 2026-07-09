@@ -9,30 +9,40 @@ import { white } from "../../../style/color-main/color";
 import { useNavigate } from "react-router-dom";
 import { fetchDepartment } from "../../../backend/slice/department/fetchAll";
 import { useDispatch, useSelector } from "react-redux";
+import PlayArrowOutlinedIcon from "@mui/icons-material/PlayArrowOutlined"; // أيقونة للتفعيل
 import { Spin } from "antd";
-
+import Swal from "sweetalert2";
+import { Deactive } from "../../../backend/slice/department/deactive";
+import { fetchDepartmentList } from "../../../backend/slice/department/fetchList";
+import AcUnitOutlinedIcon from "@mui/icons-material/AcUnitOutlined";
 // الـ Lazy loading للمودالات
 const AddSection = lazy(() => import("./AddSection"));
 const EditSection = lazy(() => import("./EditSection"));
 const SectionDetailsModal = lazy(() => import("./SectionDetailsModal"));
-
+const FreezeDepartmentModal = lazy(() => import("./FreezeDepartmentModal"));
+const ActivateDepartmentModal = lazy(() =>
+    import("./ActivateDepartmentModal")
+);
+import { executeActiveDepartment } from "../../../backend/slice/department/active";
 export default function SectionPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
 
-  const { data, isLoading, error } = useSelector((state) => state.fetchDepartment);
+  const { data, isLoading, error } = useSelector((state) => state.fetchDepartmentList);
+  console.log(data)
   const departmentsList = Array.isArray(data) ? data : data?.data || [];
 
   React.useEffect(() => {
-    dispatch(fetchDepartment());
+    dispatch(fetchDepartmentList());
   }, [dispatch]);
 
   const [open, setOpen] = useState(false);
   const [openDetails, setOpenDetails] = useState(false); 
   const [openEdit, setOpenEdit] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
-
+  const [openActivate, setOpenActivate] = useState(false);
+const [openFreeze, setOpenFreeze] = useState(false); // حالة فتح مودال التجميد
   const handleEdit = useCallback((card) => {
     setSelectedCard(card);
     setOpenEdit(true);
@@ -44,12 +54,96 @@ export default function SectionPage() {
     setOpenDetails(true); 
   }, []);
 
-  const handleFreeze = useCallback((card) => {
-    console.log("تم تجميد القسم بنجاح، معرف القسم:", card.id);
-  }, []);
+const handleFreeze = useCallback((card) => {
+
+    setSelectedCard(card);
+
+    if(card.status==="مجمد"){
+        setOpenActivate(true);
+    }else{
+        setOpenFreeze(true);
+    }
+
+},[]);
+const handleConfirmActivate = async (departmentId) => {
+
+    try{
+
+        Swal.fire({
+            title:"جاري تفعيل القسم...",
+            allowOutsideClick:false,
+            didOpen:()=>Swal.showLoading()
+        });
+
+        await dispatch(executeActiveDepartment(departmentId)).unwrap();
+
+        Swal.fire({
+            icon:"success",
+            title:"تم التفعيل",
+            text:"تم تفعيل القسم بنجاح.",
+            confirmButtonColor:"#22c55e"
+        });
+
+        setOpenActivate(false);
+
+        dispatch(fetchDepartmentList());
+
+    }catch(err){
+
+        Swal.fire({
+            icon:"error",
+            title:"فشل العملية",
+            text:err
+        });
+
+    }
+
+};
+ // 1. تأكدي من استيراد الـ Thunk الخاص بالتجميد في أعلى ملف SectionPage.js
+
+// 2. تحديث دالة handleConfirmFreeze داخل المكون لتصبح كالتالي:
+const handleConfirmFreeze = async (departmentId, excludedVolunteerIds) => {
+  try {
+    // إظهار لودر انتظار قبل بدء العملية
+    Swal.fire({
+      title: "جاري تجميد القسم...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    // تنفيذ الـ API عبر Redux Thunk وتمرير البيانات المطلوبة بالأسماء الصحيحة (id و volunteer_ids)
+    const resultAction = await dispatch(Deactive({ id: departmentId, volunteer_ids: excludedVolunteerIds })).unwrap();
+
+    // في حال نجاح العملية:
+    Swal.fire({
+      icon: "success",
+      title: "تمت العملية بنجاح",
+      text: "تم تجميد القسم وتحديث حالة المتطوعين بنجاح.",
+      confirmButtonText: "موافق",
+      confirmButtonColor: "#162d6b",
+    });
+
+    setOpenFreeze(false);
+    dispatch(fetchDepartmentList()); // تحديث واجهة الأقسام الرئيسية
+
+  } catch (serverError) {
+    console.error("Freeze Error:", serverError);
+
+    // إظهار مودال الفشل بالرسالة القادمة من الباكيند مباشرة
+    Swal.fire({
+      icon: "error",
+      title: "فشل العملية",
+      text: typeof serverError === "string" ? serverError : "حدث خطأ غير متوقع أثناء تجميد القسم.",
+      confirmButtonText: "موافق",
+      confirmButtonColor: "#d33", 
+    });
+  }
+};
 
   const handleSuccess = useCallback(() => {
-    dispatch(fetchDepartment()); 
+    dispatch(fetchDepartmentList()); 
   }, [dispatch]);
 
   return (
@@ -180,12 +274,31 @@ export default function SectionPage() {
                       {isMaxANumber ? department.max_volunteers : "مفتوح"}
                     </Typography>
                   </Box>
-                  {department.status === "نشط" && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
-                      <Box sx={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: "#22c55e", boxShadow: "0 0 6px #22c55e" }} />
-                      <Typography sx={{ fontSize: "13px", fontWeight: 600, color: "#22c55e" }}>نشط</Typography>
-                    </Box>
-                  )}
+                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+  {department.status === "نشط" ? (
+    <>
+      <Box
+        sx={{
+          width: 8,
+          height: 8,
+          borderRadius: "50%",
+          backgroundColor: "#22c55e",
+          boxShadow: "0 0 6px #22c55e",
+        }}
+      />
+      <Typography sx={{ color: "#22c55e", fontWeight: 600, fontSize: 13 }}>
+        نشط
+      </Typography>
+    </>
+  ) : (
+    <>
+      <AcUnitOutlinedIcon sx={{ color: "#f59e0b", fontSize: 18 }} />
+      <Typography sx={{ color: "#f59e0b", fontWeight: 600, fontSize: 13 }}>
+        مجمد
+      </Typography>
+    </>
+  )}
+</Box>
                 </Box>
               ),
             };
@@ -216,6 +329,20 @@ export default function SectionPage() {
             sectionId={selectedCard?.id} 
           />
         )}
+        {openFreeze && (
+           <FreezeDepartmentModal
+             open={openFreeze}
+             onClose={() => setOpenFreeze(false)}
+             department={selectedCard}
+             onConfirm={handleConfirmFreeze}
+           />
+         )}
+         <ActivateDepartmentModal
+    open={openActivate}
+    onClose={() => setOpenActivate(false)}
+    department={selectedCard}
+    onConfirm={handleConfirmActivate}
+/>
       </Suspense>
     </Box>
   );

@@ -17,9 +17,11 @@ export const fetchvolunteers = createAsyncThunk(
       if (filters.rank_id) queryParams.append('rank_id', filters.rank_id);
       
       // التعامل مع حالة الحساب (نشط / غير نشط) بحسب ما يتوقعه السيرفر (boolean أو string)
-      if (filters.is_active !== undefined && filters.is_active !== "") {
-        queryParams.append('is_active', filters.is_active);
-      }
+     // داخل ملف fetchvolunteers Thunk:
+if (filters.is_active !== undefined && filters.is_active !== "") {
+  // نقوم بتحويلها إلى string صريح (مثل "1" أو "0") ليفهمها السيرفر من الرابط
+  queryParams.append('is_active', String(filters.is_active));
+}
 
       const queryString = queryParams.toString();
       const url = `${BaseUrl}${Volnteers}${queryString ? `?${queryString}` : ''}`;

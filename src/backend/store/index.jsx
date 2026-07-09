@@ -54,6 +54,8 @@ import ExportFileReducer from '../slice/dashbord/exportFile'
 import Edite_EventsReducer from  '../slice/events/editeEvent'
 import Desetion_frazzingReducer from '../slice/frazzring/desetion'
 import Desetion_BlackReducer from '../slice/blakList/desetion'
+import DeactiveReducer from '../slice/department/deactive'
+import fetchDepartmentListReducer from '../slice/department/fetchList'
 const store = configureStore({
   reducer: {
  Log_in: Log_inReducer,
@@ -111,6 +113,8 @@ ExportFile:ExportFileReducer,
 Edite_Events:Edite_EventsReducer,
 Desetion_frazzing:Desetion_frazzingReducer,
 Desetion_Black:Desetion_BlackReducer,
+Deactive:DeactiveReducer,
+fetchDepartmentList:fetchDepartmentListReducer
 }})
 
 export default store

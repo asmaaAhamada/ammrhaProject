@@ -33,4 +33,4 @@ export const finished = `/finished`
 export const Intervews = `/interviews`
 export const Finilize = `/finalize`
 export const EXPORT = `/export`
-
+export const DEACTIVE =`/deactivate`

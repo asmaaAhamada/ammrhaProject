@@ -158,7 +158,7 @@ export default function EventCard({ card, theme, onEdit, onDelete, onView, onTra
                   حذف
                 </Button>
 
-                {card.department?.id !== 10 && (
+                {card.department?.name !== "علاقات عامة" && (
                   <Button 
                     onClick={() => onTransfer && onTransfer(card)}
                     startIcon={<PublicIcon sx={{ ml: 0.5, mr: 0, color: "#2196f3" }} />}
