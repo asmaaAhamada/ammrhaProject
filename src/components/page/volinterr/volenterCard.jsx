@@ -3,14 +3,24 @@ import { useTheme } from "@mui/material/styles";
 import { babyblue, darkgray, light_blue, white } from "../../../style/color-main/color";
 import PersonAddAltOutlinedIcon from '@mui/icons-material/PersonAddAltOutlined';
 import { motion } from "framer-motion"; // تأكد من المسار الصحيح للمكتبة
+import { fetchrequest_pinding } from "../../../backend/slice/volnteers/request/pinding";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-const people = [
-  { id: 1, name: "أحمد محمد" },
-  { id: 2, name: "سارة علي" },
-  { id: 3, name: "محمد خالد" },
-];
+
+
 
 export default function VolnteersCard(){
+    const navigate = useNavigate(); // 👇 هاتف التنقل
+  
+   const { data, isLoading, error } = useSelector((state) => state.fetchrequest_pinding);
+  const dispatch = useDispatch();
+ 
+   useEffect(() => {
+    dispatch(fetchrequest_pinding());
+    }, [dispatch]);
+  
       const MotionButton = motion(Button);
 
     const theme = useTheme()
@@ -62,9 +72,9 @@ export default function VolnteersCard(){
 
             {/* الليست */}
             <List>
-              {people.map((person) => (
+              {data.map((data) => (
                 <ListItem
-  key={person.id}
+  key={data.id}
   sx={{
     display: "flex",
     alignItems: "center",
@@ -89,7 +99,7 @@ export default function VolnteersCard(){
                  <PersonAddAltOutlinedIcon sx={{color:light_blue}}/>
 </IconButton>
                   <ListItemText
-  primary={person.name}
+  primary={data.full_name}
   sx={{
     textAlign: "right",color:theme.palette.primary.chip,
     flexGrow: 1,
@@ -98,6 +108,7 @@ export default function VolnteersCard(){
                    <Button
                     variant="contained"
                     size="small"
+                     onClick={() => navigate("/orders")} 
                     sx={{
 mr: "auto",
                       borderRadius: "12px",width:{xs:'120px' ,md:'129px'}
@@ -117,6 +128,7 @@ mr: "auto",
         initial={{ opacity: 0, y: -20 }}
   animate={{ opacity: 1, y: 7}}
   transition={{ duration: 1 }}
+   onClick={() => navigate("/orders")} 
               variant="contained"
               fullWidth
               sx={{

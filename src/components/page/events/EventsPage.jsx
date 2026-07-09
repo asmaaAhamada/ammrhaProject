@@ -25,23 +25,29 @@ import { Spin, message } from "antd";
 import { fetchDepartment } from "../../../backend/slice/department/fetchAll";
 
 // الاستدعاء العادي أو الكسول للمودالات
+const EditeEventModal = lazy(() => import("./EditeEvents"));
+
 const DeletEvents = lazy(() => import("./deletEvents"));
 const AddEventModal = lazy(() => import("./AddEveents"));
 const TransferModal = lazy(() => import("./TransferModal")); 
 const TransferSuccessModal = lazy(() => import("./TransferModal")); // 🌟 استدعاء مودال النجاح الخاص بكِ
 
 export default function EventsPage() {
+  const userRole = useSelector(
+  (state) => state.user?.userInfo?.role
+);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const theme = useTheme();
   
   const [open, setOpen] = useState(false);
   const [opendelet, setOpendelet] = useState(false);
-  
+  const [openEdit,setOpenEdit]=useState(false);
   const [openTransfer, setOpenTransfer] = useState(false);
   const [openSuccess, setOpenSuccess] = useState(false); // 🌟 ستيت فتح مودال النجاح
   const [selectedCard, setSelectedCard] = useState(null);
-
+const [selectedEvent,setSelectedEvent]=useState(null);
   const [selectedDepartmentId, setSelectedDepartmentId] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
 
@@ -78,9 +84,9 @@ export default function EventsPage() {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const primaryButtonColor = theme?.palette?.primary?.button1 || "#162d6b";
 
-  const handleEdit = useCallback((eventItem) => {
-    console.log("تعديل الفعالية:", eventItem);
-  }, []);
+  // const handleEdit = useCallback((eventItem) => {
+  //   console.log("تعديل الفعالية:", eventItem);
+  // }, []);
 
   const handleDelete = useCallback((eventItem) => {
     setSelectedCard(eventItem); 
@@ -95,6 +101,13 @@ export default function EventsPage() {
     setSelectedCard(eventItem);
     setOpenTransfer(true);
   }, []);
+  const handleEdit=(event)=>{
+
+    setSelectedEvent(event);
+
+    setOpenEdit(true);
+
+};
 
   // 🌟 معالجة طلب النقل وتشغيل مودال النجاح المخصص بدلاً من رسائل antd
   const handleConfirmTransfer = useCallback(async () => {
@@ -186,8 +199,17 @@ export default function EventsPage() {
       ) : (
         <Grid container spacing={3}>
           {actualEventsData.map((eventItem) => (
-            <EventCard key={eventItem.id} card={eventItem} theme={theme} onEdit={handleEdit} onDelete={handleDelete} onView={handleView} onTransfer={handleTransferClick} />
-          ))}
+<EventCard
+      key={eventItem.id}
+      card={eventItem}
+      theme={theme}
+      onEdit={handleEdit}
+      onView={handleView}
+      userRole={userRole} // 🌟 هذا السطر هو المفتاح لتمرير القيمة "hr_general" للكارد
+      onDelete={userRole !== "hr_general" ? handleDelete : undefined}
+      onTransfer={userRole !== "hr_general" ? handleTransferClick : undefined}
+    /> 
+                 ))}
         </Grid>
       )}
 
@@ -203,6 +225,24 @@ export default function EventsPage() {
         {openSuccess && (
           <TransferSuccessModal open={openSuccess} onClose={() => setOpenSuccess(false)} />
         )}
+          {
+        openEdit && (
+
+            <EditeEventModal
+
+                open={openEdit}
+
+                onClose={()=>setOpenEdit(false)}
+
+                eventData={selectedEvent}
+
+                onSuccess={loadEvents}
+
+            />
+
+        )
+
+    }
       </Suspense>
     </Box>
   );

@@ -11,7 +11,7 @@ export const fetchDepartment = createAsyncThunk(
       console.log("API CALL START");
 
       const response = await getData(
-        `${BaseUrl}${Departments}${LIST}`
+        `${BaseUrl}${Departments}`
       );
 
       console.log("API RESPONSE", response);
