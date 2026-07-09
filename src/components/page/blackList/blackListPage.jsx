@@ -8,9 +8,11 @@ import { fetchBlack_list } from "../../../backend/slice/blakList/fetchAll";
 import { LockOutlined } from "@ant-design/icons";
 import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined"; // أيقونة حظر أنيقة متناسقة مع التصميم
 import DeletList from "./retrayBlack_LIst";
+import Swal from "sweetalert2";
+import { Desetion_Black } from "../../../backend/slice/blakList/desetion";
 
 const BlackListPage = () => {
-  console.log("BlackListPage Rendered");
+    const { status, Loading, Error } = useSelector((state) => state.Desetion_Black);
 
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -38,15 +40,67 @@ const BlackListPage = () => {
   }, [dispatch]);
 
   // دالتين للتحكم بقبول أو رفض الطلب من قبل الأدمن مباشرة (يمكنك ربطهم مع الـ API الخاص بك)
-  const handleApprove = (record) => {
-    console.log("تم قبول طلب إضافة المتطوع للقائمة السوداء:", record);
-    // هنا تضع أكشن القبول الخاص بك أو تفتح مودال التأكيد
-  };
+ const handleApprove = async (record) => {
+  const result = await Swal.fire({
+    title: "قبول الطلب؟",
+    text: "هل أنت متأكد من قبول إضافة المتطوع للقائمة السوداء؟",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "نعم",
+    cancelButtonText: "إلغاء",
+  });
 
-  const handleReject = (record) => {
-    console.log("تم رفض طلب إضافة المتطوع للقائمة السوداء:", record);
-    // هنا تضع أكشن الرفض الخاص بك أو تفتح مودال التأكيد
-  };
+  if (!result.isConfirmed) return;
+
+  const res = await dispatch(
+    Desetion_Black({
+      id: record.id,
+      status: "approved",
+    })
+  );
+
+  if (Desetion_Black.fulfilled.match(res)) {
+    Swal.fire({
+      icon: "success",
+      title: res.payload.message,
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    dispatch(fetchBlack_list());
+  }
+};
+
+ const handleReject = async (record) => {
+  const result = await Swal.fire({
+    title: "رفض الطلب؟",
+    text: "هل أنت متأكد من رفض إضافة المتطوع للقائمة السوداء؟",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "نعم",
+    cancelButtonText: "إلغاء",
+  });
+
+  if (!result.isConfirmed) return;
+
+  const res = await dispatch(
+    Desetion_Black({
+      id: record.id,
+      status: "rejected",
+    })
+  );
+
+  if (Desetion_Black.fulfilled.match(res)) {
+    Swal.fire({
+      icon: "success",
+      title: res.payload.message,
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    dispatch(fetchBlack_list());
+  }
+};
 
   const columns = [
     {
@@ -127,78 +181,85 @@ const BlackListPage = () => {
       fixed: "right",
       width: 220, // تم زيادة العرض ليتناسق مع وجود الزرين بجانب بعضهما
       render: (_, record) => (
-        <Space size="small">
-          {/* 🌟 إذا كان المستخدم آدمن: تعرض له أزرار القبول والرفض */}
-          {userRole === "admin" && (
-            <>
-              {/* زر القبول الأخضر */}
-              <Button
-                variant="contained"
-                onClick={() => handleApprove(record)}
-                style={{
-                  color: white,
-                  backgroundColor: babygreen,
-                  minWidth: "75px",
-                  height: "32px",
-                  borderRadius: "6px",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  boxShadow: "none"
-                }}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: babygreen,
-                    opacity: 0.9,
-                  }
-                }}
-              >
-                قبول
-              </Button>
+  <Space size="small">
+    {userRole === "admin" && (
+      <>
+        {record.status === "قيد الانتظار" ? (
+          <>
+            <Button
+              variant="contained"
+              onClick={() => handleApprove(record)}
+              sx={{
+                backgroundColor: babygreen,
+                color: white,
+              }}
+            >
+              قبول
+            </Button>
 
-              {/* زر الرفض الأحمر */}
-              <Button
-                variant="contained"
-                onClick={() => handleReject(record)}
-                style={{
-                  color: white,
-                  backgroundColor: red2 || "#f44336",
-                  minWidth: "75px",
-                  height: "32px",
-                  borderRadius: "6px",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  boxShadow: "none"
-                }}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: red2 || "#f44336",
-                    opacity: 0.9,
-                  }
-                }}
-              >
-                رفض
-              </Button>
-            </>
-          )}
+            <Button
+              variant="contained"
+              onClick={() => handleReject(record)}
+              sx={{
+                backgroundColor: red2,
+                color: white,
+              }}
+            >
+              رفض
+            </Button>
+          </>
+        ) : (
+          <span
+            style={{
+              padding: "5px 15px",
+              borderRadius: "15px",
+              fontWeight: 600,
+              background:
+                record.status === "مقبول"
+                  ? "rgba(76,175,80,.1)"
+                  : "rgba(244,67,54,.1)",
+              color:
+                record.status === "مقبول"
+                  ? babygreen
+                  : red2,
+              border: `1px solid ${
+                record.status === "مقبول"
+                  ? babygreen
+                  : red2
+              }`,
+            }}
+          >
+            {record.status}
+          </span>
+        )}
+      </>
+    )}
 
-          {/* 🌟 إذا كان المستخدم مدير موارد بشرية (hr_general): تعرض له الحالة الحالية فقط للطلب */}
-          {userRole === "hr_general" && (
-            <span style={{
-              display: "inline-block", 
-              padding: "4px 14px", 
-              borderRadius: "12px",
-              border: `1px solid ${yallow}`, 
-              color: yallow,
-              backgroundColor: "rgba(255, 152, 0, 0.08)",
-              fontWeight: 600, 
-              whiteSpace: "nowrap",
-              fontSize: "13px"
-            }}>
-              {record.status || "قيد الانتظار"}
-            </span>
-          )}
-        </Space>
-      ),
+    {userRole === "hr_general" && (
+      <span
+        style={{
+          padding: "5px 15px",
+          borderRadius: "15px",
+          fontWeight: 600,
+          background:
+            record.status === "مقبول"
+              ? "rgba(76,175,80,.1)"
+              : record.status === "مرفوض"
+              ? "rgba(244,67,54,.1)"
+              : "rgba(255,152,0,.1)",
+          color:
+            record.status === "مقبول"
+              ? babygreen
+              : record.status === "مرفوض"
+              ? red2
+              : yallow,
+        }}
+      >
+        {record.status}
+      </span>
+    )}
+  </Space>
+),
     },
   ];
 

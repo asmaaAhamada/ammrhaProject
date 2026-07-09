@@ -8,8 +8,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchvolunteer_freeze } from "../../../backend/slice/frazzring/fetchAll";
 import { motion } from "framer-motion";
 import DeletList from "./retrayFreezen";
-
+import Swal from "sweetalert2";
+import { Desetion_frazzing } from "../../../backend/slice/frazzring/desetion";
 const FrazzenPage = () => {
+    const { status, Loading, Error } = useSelector((state) => state.Desetion_frazzing);
+console.log(status)
   const userRole = useSelector((state) => state.user?.userInfo?.role);
   
   const [view, setView] = useState("requests");
@@ -22,7 +25,7 @@ const FrazzenPage = () => {
 
   // جلب البيانات وحالة التحميل والخطأ من الـ Store
   const { data: rawData, isLoading, error } = useSelector((state) => state.fetchvolunteer_freeze);
-
+console.log(rawData)
   // استدعاء البيانات عند تحميل الصفحة
   React.useEffect(() => {
     dispatch(fetchvolunteer_freeze());
@@ -38,16 +41,43 @@ const FrazzenPage = () => {
     dispatch(fetchvolunteer_freeze());
   };
 
-  // دالتين للتحكم بقبول أو رفض الطلب من قبل الأدمن مباشرة (يمكنك ربطهم مع الـ API الخاص بك)
-  const handleApprove = (record) => {
-    console.log("تم قبول طلب تجميد المتطوع:", record);
-    // هنا تضع أكشن القبول الخاص بك أو تفتح مودال التأكيد
-  };
+ const handleApprove = async (record) => {
+  const result = await dispatch(
+    Desetion_frazzing({
+      id: record.id,
+      status: "approved",
+    })
+  );
 
-  const handleReject = (record) => {
-    console.log("تم رفض طلب تجميد المتطوع:", record);
-    // هنا تضع أكشن الرفض الخاص بك أو تفتح مودال التأكيد
-  };
+  if (Desetion_frazzing.fulfilled.match(result)) {
+    Swal.fire({
+      icon: "success",
+      title: "تمت الموافقة",
+      text: "تمت الموافقة على طلب التجميد بنجاح.",
+    });
+
+    dispatch(fetchvolunteer_freeze()); // إعادة تحميل الجدول
+  }
+};
+
+const handleReject = async (record) => {
+  const result = await dispatch(
+    Desetion_frazzing({
+      id: record.id,
+      status: "rejected",
+    })
+  );
+
+  if (Desetion_frazzing.fulfilled.match(result)) {
+    Swal.fire({
+      icon: "success",
+      title: "تم الرفض",
+      text: "تم رفض طلب التجميد بنجاح.",
+    });
+
+    dispatch(fetchvolunteer_freeze()); // إعادة تحميل الجدول
+  }
+};
 
   // ================= COLUMNS CONFIGURATION =================
   const columns = [
@@ -112,79 +142,62 @@ const FrazzenPage = () => {
       key: "actions",
       fixed: "right",
       width: 220, // تم زيادة العرض ليستوعب الزرين بشكل مريح متجاورين
-      render: (_, record) => (
-        <Space size="small">
-          {/* 🌟 إذا كان المستخدم آدمن: تعرض له أزرار القبول والرفض */}
-          {userRole === "admin" && (
-            <>
-              {/* زر القبول الأخضر */}
-              <Button
-                variant="contained"
-                onClick={() => handleApprove(record)}
-                style={{
-                  color: white,
-                  backgroundColor: babygreen,
-                  minWidth: "75px",
-                  height: "32px",
-                  borderRadius: "6px",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  boxShadow: "none"
-                }}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: babygreen,
-                    opacity: 0.9,
-                  }
-                }}
-              >
-                قبول
-              </Button>
+     render: (_, record) => {
+  if (record.status === "مقبول") {
+    return (
+      <span
+        style={{
+          display: "inline-block",
+          padding: "6px 14px",
+          borderRadius: "12px",
+          background: "#e8f5e9",
+          color: "#2e7d32",
+          fontWeight: 700,
+        }}
+      >
+        ✓ تمت الموافقة
+      </span>
+    );
+  }
 
-              {/* زر الرفض الأحمر */}
-              <Button
-                variant="contained"
-                onClick={() => handleReject(record)}
-                style={{
-                  color: white,
-                  backgroundColor: red2 || "#f44336",
-                  minWidth: "75px",
-                  height: "32px",
-                  borderRadius: "6px",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  boxShadow: "none"
-                }}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: red2 || "#f44336",
-                    opacity: 0.9,
-                  }
-                }}
-              >
-                رفض
-              </Button>
-            </>
-          )}
+  if (record.status === "مرفوض") {
+    return (
+      <span
+        style={{
+          display: "inline-block",
+          padding: "6px 14px",
+          borderRadius: "12px",
+          background: "#ffebee",
+          color: "#d32f2f",
+          fontWeight: 700,
+        }}
+      >
+        ✕ تم الرفض
+      </span>
+    );
+  }
 
-          {/* 🌟 إذا كان المستخدم مدير موارد بشرية (hr_general): تعرض له الحالة الحالية فقط للطلب */}
-          {userRole === "hr_general" && (
-            <span style={{
-              display: "inline-block", 
-              padding: "4px 14px", 
-              borderRadius: "12px",
-              border: `1px solid ${yallow}`, 
-              color: yallow,
-              backgroundColor: "rgba(255, 152, 0, 0.08)",
-              fontWeight: 600, 
-              whiteSpace: "nowrap",
-              fontSize: "13px"
-            }}>
-              {record.status || "قيد الانتظار"}
-            </span>
-          )}
-        </Space>
-      ),
+  // قيد الانتظار
+  return (
+    <Space size="small">
+      <Button
+      sx={{backgroundColor:'green'}}
+        variant="contained"
+        onClick={() => handleApprove(record)}
+      >
+    {Loading ? "..." : "قبول"}
+      </Button>
+
+      <Button
+       sx={{backgroundColor:'red'}}
+        variant="contained"
+        onClick={() => handleReject(record)}
+      >
+    {Loading ? "..." : "رفض"}
+      </Button>
+    </Space>
+  );
+}
     },
   ];
 

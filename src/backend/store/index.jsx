@@ -52,6 +52,8 @@ import cancelHrReducer from '../slice/volnteers/request/cancelHrSlice'
 import ExportFileReducer from '../slice/dashbord/exportFile'
 // import filter_HonorReducer from '../slice/honor/filter'
 import Edite_EventsReducer from  '../slice/events/editeEvent'
+import Desetion_frazzingReducer from '../slice/frazzring/desetion'
+import Desetion_BlackReducer from '../slice/blakList/desetion'
 const store = configureStore({
   reducer: {
  Log_in: Log_inReducer,
@@ -107,6 +109,8 @@ Edit_request:Edit_requestReducer,
 cancelHr:cancelHrReducer,
 ExportFile:ExportFileReducer,
 Edite_Events:Edite_EventsReducer,
+Desetion_frazzing:Desetion_frazzingReducer,
+Desetion_Black:Desetion_BlackReducer,
 }})
 
 export default store
