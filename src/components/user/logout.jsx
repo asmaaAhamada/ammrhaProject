@@ -9,28 +9,27 @@ import {
   DialogActions,
   Snackbar,
   Alert,
-  Box
+  Box,
+  Typography
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Logout } from "../../backend/slice/auth/logout";
+import { blue, blue1 } from "../../style/color-main/color";
 
 export default function Log_outModal({ open, onClose }) {
-  const { isLoading, error } = useSelector((state) => state.Log_out || { isLoading: false, error: null });
+  const { isLoading, error } = useSelector((state) => state.Logout);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [successMessage, setSuccessMessage] = useState("");
-
+const [successOpen, setSuccessOpen] = useState(false);
   const handleLogout = () => {
-    dispatch(Logout())
-      .unwrap()
-      .then(() => {
-        setSuccessMessage("تم تسجيل الخروج بنجاح ✔");
-        // ننتظر ثانية واحدة ليرى المستخدم رسالة النجاح ثم نوجهه
-        setTimeout(() => {
-          onClose();
-          navigate("/login", { replace: true });
-        }, 1200);
+   dispatch(Logout())
+  .unwrap()
+  .then(() => {
+    onClose();          // إغلاق مودال التأكيد
+    setSuccessOpen(true);
+  
       })
       .catch((err) => {
         console.error("Logout failed:", err);
@@ -70,14 +69,14 @@ export default function Log_outModal({ open, onClose }) {
       >
         <DialogTitle
           id="alert-dialog-title"
-          sx={{ color: "rgb(14,74,35)", fontSize: "20px", fontWeight: "700", textAlign: "right" }}
+          sx={{ color:blue, fontSize: "20px", fontWeight: "700", textAlign: "right" }}
         >
           هل ترغب حقاً بتسجيل الخروج؟
         </DialogTitle>
         <DialogContent>
           <DialogContentText
             id="alert-dialog-description"
-            sx={{ fontSize: "16px", fontWeight: "500", textAlign: "right" }}
+            sx={{ fontSize: "16px", fontWeight: "500", textAlign: "right" ,color:blue, }}
           >
             لن تستطيع التراجع إذا قمت بالضغط على موافق.
           </DialogContentText>
@@ -94,7 +93,7 @@ export default function Log_outModal({ open, onClose }) {
             onClick={onClose}
             disabled={isLoading}
             sx={{
-              color: "rgb(14,74,35)",
+              color: "rgb(14, 52, 74)",
               fontSize: "16px",
               fontWeight: "700",
             }}
@@ -105,17 +104,76 @@ export default function Log_outModal({ open, onClose }) {
       </Dialog>
 
       {/* رسالة النجاح */}
-      <Snackbar
-        open={Boolean(successMessage)}
-        autoHideDuration={3000}
-        onClose={() => setSuccessMessage("")}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        sx={{ zIndex: 2200 }}
+      <Dialog
+  open={successOpen}
+  PaperProps={{
+    sx: {
+      direction: "rtl",
+      borderRadius: 3,
+      p: 2,
+      textAlign: "center",
+      minWidth: 360,
+    },
+  }}
+>
+  <DialogContent>
+
+    <Box
+      sx={{
+        width: 70,
+        height: 70,
+        bgcolor: "#E8F5E9",
+        borderRadius: "50%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        mx: "auto",
+        mb: 2,
+      }}
+    >
+      <Typography
+        sx={{
+          color: "#2E7D32",
+          fontSize: 40,
+        }}
       >
-        <Alert severity="success" variant="filled">
-          {successMessage}
-        </Alert>
-      </Snackbar>
+        ✓
+      </Typography>
+    </Box>
+
+    <Typography
+      sx={{
+        fontWeight: 700,
+        fontSize: 22,
+        mb: 1,color:blue1
+      }}
+    >
+      تم تسجيل الخروج بنجاح
+    </Typography>
+
+    <Typography sx={{color:blue1}}>
+      شكراً لاستخدامك التطبيق.
+      <br />
+      نتمنى رؤيتك مرة أخرى.
+    </Typography>
+
+    <Button
+      fullWidth
+      sx={{
+        mt: 3,
+        borderRadius: 2,backgroundColor:blue
+      }}
+      variant="contained"
+      onClick={() => {
+        setSuccessOpen(false);
+        navigate("/login", { replace: true });
+      }}
+    >
+      حسناً
+    </Button>
+
+  </DialogContent>
+</Dialog>
     </>
   );
 }

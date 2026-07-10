@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box } from '@mui/material';
-import LogoutSection from './logout';
+import LogoutSection from "./LogoutSection";
 import ProfileSection from './profile';
 import Log_outModal from './logout';
 
