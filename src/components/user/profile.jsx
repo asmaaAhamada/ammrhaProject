@@ -1,53 +1,49 @@
-
-
 import React from 'react';
-import { Box, Typography, Avatar, Button, Stack } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import LogoutIcon from '@mui/icons-material/Logout';
+import { Box, Typography, Avatar, Stack } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import LogoutSection from './logout';
-import { gray2, gray5, gray6, white } from '../../style/color-main/color';
+import { useNavigate } from 'react-router-dom'; // استيراد التنقل
+import { gray2, gray6, white } from '../../style/color-main/color';
 import { useSelector } from 'react-redux';
 
 export default function ProfileSection() {
   const userInfo = useSelector((state) => state.user?.userInfo);
-
-
-  const theme = useTheme();
+  const navigate = useNavigate(); // تعريف التوجيه
 
   return (
-
-
-<Box
-        sx={{
-          width: '167px',height:'56px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-         padding:'3px',
-          backgroundColor: gray6, // لون خلفية خفيفة
-          borderRadius: '16px',
-          cursor: 'pointer',
-        }}
-      >
-         <Avatar 
-            src="https://via.placeholder.com/150" // ضع رابط الصورة هنا
-            sx={{ width: 40, height: 40,  }} 
-          />
-        
-        <Stack direction="row" spacing={2} alignItems="center" textAlign="right">
-          <Box>
-            <Typography variant="body1" sx={{ color: white,   }}>
-{userInfo?.full_name}            </Typography>
-            <Typography variant="caption" sx={{ color: gray2 }}>
-  {userInfo?.role === "admin"
-    ? "مدير النظام"
-    : userInfo?.role === "hr_general"
-    ? "الموارد البشرية"
-    : userInfo?.role}
-</Typography>
-          </Box>
-                 <KeyboardArrowDownIcon sx={{ color: '#94a3b8', fontSize: 20,mr:2 }} />
-
-        </Stack>
-      </Box>)};
+    <Box
+      onClick={() => navigate('/profile')} // التوجيه لصفحة البروفايل عند النقر
+      sx={{
+        width: '167px',
+        height: '56px',
+        display: 'flex',
+        alignItems: 'center',
+        justifycontent: 'space-between',
+        padding: '3px',
+        backgroundColor: gray6,
+        borderRadius: '16px',
+        cursor: 'pointer',
+      }}
+    >
+      <Avatar 
+        src={userInfo?.avatar || "https://via.placeholder.com/150"} 
+        sx={{ width: 40, height: 40 }} 
+      />
+      
+      <Stack direction="row" spacing={2} alignItems="center" textAlign="right">
+        <Box>
+          <Typography variant="body1" sx={{ color: white }}>
+            {userInfo?.full_name || "أسماء الحامدة"}
+          </Typography>
+          <Typography variant="caption" sx={{ color: gray2 }}>
+            {userInfo?.role === "admin"
+              ? "مدير النظام"
+              : userInfo?.role === "hr_general"
+              ? "الموارد البشرية"
+              : "متطوع"}
+          </Typography>
+        </Box>
+        <KeyboardArrowDownIcon sx={{ color: '#94a3b8', fontSize: 20, mr: 2 }} />
+      </Stack>
+    </Box>
+  );
+}

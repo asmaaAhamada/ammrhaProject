@@ -38,6 +38,7 @@ import BlockIcon from "@mui/icons-material/Block";
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import MilitaryTechOutlinedIcon from '@mui/icons-material/MilitaryTechOutlined';
 import SeventeenMpOutlinedIcon from '@mui/icons-material/SeventeenMpOutlined';
+import StarRateOutlinedIcon from '@mui/icons-material/StarRateOutlined';
 import {
   blue1,
   darkgray,
@@ -120,6 +121,7 @@ const menuItems = [
     icon: <ClassIcon />,
     path: "/Honor",
   },
+ 
 ];
 
 // ================= SIDEBAR ITEM =================
@@ -214,19 +216,35 @@ const adminPages = [
   "/Complaints"
   
 ];
+const hr_deprtmentPages = [
+  
+  "/evalation"
+  
+];
 console.log("role =", userRole);
-  const filteredMenuItems = useMemo(() => {
-    return menuItems.filter((item) => {
-      if (item.path === "/orders") {
-        return userRole === "hr_general";
-      
-      }
+ const filteredMenuItems = useMemo(() => {
+  if (userRole === "hr_department") {
+    return [
+      {
+        text: "التقييمات",
+        icon: <StarRateOutlinedIcon />,
+        path: "/evalation",
+      },
+    ];
+  }
+
+  return menuItems.filter((item) => {
+    if (item.path === "/orders") {
+      return userRole === "hr_general";
+    }
+
     if (adminPages.includes(item.path)) {
-        return userRole === "admin"
-      }
-      return true;
-    });
-  }, [userRole]);
+      return userRole === "admin";
+    }
+
+    return true;
+  });
+}, [userRole]);
 
   const handleDrawerToggle = useCallback(() => {
     setMobileOpen((prev) => !prev);

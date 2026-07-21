@@ -18,10 +18,13 @@ export const Log_in = createAsyncThunk(
     try {
       const state = getState();
       const { login_credential, password } = state.Log_in.formInfo;
-
+console.log({
+  login_credential,
+  password,
+});
       const response = await postNoToken(`${BaseUrl}${LOG_IN}`, { login_credential, password }, {}, true);
-      console.log("📦 api response:", `${BaseUrl}${LOG_IN}`);
-      console.log("📦 login response:", response);
+      console.log(BaseUrl);
+console.log(LOG_IN);
 
       const data = response.data;
       const token = data?.access_token;
@@ -41,6 +44,11 @@ export const Log_in = createAsyncThunk(
       return user; 
       
     } catch (error) {
+     
+    console.log(error);
+    console.log(error.response);
+    console.log(error.response?.data);
+
       // هنا نقوم بتمرير الخطأ القادم من السيرفر، إذا كان هيكلياً أو نصياً
       return rejectWithValue(error?.response?.data || error?.message || 'فشل تسجيل الدخول');
     }

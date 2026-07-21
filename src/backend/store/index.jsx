@@ -56,6 +56,11 @@ import Desetion_frazzingReducer from '../slice/frazzring/desetion'
 import Desetion_BlackReducer from '../slice/blakList/desetion'
 import DeactiveReducer from '../slice/department/deactive'
 import fetchDepartmentListReducer from '../slice/department/fetchList'
+import ShowEvaloutionReducer from '../slice/volnteers/evalaution/show'
+import ShowEvaloutionDetailsReducer from '../slice/volnteers/evalaution/showDetails'
+import editEvaluationReducer from '../slice/volnteers/evalaution/editeEvaltion'
+import ShowProfileReducer from '../slice/profile/showProfile'
+import Edit_ProfileReducer from '../slice/profile/editeProfile'
 const store = configureStore({
   reducer: {
  Log_in: Log_inReducer,
@@ -114,7 +119,12 @@ Edite_Events:Edite_EventsReducer,
 Desetion_frazzing:Desetion_frazzingReducer,
 Desetion_Black:Desetion_BlackReducer,
 Deactive:DeactiveReducer,
-fetchDepartmentList:fetchDepartmentListReducer
+fetchDepartmentList:fetchDepartmentListReducer,
+ShowEvaloution:ShowEvaloutionReducer,
+ShowEvaloutionDetails:ShowEvaloutionDetailsReducer,
+editEvaluation:editEvaluationReducer,
+ShowProfile:ShowProfileReducer,
+Edit_Profile:Edit_ProfileReducer,
 }})
 
 export default store

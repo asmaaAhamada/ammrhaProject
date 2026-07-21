@@ -13,6 +13,8 @@ import EventCard from "./components/page/events/EventCard";
 import EventsPage from "./components/page/events/EventsPage";
 import EventDetails from "./components/page/events/EventDetails";
 import VolunteerProfilePage from "./components/page/volinterr/profilePage";
+import EventEvaluationsTable from "./components/page/evaluotion/EventEvaluationsTable";
+import ProfilePage from "./components/user/ProfilePage";
 
 // lazy imports
 const Sidebar = lazy(() => import("./components/Layout/sidePar"));
@@ -33,7 +35,7 @@ export default function App({ toggleMode, mode }) {
       <Routes>
         {/* 1. صفحة تسجيل الدخول كمسار مستقل تماماً */}
         <Route path="/login" element={<LoginPage />} />
-  <Route element={<ProtectedRoute allowedRole={["hr_general", "admin"]} />}>
+  <Route element={<ProtectedRoute allowedRole={["hr_general", "admin" ,"hr_department"]} />}>
 
         {/* 2. المسار الرئيسي يعرض الـ Sidebar والصفحات بداخله */}
         <Route path="/" element={<Sidebar toggleMode={toggleMode} mode={mode} />}>
@@ -45,12 +47,18 @@ export default function App({ toggleMode, mode }) {
           <Route path="home" element={<HomePage />} />
           <Route path="volunteers" element={<Volunteerspage />} />
                     <Route path="volunteers/:id" element={<VolunteerProfilePage />} />
+              <Route path="profile" element={<ProfilePage />} />
 
           <Route path="News" element={<NeWsPage />} />
           <Route path="News/:id" element={<NewsDetails />} />
 <Route element={<ProtectedRoute allowedRole={["hr_general"]} />}>
               <Route path="orders" element={<RequestsComponent />} />
-            </Route>          <Route path="frazing" element={<FrazzenPage />} />
+
+            </Route>
+            <Route element={<ProtectedRoute allowedRole={["hr_department"]} />}>
+              <Route path="evalation" element={<EventEvaluationsTable />} />
+            </Route>  
+              <Route path="frazing" element={<FrazzenPage />} />
           <Route path="black" element={<BlackListPage />} />
           <Route path="Criteria" element={<CriteriaPage />} />
          

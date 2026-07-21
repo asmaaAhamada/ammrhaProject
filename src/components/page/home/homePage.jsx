@@ -27,7 +27,7 @@ export default function HomePage() {
   }}
 >
   <DashboardSection />
-</Box>    
+</Box>  
   <VolunteersTable
         isHomePage={true} // 👇 تفعيل وضع السطرين فقط والمظهر المخصص للرئيسية
         topContent={

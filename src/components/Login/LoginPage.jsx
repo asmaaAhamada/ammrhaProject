@@ -42,7 +42,7 @@ export default function LoginPage() {
 
 const role = resultAction.payload?.role;
 
-if (role === "hr_general" || role === "admin") {
+if (role === "hr_general" || role === "admin" || role === "hr_department") {
  navigate("/home"); }
 
      

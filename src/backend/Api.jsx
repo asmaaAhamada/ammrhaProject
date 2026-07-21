@@ -1,4 +1,5 @@
-export const BaseUrl = `https://ammrha-production.up.railway.app/api/v1`;
+export const BaseUrl = `https://ammrha-production-v2.up.railway.app/api/v1`;
+
 export const LOG_IN='/login'
 export const USER =`/user`
 export const Procedures =`/procedures`
@@ -34,3 +35,7 @@ export const Intervews = `/interviews`
 export const Finilize = `/finalize`
 export const EXPORT = `/export`
 export const DEACTIVE =`/deactivate`
+export const EVALUTION =`/evaluations`
+export const hr =`/hr`
+export const PROFILE =`/profile`
+export const ADMIN =`/admin`
