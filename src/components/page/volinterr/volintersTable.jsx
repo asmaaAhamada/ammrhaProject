@@ -1,4 +1,4 @@
-import React, { useState, lazy } from "react";
+import React, { useState } from "react";
 import { Table, Avatar, Space, Tooltip } from "antd";
 import { useTheme } from "@mui/material/styles";
 import { Button, Typography, Box, CircularProgress } from "@mui/material"; 
@@ -17,7 +17,7 @@ import AddBlack_ListModal from "./blacklistModal";
 import TransferModal from "./TransferModal";
 import PromoteModal from "./PromoteModal";
 
-export default function VolunteersTable({ topContent, statsContent, isHomePage = false }) {
+export default function VolunteersTable({ topContent, statsContent, isHomePage = false, searchTerm = "" }) {
   const userRole = useSelector((state) => state.user?.userInfo?.role);
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -36,26 +36,45 @@ export default function VolunteersTable({ topContent, statsContent, isHomePage =
   };
 
   const volunteersList = rawData?.data || [];
-  const displayedVolunteers = isHomePage ? volunteersList.slice(0, 2) : volunteersList;
+
+  // 🔍 فلترة قائمة المتطوعين بحسب نص البحث القادم من TopBar
+  const filteredVolunteers = volunteersList.filter((volunteer) => {
+    if (!searchTerm) return true;
+    const query = searchTerm.toLowerCase().trim();
+    const nameMatch = volunteer.full_name?.toLowerCase().includes(query);
+    const departmentMatch = volunteer.department?.name?.toLowerCase().includes(query);
+    return nameMatch || departmentMatch;
+  });
+
+  const displayedVolunteers = isHomePage ? filteredVolunteers.slice(0, 2) : filteredVolunteers;
   const MotionBox = motion(Box);
 
   // ================= COLUMNS =================
   const columns = [
-    {
-      title: "اسم المتطوع",
-      dataIndex: "full_name",
-      key: "full_name",
-      fixed: "left",
-      width: 180,
-      render: (_, record) => (
-        <Space style={{ cursor: "pointer" }} onClick={() => navigate(`/volunteers/${record.id}`)}>
-          <Avatar src={record.image} alt={record.full_name}>
-            {record.full_name ? record.full_name[0] : ""}
-          </Avatar>
-          <span style={{ fontWeight: 500 }}>{record.full_name}</span>
-        </Space>
-      ),
-    },
+   {
+  title: "اسم المتطوع",
+  dataIndex: "full_name",
+  key: "full_name",
+  fixed: "left",
+  width: 180,
+  render: (_, record) => (
+    <Space 
+      align="center"
+      style={{ 
+        cursor: "pointer", 
+        display: "inline-flex", 
+        justifyContent: "flex-start",
+        width: "100%" 
+      }} 
+      onClick={() => navigate(`/volunteers/${record.id}`)}
+    >
+      <Avatar src={record.image} alt={record.full_name}>
+        {record.full_name ? record.full_name[0] : ""}
+      </Avatar>
+      <span style={{ fontWeight: 500 }}>{record.full_name}</span>
+    </Space>
+  ),
+},
     {
       title: "القسم",
       dataIndex: "department",
@@ -113,14 +132,12 @@ export default function VolunteersTable({ topContent, statsContent, isHomePage =
       key: "status",
       width: 120,
       render: (status, record) => {
-        // 🌟 فحص طلب التجميد المعلق
         const isFreezePending = record.freeze_status === "قيد الانتظار" || record.is_freeze_pending === true;
         
-        // 🌟 فحص طلب البلاك ليست المعلق بناءً على الستركتشر الراجع من الباك إند (سواء كـ Object مستقل أو خصائص مدمجة)
         const isBlacklistPending = 
           record.blacklist_status === "قيد الانتظار" || 
           record.black_list_status === "قيد الانتظار" ||
-          record.blacklist?.status === "قيد الانتظار" || // في حال كان يرجع كـ العلاقة Model Relationship
+          record.blacklist?.status === "قيد الانتظار" || 
           record.is_blacklist_pending === true;
 
         if (isFreezePending) {
@@ -164,7 +181,6 @@ export default function VolunteersTable({ topContent, statsContent, isHomePage =
         
         const isFreezePending = record.freeze_status === "قيد الانتظار" || record.is_freeze_pending === true;
         
-        // فحص البلاك ليست المعلق للإجراءات
         const isBlacklistPending = 
           record.blacklist_status === "قيد الانتظار" || 
           record.black_list_status === "قيد الانتظار" ||
@@ -223,7 +239,6 @@ export default function VolunteersTable({ topContent, statsContent, isHomePage =
             </Tooltip>
 
             {/* زر الحظر والقائمة السوداء */}
-            {/* 🌟 تم تعديل الـ Tooltip ليظهر رسالة الباك إند تماماً (بانتظار موافقة المدير للمراجعة) */}
             <Tooltip title={isBlacklistPending ? "تم إرسال طلب الإضافة للمدير للمراجعة" : isNotActive ? "مراجعة المتطوع في القائمة السوداء" : "إضافة للقائمة السوداء"}>
               <span>
                 <Button 

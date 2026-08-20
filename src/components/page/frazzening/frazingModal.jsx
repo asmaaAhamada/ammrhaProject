@@ -55,11 +55,15 @@ export default function Frezzen_Modal({ open, onClose, selectedCard, onSuccess }
   }, [open, dispatch]);
 
   // عند فتح المودال والتأكد من وجود المتطوع المحدد، نقوم بتحديث الـ id بالـ Store
-  useEffect(() => {
-    if (open && selectedCard?.id) {
-      dispatch(setformInfo({ volunteer_id: selectedCard.id }));
-    }
-  }, [open, selectedCard, dispatch]);
+  // عند فتح المودال والتأكد من وجود المتطوع المحدد، نقوم بتحديث الـ id ونوع التجميد بالـ Store
+useEffect(() => {
+  if (open && selectedCard?.id) {
+    dispatch(setformInfo({ 
+      volunteer_id: selectedCard.id,
+      type: "تجميد" // تعيين نوع الإجراء عند فتح مودال التجميد
+    }));
+  }
+}, [open, selectedCard, dispatch]);
 
   const handleCloseToast = (event, reason) => {
     if (reason === "clickaway") return;

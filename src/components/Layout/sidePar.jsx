@@ -96,13 +96,9 @@ const menuItems = [
     icon: <CreditCardOffOutlinedIcon />,
     path: "/Complaints",
   },
+ 
   {
-    text: "الحسابات المجمدة",
-    icon: <FrazingIcon />,
-    path: "/frazing",
-  },
-  {
-    text: "القائمة السوداء",
+    text: "الحسابات المقيدة ",
     icon: <BlockIcon />,
     path: "/black",
   },
@@ -206,7 +202,7 @@ function Sidebar({ toggleMode, mode }) {
   );
 
   const [mobileOpen, setMobileOpen] = useState(false);
-
+const [searchTerm, setSearchTerm] = useState("");
 const userRole = useSelector(
   (state) => state.user?.userInfo?.role
 );
@@ -381,13 +377,15 @@ console.log("role =", userRole);
         }}
       >
         <Suspense fallback={null}>
-          <TopBar
-            toggleMode={toggleMode}
-            mode={mode}
-          />
+         <TopBar
+      toggleMode={toggleMode}
+      mode={mode}
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+    />
         </Suspense>
 
-        <Outlet />
+        <Outlet  context={{ searchTerm, setSearchTerm }}/>
       </Box>
     </Box>
   );

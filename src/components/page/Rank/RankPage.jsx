@@ -3,12 +3,14 @@ import { Table, Space, Tooltip } from "antd";
 import { useTheme } from "@mui/material/styles";
 import { Box, Button, Typography, LinearProgress } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import SearchOffOutlinedIcon from "@mui/icons-material/SearchOffOutlined";
 
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 
 import { white } from "../../../style/color-main/color";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchRanks } from "../../../backend/slice/Ranks/fetchAll";
+import { useOutletContext } from "react-router-dom"; // 👈 استيراد useOutletContext
 
 // lazy-loading للمودالات
 const EditRankModal = lazy(() => import("./editRank"));
@@ -16,15 +18,16 @@ const DeletRankModal = lazy(() => import("./delet"));
 const AddRankModal = lazy(() => import("./addRank"));
 
 const RankPage = () => {
-  const userRole = useSelector(
-  (state) => state.user?.userInfo?.role
-);
+  // 1️⃣ استلام قيمة البحث الممررة من Layout بواسطة useOutletContext
+  const context = useOutletContext();
+  const searchTerm = context?.searchTerm || "";
+
+  const userRole = useSelector((state) => state.user?.userInfo?.role);
   const dispatch = useDispatch();
   const theme = useTheme();
 
   // جلب البيانات وحالة التحميل والخطأ من الـ Redux Store
   const { data, isLoading, error } = useSelector((state) => state.fetchRanks);
-  console.log(data);
 
   // الوصول لمصفوفة المعايير الحقيقية من الريسبونس ومعالجتها
   const criteriaData = useMemo(() => {
@@ -34,6 +37,20 @@ const RankPage = () => {
       key: item.id?.toString(),
     }));
   }, [data]);
+
+  // 2️⃣ فلترة بيانات الرتب بناءً على نص البحث (الاسم، النقاط، الساعات)
+  const filteredCriteriaData = useMemo(() => {
+    if (!searchTerm.trim()) return criteriaData;
+    const query = searchTerm.toLowerCase().trim();
+
+    return criteriaData.filter((item) => {
+      const nameMatch = item.name?.toString().toLowerCase().includes(query);
+      const hoursMatch = item.min_hours?.toString().toLowerCase().includes(query);
+      const pointsMatch = item.min_points?.toString().toLowerCase().includes(query);
+
+      return nameMatch || hoursMatch || pointsMatch;
+    });
+  }, [criteriaData, searchTerm]);
 
   // استدعاء البيانات عند تحميل الصفحة
   React.useEffect(() => {
@@ -48,7 +65,7 @@ const RankPage = () => {
 
   // دالة تحديث البيانات بعد العمليات الناجحة
   const handleSuccess = useCallback(() => {
-    dispatch(fetchRanks()); // تم تعديلها لتستدعي الـ ثانك الصحيح fetchRanks بدلاً من fetchCriteria
+    dispatch(fetchRanks());
   }, [dispatch]);
 
   const handleAdd = useCallback(() => {
@@ -66,60 +83,60 @@ const RankPage = () => {
   }, []);
 
   // إعدادات أعمدة الجدول
- const columns = useMemo(() => {
-  const baseColumns = [
-    {
-      title: "المعيار / الرتبة",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "عدد الساعات المطلوب",
-      dataIndex: "min_hours",
-      key: "min_hours",
-    },
-    {
-      title: "عدد النقاط المطلوب",
-      dataIndex: "min_points",
-      key: "min_points",
-    },
-  ];
+  const columns = useMemo(() => {
+    const baseColumns = [
+      {
+        title: "المعيار / الرتبة",
+        dataIndex: "name",
+        key: "name",
+      },
+      {
+        title: "عدد الساعات المطلوب",
+        dataIndex: "min_hours",
+        key: "min_hours",
+      },
+      {
+        title: "عدد النقاط المطلوب",
+        dataIndex: "min_points",
+        key: "min_points",
+      },
+    ];
 
-  if (userRole === "admin") {
-    baseColumns.push({
-      title: "الإجراءات",
-      key: "actions",
-      width: 150,
-      render: (_, row) => (
-        <Space size="middle">
-          <Tooltip title="حذف المعيار">
-            <DeleteOutlined
-              onClick={() => handleDelete(row)}
-              style={{
-                color: "red",
-                fontSize: "18px",
-                cursor: "pointer",
-              }}
-            />
-          </Tooltip>
+    if (userRole === "admin") {
+      baseColumns.push({
+        title: "الإجراءات",
+        key: "actions",
+        width: 150,
+        render: (_, row) => (
+          <Space size="middle">
+            <Tooltip title="حذف المعيار">
+              <DeleteOutlined
+                onClick={() => handleDelete(row)}
+                style={{
+                  color: "red",
+                  fontSize: "18px",
+                  cursor: "pointer",
+                }}
+              />
+            </Tooltip>
 
-          <Tooltip title="تعديل المعيار">
-            <EditOutlined
-              onClick={() => handleEdit(row)}
-              style={{
-                color: theme.palette.primary.text3,
-                fontSize: "18px",
-                cursor: "pointer",
-              }}
-            />
-          </Tooltip>
-        </Space>
-      ),
-    });
-  }
+            <Tooltip title="تعديل المعيار">
+              <EditOutlined
+                onClick={() => handleEdit(row)}
+                style={{
+                  color: theme.palette.primary.text3,
+                  fontSize: "18px",
+                  cursor: "pointer",
+                }}
+              />
+            </Tooltip>
+          </Space>
+        ),
+      });
+    }
 
-  return baseColumns;
-}, [userRole, handleEdit, handleDelete, theme]);
+    return baseColumns;
+  }, [userRole, handleEdit, handleDelete, theme]);
 
   return (
     <>
@@ -154,37 +171,37 @@ const RankPage = () => {
           >
             صفحة المعايير
           </Typography>
-{userRole === "admin" && (
-
-          <Button
-            onClick={handleAdd}
-            variant="contained"
-            sx={{
-              width: { xs: "140px", sm: "160px", md: "177px" },
-              height: "43px",
-              borderRadius: "12px",
-              backgroundColor: theme.palette.primary.button1,
-              color: white,
-              boxShadow: "none",
-              fontSize: { xs: "13px", sm: "14px", md: "15px" },
-              fontWeight: 600,
-              textTransform: "none",
-              "&:hover": {
-                backgroundColor: "#162d6b",
+          {userRole === "admin" && (
+            <Button
+              onClick={handleAdd}
+              variant="contained"
+              sx={{
+                width: { xs: "140px", sm: "160px", md: "177px" },
+                height: "43px",
+                borderRadius: "12px",
+                backgroundColor: theme.palette.primary.button1,
+                color: white,
                 boxShadow: "none",
-              },
-            }}
-          >
-            إضافة معيار
-            <AddIcon sx={{ width: "18px", height: "18px", mr: 1.5 }} />
-          </Button>)}
+                fontSize: { xs: "13px", sm: "14px", md: "15px" },
+                fontWeight: 600,
+                textTransform: "none",
+                "&:hover": {
+                  backgroundColor: "#162d6b",
+                  boxShadow: "none",
+                },
+              }}
+            >
+              إضافة معيار
+              <AddIcon sx={{ width: "18px", height: "18px", mr: 1.5 }} />
+            </Button>
+          )}
         </Box>
 
         {/* حاوية الجدول */}
         <div style={{ width: "100%", borderRadius: "8px", overflow: "hidden" }}>
           <Table
             columns={columns}
-            dataSource={isLoading || error ? [] : criteriaData}
+            dataSource={isLoading || error ? [] : filteredCriteriaData}
             pagination={false}
             scroll={{ x: "max-content" }}
             locale={{
@@ -205,6 +222,14 @@ const RankPage = () => {
                     <Typography color="error" sx={{ fontWeight: 500 }}>
                       حدث خطأ أثناء تحميل المعايير. يرجى التحقق من الاتصال بالسيرفر.
                     </Typography>
+                  ) : searchTerm ? (
+                    /* 3️⃣ حالة البحث بدون نتائج */
+                    <Box sx={{ py: 3, display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+                      <SearchOffOutlinedIcon sx={{ fontSize: "40px", color: theme.palette.primary.chip, opacity: 0.6 }} />
+                      <Typography sx={{ color: theme.palette.primary.chip, fontWeight: 600, fontSize: "15px" }}>
+                        لا توجد نتائج تطابق "{searchTerm}"
+                      </Typography>
+                    </Box>
                   ) : (
                     <Typography sx={{ color: theme.palette.primary.chip, fontWeight: 500, fontSize: "15px" }}>
                       لا يوجد معايير لعرضها في الوقت الحالي

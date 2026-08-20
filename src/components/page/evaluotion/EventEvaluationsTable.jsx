@@ -19,7 +19,7 @@ export default function EventEvaluationsTable({ topContent, statsContent }) {
   // جلب البيانات والحالات من ردكس سلايس
   const { data, isLoading, error } = useSelector((state) => state.ShowEvaloution);
   const theme = useTheme();
-  
+  console.log(data)
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 

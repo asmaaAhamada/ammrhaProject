@@ -1,158 +1,184 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Table, Avatar, Space, Tooltip, Spin } from "antd";
 import { useTheme } from "@mui/material/styles";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography, ToggleButtonGroup, ToggleButton } from "@mui/material";
 import { white, red2, babygreen, yallow } from "../../../style/color-main/color";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBlack_list } from "../../../backend/slice/blakList/fetchAll";
-import { LockOutlined } from "@ant-design/icons";
-import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined"; // أيقونة حظر أنيقة متناسقة مع التصميم
+import { LockOutlined, PauseCircleOutlined } from "@ant-design/icons";
+import BlockOutlinedIcon from "@mui/icons-material/BlockOutlined"; 
 import DeletList from "./retrayBlack_LIst";
 import Swal from "sweetalert2";
 import { Desetion_Black } from "../../../backend/slice/blakList/desetion";
 
 const BlackListPage = () => {
-    const { status, Loading, Error } = useSelector((state) => state.Desetion_Black);
-
   const dispatch = useDispatch();
   const theme = useTheme();
   const [view, setView] = useState("requests");
 
-  // جلب دور المستخدم الحالي (Role) من الـ Redux Store
+  // حالة فلترة النوع: "all" | "حظر" | "تجميد"
+  const [filterType, setFilterType] = useState("all");
+
+  // جلب دور المستخدم من الـ Redux Store
   const userRole = useSelector((state) => state.user?.userInfo?.role);
 
-  // إعدادات الستيت للتحكم بفتح المودال والمتطوع المختار لإلغاء حظره
+  // إعدادات التحكم بالستيت للمودال
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedVolunteer, setSelectedVolunteer] = useState(null);
 
-  // استخراج البيانات، وحالة التحميل، والخطأ من السلايس الخاص بالـ Fetch
+  // استخراج البيانات، وحالة التحميل والخطأ
   const { data, isLoading, error } = useSelector((state) => state.fetchBlack_list);
-  
-  const blacklistItems = data?.items || [];
+
+  // التأكد من أن البيانات مصفوفة
+  const blacklistItems = Array.isArray(data) ? data : data?.data || [];
 
   const handleFetchData = () => {
     dispatch(fetchBlack_list());
   };
 
-  React.useEffect(() => {
-    console.log("dispatching...");
+  useEffect(() => {
     handleFetchData();
   }, [dispatch]);
 
-  // دالتين للتحكم بقبول أو رفض الطلب من قبل الأدمن مباشرة (يمكنك ربطهم مع الـ API الخاص بك)
- const handleApprove = async (record) => {
-  const result = await Swal.fire({
-    title: "قبول الطلب؟",
-    text: "هل أنت متأكد من قبول إضافة المتطوع للقائمة السوداء؟",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonText: "نعم",
-    cancelButtonText: "إلغاء",
+  // تصفية البيانات حسب النوع المحدد من الفلتر
+  const filteredData = blacklistItems.filter((item) => {
+    if (filterType === "all") return true;
+    return item.type === filterType;
   });
 
-  if (!result.isConfirmed) return;
-
-  const res = await dispatch(
-    Desetion_Black({
-      id: record.id,
-      status: "approved",
-    })
-  );
-
-  if (Desetion_Black.fulfilled.match(res)) {
-    Swal.fire({
-      icon: "success",
-      title: res.payload.message,
-      timer: 1500,
-      showConfirmButton: false,
+  // معالجة قبول الطلب
+  const handleApprove = async (record) => {
+    const result = await Swal.fire({
+      title: "قبول الطلب؟",
+      text: `هل أنت متأكد من قبول إتمام إجراء (${record.type || "الإجراء"}) للمتطوع؟`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "نعم",
+      cancelButtonText: "إلغاء",
     });
 
-    dispatch(fetchBlack_list());
-  }
-};
+    if (!result.isConfirmed) return;
 
- const handleReject = async (record) => {
-  const result = await Swal.fire({
-    title: "رفض الطلب؟",
-    text: "هل أنت متأكد من رفض إضافة المتطوع للقائمة السوداء؟",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "نعم",
-    cancelButtonText: "إلغاء",
-  });
+    const res = await dispatch(
+      Desetion_Black({
+        id: record.id,
+        status: "approved",
+      })
+    );
 
-  if (!result.isConfirmed) return;
+    if (Desetion_Black.fulfilled.match(res)) {
+      Swal.fire({
+        icon: "success",
+        title: res.payload?.message || "تم قبول الطلب بنجاح",
+        timer: 1500,
+        showConfirmButton: false,
+      });
 
-  const res = await dispatch(
-    Desetion_Black({
-      id: record.id,
-      status: "rejected",
-    })
-  );
+      dispatch(fetchBlack_list());
+    }
+  };
 
-  if (Desetion_Black.fulfilled.match(res)) {
-    Swal.fire({
-      icon: "success",
-      title: res.payload.message,
-      timer: 1500,
-      showConfirmButton: false,
+  // معالجة رفض الطلب
+  const handleReject = async (record) => {
+    const result = await Swal.fire({
+      title: "رفض الطلب؟",
+      text: `هل أنت متأكد من رفض طلب (${record.type || "الإجراء"}) للمتطوع؟`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "نعم",
+      cancelButtonText: "إلغاء",
     });
 
-    dispatch(fetchBlack_list());
-  }
-};
+    if (!result.isConfirmed) return;
+
+    const res = await dispatch(
+      Desetion_Black({
+        id: record.id,
+        status: "rejected",
+      })
+    );
+
+    if (Desetion_Black.fulfilled.match(res)) {
+      Swal.fire({
+        icon: "success",
+        title: res.payload?.message || "تم رفض الطلب بنجاح",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      dispatch(fetchBlack_list());
+    }
+  };
 
   const columns = [
     {
-      title: "الاسم",
+      title: "اسم المتطوع",
       dataIndex: "volunteer_name", 
       key: "volunteer_name",
-      fixed: "left",
-      width: 180,
-      render: (text) => (
-        <Space>
-          <Avatar style={{ backgroundColor: "rgba(255, 77, 79, 0.2)", color: red2 }}>
-            {text ? text.charAt(0).toUpperCase() : "V"}
-          </Avatar>
-          <span style={{ fontWeight: 500 }}>{text}</span>
-        </Space>
-      ),
+      render: (text, record) => {
+        const isFreeze = record.type === "تجميد";
+        const avatarBg = isFreeze ? "rgba(255, 193, 7, 0.2)" : "rgba(255, 77, 79, 0.2)";
+        const avatarColor = isFreeze ? "#d97706" : red2;
+
+        return (
+          <Space>
+            <Avatar style={{ backgroundColor: avatarBg, color: avatarColor, fontWeight: "bold" }}>
+              {text ? text.charAt(0).toUpperCase() : "V"}
+            </Avatar>
+            <span style={{ fontWeight: 600 }}>{text || "غير محدد"}</span>
+          </Space>
+        );
+      },
     },
     {
       title: "التاريخ",
-      dataIndex: "created_at", 
-      key: "created_at",
-      width: 140,
+      dataIndex: "started_at",
+      key: "started_at",
+      render: (date) => {
+        // اقتطاع الوقت وإظهار التاريخ فقط
+        const formattedDate = date ? date.split(" ")[0] : "غير متوفر";
+        return (
+          <span style={{ direction: "ltr", display: "inline-block" }}>
+            {formattedDate}
+          </span>
+        );
+      },
     },
     {
-      title: "الحالة البصرية",
-      key: "visual_status",
-      width: 120,
-      render: () => (
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "4px",
-            padding: "4px 12px",
-            borderRadius: "12px",
-            border: `1px solid ${red2}`,
-            color: red2,
-            backgroundColor: "rgba(255, 77, 79, 0.08)",
-            fontWeight: 600,
-            fontSize: "13px"
-          }}
-        >
-          <LockOutlined style={{ fontSize: "12px" }} />
-          محظور
-        </span>
-      ),
+      title: "النوع / الإجراء",
+      dataIndex: "type",
+      key: "type",
+      render: (type) => {
+        const isFreeze = type === "تجميد";
+        return (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "4px 12px",
+              borderRadius: "12px",
+              border: `1px solid ${isFreeze ? yallow : red2}`,
+              color: isFreeze ? "#b45309" : red2,
+              backgroundColor: isFreeze ? "rgba(255, 193, 7, 0.12)" : "rgba(255, 77, 79, 0.08)",
+              fontWeight: 700,
+              fontSize: "13px"
+            }}
+          >
+            {isFreeze ? (
+              <PauseCircleOutlined style={{ fontSize: "13px" }} />
+            ) : (
+              <LockOutlined style={{ fontSize: "13px" }} />
+            )}
+            {type || "حظر"}
+          </span>
+        );
+      },
     },
     {
       title: "السبب",
       dataIndex: "reason",
       key: "reason",
-      width: 260,
       render: (reason) => (
         <Tooltip 
           title={reason} 
@@ -161,7 +187,7 @@ const BlackListPage = () => {
         >
           <div 
             style={{ 
-              maxWidth: "240px",
+              maxWidth: "200px",
               overflow: "hidden", 
               textOverflow: "ellipsis", 
               whiteSpace: "nowrap", 
@@ -170,96 +196,110 @@ const BlackListPage = () => {
               margin: "0 auto"
             }}
           >
-            {reason}
+            {reason || "لا يوجد سبب مذكور"}
           </div>
         </Tooltip>
       ),
     },
     {
+      title: "بواسطة",
+      dataIndex: "admin_name",
+      key: "admin_name",
+      render: (admin) => (
+        <span style={{ fontSize: "13px", color: theme.palette.primary.chip }}>
+          {admin || "—"}
+        </span>
+      ),
+    },
+    {
       title: "الإجراءات / الحالة",
       key: "actions",
-      fixed: "right",
-      width: 220, // تم زيادة العرض ليتناسق مع وجود الزرين بجانب بعضهما
       render: (_, record) => (
-  <Space size="small">
-    {userRole === "admin" && (
-      <>
-        {record.status === "قيد الانتظار" ? (
-          <>
-            <Button
-              variant="contained"
-              onClick={() => handleApprove(record)}
-              sx={{
-                backgroundColor: babygreen,
-                color: white,
+        <Space size="small">
+          {userRole === "admin" && (
+            <>
+              {record.status === "قيد الانتظار" ? (
+                <>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => handleApprove(record)}
+                    sx={{
+                      backgroundColor: babygreen,
+                      color: white,
+                      fontWeight: "bold",
+                      "&:hover": { backgroundColor: "#388e3c" }
+                    }}
+                  >
+                    قبول
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => handleReject(record)}
+                    sx={{
+                      backgroundColor: red2,
+                      color: white,
+                      fontWeight: "bold",
+                      "&:hover": { backgroundColor: "#d32f2f" }
+                    }}
+                  >
+                    رفض
+                  </Button>
+                </>
+              ) : (
+                <span
+                  style={{
+                    padding: "5px 15px",
+                    borderRadius: "15px",
+                    fontWeight: 600,
+                    background:
+                      record.status === "مقبول"
+                        ? "rgba(76,175,80,.1)"
+                        : "rgba(244,67,54,.1)",
+                    color:
+                      record.status === "مقبول"
+                        ? babygreen
+                        : red2,
+                    border: `1px solid ${
+                      record.status === "مقبول"
+                        ? babygreen
+                        : red2
+                    }`,
+                  }}
+                >
+                  {record.status}
+                </span>
+              )}
+            </>
+          )}
+
+          {userRole !== "admin" && (
+            <span
+              style={{
+                padding: "5px 15px",
+                borderRadius: "15px",
+                fontWeight: 600,
+                background:
+                  record.status === "مقبول"
+                    ? "rgba(76,175,80,.1)"
+                    : record.status === "مرفوض"
+                    ? "rgba(244,67,54,.1)"
+                    : "rgba(255,193,7,.15)",
+                color:
+                  record.status === "مقبول"
+                    ? babygreen
+                    : record.status === "مرفوض"
+                    ? red2
+                    : "#b45309",
               }}
             >
-              قبول
-            </Button>
-
-            <Button
-              variant="contained"
-              onClick={() => handleReject(record)}
-              sx={{
-                backgroundColor: red2,
-                color: white,
-              }}
-            >
-              رفض
-            </Button>
-          </>
-        ) : (
-          <span
-            style={{
-              padding: "5px 15px",
-              borderRadius: "15px",
-              fontWeight: 600,
-              background:
-                record.status === "مقبول"
-                  ? "rgba(76,175,80,.1)"
-                  : "rgba(244,67,54,.1)",
-              color:
-                record.status === "مقبول"
-                  ? babygreen
-                  : red2,
-              border: `1px solid ${
-                record.status === "مقبول"
-                  ? babygreen
-                  : red2
-              }`,
-            }}
-          >
-            {record.status}
-          </span>
-        )}
-      </>
-    )}
-
-    {userRole === "hr_general" && (
-      <span
-        style={{
-          padding: "5px 15px",
-          borderRadius: "15px",
-          fontWeight: 600,
-          background:
-            record.status === "مقبول"
-              ? "rgba(76,175,80,.1)"
-              : record.status === "مرفوض"
-              ? "rgba(244,67,54,.1)"
-              : "rgba(255,152,0,.1)",
-          color:
-            record.status === "مقبول"
-              ? babygreen
-              : record.status === "مرفوض"
-              ? red2
-              : yallow,
-        }}
-      >
-        {record.status}
-      </span>
-    )}
-  </Space>
-),
+              {record.status}
+            </span>
+          )}
+        </Space>
+      ),
     },
   ];
 
@@ -293,7 +333,6 @@ const BlackListPage = () => {
             justifyContent: "center", py: 6, textAlign: "center", width: "100%" 
           }}
         >
-          {/* الدائرة البيضاء الأنيقة الحاضنة لأيقونة الحظر */}
           <Box 
             sx={{ 
               width: 90, height: 90, borderRadius: "50%", 
@@ -305,24 +344,22 @@ const BlackListPage = () => {
             <BlockOutlinedIcon style={{ fontSize: "40px", color: theme.palette.primary.button1 }} />
           </Box>
 
-          {/* العنوان العريض والواضح */}
           <Typography 
             sx={{ 
               fontSize: "18px", fontWeight: 700, 
               color: theme.palette.primary.button1, mb: 1 
             }}
           >
-            القائمة السوداء فارغة تماماً
+            لا توجد سجلات مطابقة
           </Typography>
 
-          {/* الوصف المساعد للمستخدم */}
           <Typography 
             sx={{ 
               fontSize: "13px", color: theme.palette.primary.chip, 
               maxWidth: "450px", lineHeight: 1.6 
             }}
           >
-            قائمتك السوداء نقية! لا يوجد أي متطوعين محظورين في النظام حالياً، مما يعني أن الجميع يلتزم بالسياسات والقوانين المحددة.
+            لا يوجد أي متطوعين ينطبق عليهم هذا الفلتر حالياً في النظام.
           </Typography>
         </Box>
       ),
@@ -334,42 +371,81 @@ const BlackListPage = () => {
       style={{
         padding: "10px",
         width: "100%",
-        maxWidth: "100vw",
-        overflowX: "hidden",
         boxSizing: "border-box",
         direction: "rtl"
       }}
     >
       {view === "requests" && (
         <>
+          {/* الشريط العلوي مع تنسيق المحاذاة بين العنوان والفلتر */}
           <Box
             sx={{
               width: "100%",
-              minHeight: "36px",
               display: "flex",
-              alignItems: "center",
+              flexDirection: { xs: "column", md: "row-reverse" },
+              alignItems: { xs: "stretch", md: "center" },
               justifyContent: "space-between",
+              gap: 2,
               mb: 3,
             }}
           >
             <Typography
               sx={{
-                fontSize: { xs: "14px", sm: "16px", md: "20px" },
-                fontWeight: 600,
+                fontSize: { xs: "16px", sm: "18px", md: "20px" },
+                fontWeight: 700,
                 color: theme.palette.primary.text3,
               }}
             >
-              كافة المتطوعين في القائمة السوداء
+              قائمة المحظورين والمجمدين
             </Typography>
+
+            {/* أزرار الفلترة محشورة للداخل ومحاذية جهة اليمين بوضوح */}
+            <ToggleButtonGroup
+              value={filterType}
+              exclusive
+              onChange={(e, newFilter) => {
+                if (newFilter !== null) setFilterType(newFilter);
+              }}
+              size="small"
+              sx={{
+                backgroundColor: theme.palette.primary.Appar2,
+                borderRadius: "10px",
+                p: "4px",
+                width: "fit-content",
+                "& .MuiToggleButton-root": {
+                  border: "none",
+                  borderRadius: "8px !important",
+                  px: 2,
+                  py: 0.8,
+                  fontWeight: 600,
+                  fontSize: "13px",
+                  color: theme.palette.primary.chip,
+                  "&.Mui-selected": {
+                    backgroundColor: theme.palette.primary.button1,
+                    color: "#ffffff",
+                    "&:hover": {
+                      backgroundColor: theme.palette.primary.button1,
+                    },
+                  },
+                },
+              }}
+            >
+              <ToggleButton value="all">الكل ({blacklistItems.length})</ToggleButton>
+              <ToggleButton value="حظر">
+                حظر ({blacklistItems.filter(i => i.type === "حظر").length})
+              </ToggleButton>
+              <ToggleButton value="تجميد">
+                تجميد ({blacklistItems.filter(i => i.type === "تجميد").length})
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Box>
 
-          <div style={{ width: "100%", overflowX: "auto", borderRadius: "8px" }}>
+          <div style={{ width: "100%", borderRadius: "8px", overflow: "hidden" }}>
             <Table
               columns={columns}
-              dataSource={isLoading ? [] : blacklistItems}
-              rowKey={(record) => record.id || record.volunteer_name} 
-              pagination={false}
-              scroll={{ x: 820 }}
+              dataSource={isLoading ? [] : filteredData}
+              rowKey={(record) => record.id} 
+              pagination={{ pageSize: 10 }}
               locale={renderTableLocale()} 
               components={{
                 header: {

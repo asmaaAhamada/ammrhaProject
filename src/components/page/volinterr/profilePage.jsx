@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTheme } from "@mui/material/styles";
-import { Box, Typography, Grid, Paper, Button, LinearProgress, Avatar, Stack } from "@mui/material";
+import { Box, Typography, Grid, Paper, Button, LinearProgress, Avatar, Stack ,Chip } from "@mui/material";
 import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import PhoneAndroidOutlinedIcon from "@mui/icons-material/PhoneAndroidOutlined";
@@ -50,7 +50,7 @@ export default function VolunteerProfilePage() {
   const iconColor = "rgba(19, 41, 106, 1)"; // اللون الأزرق المطلوب لجميع الأيقونات
 
   const { data: response, isLoading, error } = useSelector((state) => state.fetchDetailsvolunteers);
-
+console.log(response)
   useEffect(() => {
     if (id) {
       dispatch(fetchDetailsvolunteers(id));
@@ -78,7 +78,15 @@ export default function VolunteerProfilePage() {
       </Box>
     );
   }
+const formatBirthDate = (date) => {
+  if (!date) return "غير محدد";
 
+  const parsedDate = new Date(date);
+
+  if (isNaN(parsedDate.getTime())) return "غير محدد";
+
+  return parsedDate.toLocaleDateString("en-GB");
+};
   if (error || !response?.success) {
     return (
       <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "60vh", direction: "rtl", gap: 2 }}>
@@ -96,8 +104,11 @@ export default function VolunteerProfilePage() {
     { label: "رقم الهاتف", value: user.phone_number || "غير محدد", icon: <PhoneAndroidOutlinedIcon sx={{ color: iconColor, fontSize: 22 }} /> },
     { label: "مكان الإقامة", value: user.residence_place || "غير محدد", icon: <LocationOnOutlinedIcon sx={{ color: iconColor, fontSize: 22 }} /> },
     { label: "الجنسية", value: user.nationality || "غير محدد", icon: <PublicOutlinedIcon sx={{ color: iconColor, fontSize: 22 }} /> },
-    { label: "تاريخ الميلاد", value: user.birth_date || "غير محدد", icon: <CakeOutlinedIcon sx={{ color: iconColor, fontSize: 22 }} /> },
-    { label: "الرقم الوطني", value: user.national_id || "غير محدد", icon: <BadgeOutlinedIcon sx={{ color: iconColor, fontSize: 22 }} /> },
+{
+  label: "تاريخ الميلاد",
+  value: formatBirthDate(user.birth_date),
+  icon: <CakeOutlinedIcon sx={{ color: iconColor, fontSize: 22 }} />
+},    { label: "الرقم الوطني", value: user.national_id || "غير محدد", icon: <BadgeOutlinedIcon sx={{ color: iconColor, fontSize: 22 }} /> },
     { label: "رقم الـ WhatsApp", value: user.whatsapp_number || "غير محدد", icon: <WhatsAppIcon sx={{ color: iconColor, fontSize: 22 }} /> },
   ];
 
@@ -281,9 +292,47 @@ export default function VolunteerProfilePage() {
                   <Typography variant="caption" sx={{ color: labelColor, display: "block", mb: 1, fontWeight: 600 }}>
                     المهارات والخبرات المكتسبة
                   </Typography>
-                  <Typography variant="body2" sx={{ p: 2, borderRadius: "12px", backgroundColor: theme.palette.primary.logo, color: valueColor, fontWeight: 500, minHeight: "50px" }}>
-                    {user.skills || "لا توجد مهارات مضافة حالياً في سجل المتطوع الكلي."}
-                  </Typography>
+                  <Box
+  sx={{
+    p: 2,
+    borderRadius: "12px",
+    backgroundColor: theme.palette.primary.logo,
+    minHeight: "50px",
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 1,
+    alignItems: "center",
+  }}
+>
+  {Array.isArray(user.skills) && user.skills.length > 0 ? (
+    user.skills.map((skill, index) => (
+      <Chip
+        key={`${skill}-${index}`}
+        label={skill}
+        sx={{
+          fontWeight: 600,
+          color: valueColor,
+          backgroundColor: "rgba(19, 41, 106, 0.08)",
+          borderRadius: "10px",
+          direction: "rtl",
+          "& .MuiChip-label": {
+            px: 1.5,
+          },
+        }}
+      />
+    ))
+  ) : (
+    <Typography
+      variant="body2"
+      sx={{
+        color: labelColor,
+        fontWeight: 500,
+      }}
+    >
+      لا توجد مهارات مضافة حالياً في سجل المتطوع الكلي.
+    </Typography>
+  )}
+</Box>
                 </Box>
               </Grid>
             </Grid>

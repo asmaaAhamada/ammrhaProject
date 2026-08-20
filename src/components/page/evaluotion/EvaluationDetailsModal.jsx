@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Divider, Table } from "antd";
+import { Modal, Divider, Table, message as antMessage } from "antd";
 import { 
   Box, 
   Grid, 
@@ -14,47 +14,62 @@ import {
   CheckCircleOutline as ApproveIcon, 
   PersonOutline, 
   Apartment,
-  GroupOutlined as GroupIcon
+  GroupOutlined as GroupIcon,
+  EditOutlined as EditIcon
 } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
 import { ShowEvaloutionDetails } from "../../../backend/slice/volnteers/evalaution/showDetails";
+import { ApproveEvaloution, resetApproveStatus } from "../../../backend/slice/volnteers/evalaution/approve";
+import { EditEvaluationModal } from "./EditEvaluationModal";
 
-// ==========================================
-// مكون تفاصيل التقييم واعتماده المحدث
-// ==========================================
-export const EvaluationDetailsModal = ({ open, onClose, eventData, onApprove }) => {
+export const EvaluationDetailsModal = ({ open, onClose, eventData, onSuccessRefresh }) => {
   const dispatch = useDispatch();
   const theme = useTheme();
 
-  // جلب البيانات وحالة التحميل من الريدكس سلايس
-  const { data, isLoading, error } = useSelector((state) => state.ShowEvaloutionDetails);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  // الاحتفاظ بالقيم للتعديل عليها قبل الرفع النهائي
+  const { data, isLoading, error } = useSelector((state) => state.ShowEvaloutionDetails);
+console.log(data)
+  const { 
+    isLoading: isApproving, 
+    success: isApproveSuccess, 
+    message: serverSuccessMessage, 
+    error: approveError 
+  } = useSelector((state) => state.ApproveEvaloution);
+
   const [notes, setNotes] = useState("");
 
-  // جلب البيانات من الباك إند فور فتح المودال وتوفر معرف الفعالية
   useEffect(() => {
     if (open && eventData?.id) {
       dispatch(ShowEvaloutionDetails(eventData.id));
     }
   }, [dispatch, open, eventData?.id]);
 
-  // تحديث ملاحظات المنسق عند فتح المودال
   useEffect(() => {
     if (eventData) {
       setNotes(eventData.coordinator_notes || "");
     }
   }, [eventData]);
 
+  useEffect(() => {
+    if (isApproveSuccess) {
+      antMessage.success(serverSuccessMessage || "تم اعتماد ورفع التقييم بنجاح!");
+      dispatch(resetApproveStatus());
+      if (onSuccessRefresh) onSuccessRefresh();
+      onClose();
+    }
+
+    if (approveError) {
+      antMessage.error(approveError);
+      dispatch(resetApproveStatus());
+    }
+  }, [isApproveSuccess, approveError, serverSuccessMessage, dispatch, onClose, onSuccessRefresh]);
+
   const handleSubmit = () => {
-    onApprove(eventData.id, {
-      volunteers_evaluations: data, // البيانات القادمة والمعدلة من الباك إند
-      hr_notes: notes
-    });
-    onClose();
+    if (!eventData?.id) return;
+    dispatch(ApproveEvaloution(eventData.id));
   };
 
-  // إعداد أعمدة جدول تقييمات المتطوعين داخل المودال
   const volunteerColumns = [
     {
       title: "المتطوع",
@@ -98,185 +113,208 @@ export const EvaluationDetailsModal = ({ open, onClose, eventData, onApprove }) 
   if (!eventData) return null;
 
   return (
-    <Modal
-      open={open}
-      onCancel={onClose}
-      footer={null}
-      width={700}
-      centered
-      destroyOnClose
-      title={
-        <Box>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: theme.palette.primary.text3, pb: 1 }}>
-            مراجعة تقييم: {eventData.event_name}
-          </Typography>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 3, mt: 0.5 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-              <Apartment sx={{ fontSize: "18px", color: theme.palette.primary.chip }} />
-              <Typography variant="body2" sx={{ color: theme.palette.primary.chip }}>
-                القسم: {eventData.department}
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-              <PersonOutline sx={{ fontSize: "18px", color: theme.palette.primary.chip }} />
-              <Typography variant="body2" sx={{ color: theme.palette.primary.chip }}>
-                المنسق الميداني: {eventData.coordinator_name}
-              </Typography>
+    <>
+      <Modal
+        open={open}
+        onCancel={onClose}
+        footer={null}
+        width={700}
+        centered
+        destroyOnClose
+        title={
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 700, color: theme.palette.primary.text3, pb: 1 }}>
+              مراجعة تقييم: {eventData.event_name}
+            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 3, mt: 0.5 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <Apartment sx={{ fontSize: "18px", color: theme.palette.primary.chip }} />
+                <Typography variant="body2" sx={{ color: theme.palette.primary.chip }}>
+                  القسم: {eventData.department}
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <PersonOutline sx={{ fontSize: "18px", color: theme.palette.primary.chip }} />
+                <Typography variant="body2" sx={{ color: theme.palette.primary.chip }}>
+                  المنسق الميداني: {eventData.coordinator_name}
+                </Typography>
+              </Box>
             </Box>
           </Box>
-        </Box>
-      }
-      styles={{
-        content: {
-          backgroundColor: theme.palette.primary.Appar2,
-          color: theme.palette.primary.text3,
-          borderRadius: "16px",
-          direction: "rtl"
-        },
-        header: {
-          backgroundColor: "transparent",
-          marginBottom: "0px"
         }
-      }}
-    >
-      <Divider style={{ margin: "15px 0 20px 0", borderColor: "rgba(161, 169, 195, 0.15)" }} />
+        styles={{
+          content: {
+            backgroundColor: theme.palette.primary.Appar2,
+            color: theme.palette.primary.text3,
+            borderRadius: "16px",
+            direction: "rtl"
+          },
+          header: {
+            backgroundColor: "transparent",
+            marginBottom: "0px"
+          }
+        }}
+      >
+        <Divider style={{ margin: "15px 0 20px 0", borderColor: "rgba(161, 169, 195, 0.15)" }} />
 
-      {/* معالجة حالة اللودينج (Loading State) */}
-      {isLoading ? (
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", py: 8, gap: 2 }}>
-          <CircularProgress size={45} sx={{ color: theme.palette.primary.button1 }} />
-          <Typography variant="body2" sx={{ color: theme.palette.primary.chip }}>
-            جاري سحب كشوفات تقييم المتطوعين من الميدان...
-          </Typography>
-        </Box>
-      ) : error ? (
-        /* معالجة حالة وجود خطأ بالاتصال */
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-          <Typography color="error">حدث خطأ أثناء تحميل تفاصيل التقييم: {error}</Typography>
-        </Box>
-      ) : (
-        /* عرض البيانات عند انتهاء التحميل بنجاح */
-        <Grid container spacing={3}>
-          
-          {/* قسم كشف تقييمات نقاط المتطوعين الفعلي من الباك إند */}
-          <Grid item xs={12} md={7}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <GroupIcon sx={{ color: theme.palette.primary.button1, fontSize: 22 }} />
-              <Typography variant="subtitle1" sx={{ fontWeight: 700, color: theme.palette.primary.text3 }}>
-                نقاط وتقييمات المتطوعين المشاركين
-              </Typography>
-            </Box>
-            
-            <Table
-              dataSource={Array.isArray(data) ? data : []}
-              columns={volunteerColumns}
-              rowKey="volunteer_id"
-              pagination={{ pageSize: 4, size: "small" }}
-              size="small"
-              components={{
-                header: {
-                  cell: (props) => <th {...props} style={{ backgroundColor: "rgba(161, 169, 195, 0.08)", color: theme.palette.primary.text3, fontWeight: "600" }} />
-                },
-                body: {
-                  cell: (props) => <td {...props} style={{ borderBottom: "1px solid rgba(161, 169, 195, 0.08)" }} />
-                }
-              }}
-            />
-          </Grid>
-
-          {/* القسم الجانبي للملاحظات */}
-          <Grid item xs={12} md={5}>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-              
-              {/* ملاحظات المنسق المكتوبة سابقاً */}
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: theme.palette.primary.chip }}>
-                  تقرير وملاحظات المنسق
+        {isLoading ? (
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", py: 8, gap: 2 }}>
+            <CircularProgress size={45} sx={{ color: theme.palette.primary.button1 }} />
+            <Typography variant="body2" sx={{ color: theme.palette.primary.chip }}>
+              جاري سحب كشوفات تقييم المتطوعين من الميدان...
+            </Typography>
+          </Box>
+        ) : error ? (
+          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+            <Typography color="error">حدث خطأ أثناء تحميل تفاصيل التقييم: {error}</Typography>
+          </Box>
+        ) : (
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={7}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                <GroupIcon sx={{ color: theme.palette.primary.button1, fontSize: 22 }} />
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: theme.palette.primary.text3 }}>
+                  نقاط وتقييمات المتطوعين المشاركين
                 </Typography>
-                <Box 
-                  sx={{ 
-                    p: 2, 
-                    borderRadius: "8px", 
-                    backgroundColor: "rgba(161, 169, 195, 0.04)",
-                    border: "1px dashed rgba(161, 169, 195, 0.2)"
-                  }}
-                >
-                  <Typography variant="body2" sx={{ color: theme.palette.primary.text3, fontStyle: "italic", lineHeight: 1.7 }}>
-                    {eventData.coordinator_notes || "لا توجد ملاحظات إضافية من المنسق."}
+              </Box>
+              
+              <Table
+                dataSource={Array.isArray(data) ? data : []}
+                columns={volunteerColumns}
+                rowKey="volunteer_id"
+                pagination={{ pageSize: 4, size: "small" }}
+                size="small"
+                components={{
+                  header: {
+                    cell: (props) => <th {...props} style={{ backgroundColor: "rgba(161, 169, 195, 0.08)", color: theme.palette.primary.text3, fontWeight: "600" }} />
+                  },
+                  body: {
+                    cell: (props) => <td {...props} style={{ borderBottom: "1px solid rgba(161, 169, 195, 0.08)" }} />
+                  }
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={5}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: theme.palette.primary.chip }}>
+                    تقرير وملاحظات المنسق
                   </Typography>
+                  <Box 
+                    sx={{ 
+                      p: 2, 
+                      borderRadius: "8px", 
+                      backgroundColor: "rgba(161, 169, 195, 0.04)",
+                      border: "1px dashed rgba(161, 169, 195, 0.2)"
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ color: theme.palette.primary.text3, fontStyle: "italic", lineHeight: 1.7 }}>
+                      {eventData.coordinator_notes || "لا توجد ملاحظات إضافية من المنسق."}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: theme.palette.primary.chip }}>
+                    توجيهات واعتماد إدارة الموارد البشرية
+                  </Typography>
+                  <TextField
+                    multiline
+                    rows={4}
+                    fullWidth
+                    placeholder="اكتب التوجيهات أو الملاحظات النهائية هنا للحفظ الفوري..."
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    disabled={isApproving}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        backgroundColor: "rgba(161, 169, 195, 0.02)",
+                        color: theme.palette.primary.text3,
+                        borderRadius: "8px",
+                        "& fieldset": { borderColor: "rgba(161, 169, 195, 0.2)" },
+                        "&:hover fieldset": { borderColor: theme.palette.primary.button1 },
+                        "&.Mui-focused fieldset": { borderColor: theme.palette.primary.button1 },
+                      }
+                    }}
+                  />
                 </Box>
               </Box>
-
-              {/* تعديل وإضافة ملاحظات الـ HR النهائية */}
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: theme.palette.primary.chip }}>
-                  توجيهات واعتماد إدارة الموارد البشرية
-                </Typography>
-                <TextField
-                  multiline
-                  rows={4}
-                  fullWidth
-                  placeholder="اكتب التوجيهات أو الملاحظات النهائية هنا للحفظ الفوري..."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  sx={{
-                    "& .MuiOutlinedInput-root": {
-                      backgroundColor: "rgba(161, 169, 195, 0.02)",
-                      color: theme.palette.primary.text3,
-                      borderRadius: "8px",
-                      "& fieldset": { borderColor: "rgba(161, 169, 195, 0.2)" },
-                      "&:hover fieldset": { borderColor: theme.palette.primary.button1 },
-                      "&.Mui-focused fieldset": { borderColor: theme.palette.primary.button1 },
-                    }
-                  }}
-                />
-              </Box>
-            </Box>
+            </Grid>
           </Grid>
-        </Grid>
-      )}
+        )}
 
-      <Divider style={{ margin: "25px 0 15px 0", borderColor: "rgba(161, 169, 195, 0.15)" }} />
+        <Divider style={{ margin: "25px 0 15px 0", borderColor: "rgba(161, 169, 195, 0.15)" }} />
 
-      {/* أزرار التحكم السفلية للمودال */}
-      <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1.5 }}>
-        <Button
-          variant="outlined"
-          onClick={onClose}
-          sx={{
-            borderColor: "rgba(161, 169, 195, 0.3)",
-            color: theme.palette.primary.chip,
-            borderRadius: "8px",
-            px: 3,
-            "&:hover": {
-              borderColor: theme.palette.primary.chip,
-              backgroundColor: "rgba(161, 169, 195, 0.05)"
-            }
-          }}
-        >
-          إلغاء
-        </Button>
-        <Button
-          variant="contained"
-          startIcon={<ApproveIcon />}
-          onClick={handleSubmit}
-          disabled={isLoading} // منع الضغط في حالة التحميل
-          sx={{
-            bgcolor: theme.palette.primary.button1,
-            color: "#fff",
-            borderRadius: "8px",
-            px: 3,
-            boxShadow: "none",
-            "&:hover": { 
+        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1.5 }}>
+          <Button
+            variant="outlined"
+            onClick={onClose}
+            disabled={isApproving}
+            sx={{
+              borderColor: "rgba(161, 169, 195, 0.3)",
+              color: theme.palette.primary.chip,
+              borderRadius: "8px",
+              px: 3,
+              "&:hover": {
+                borderColor: theme.palette.primary.chip,
+                backgroundColor: "rgba(161, 169, 195, 0.05)"
+              }
+            }}
+          >
+            إلغاء
+          </Button>
+
+          <Button
+            variant="contained"
+            startIcon={<EditIcon />}
+            onClick={() => setIsEditModalOpen(true)}
+            disabled={isLoading || isApproving}
+            sx={{
+              bgcolor: "#fa8c16",
+              color: "#fff",
+              borderRadius: "8px",
+              px: 3,
+              boxShadow: "none",
+              "&:hover": { 
+                bgcolor: "#d46b08",
+                boxShadow: "none"
+              }
+            }}
+          >
+            تعديل تقييم
+          </Button>
+
+          <Button
+            variant="contained"
+            startIcon={isApproving ? <CircularProgress size={20} color="inherit" /> : <ApproveIcon />}
+            onClick={handleSubmit}
+            disabled={isLoading || isApproving}
+            sx={{
               bgcolor: theme.palette.primary.button1,
-              opacity: 0.9,
-              boxShadow: "none"
-            }
-          }}
-        >
-          اعتماد ورفع التقييم
-        </Button>
-      </Box>
-    </Modal>
+              color: "#fff",
+              borderRadius: "8px",
+              px: 3,
+              boxShadow: "none",
+              "&:hover": { 
+                bgcolor: theme.palette.primary.button1,
+                opacity: 0.9,
+                boxShadow: "none"
+              }
+            }}
+          >
+            {isApproving ? "جاري الاعتماد والرفع..." : "اعتماد ورفع التقييم"}
+          </Button>
+        </Box>
+      </Modal>
+
+      {/* المودال الجديد ممرر له قائمة المتطوعين */}
+      <EditEvaluationModal 
+        open={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)} 
+        eventData={eventData}
+        volunteersList={Array.isArray(data) ? data : []}
+      />
+    </>
   );
 };

@@ -1,5 +1,5 @@
 // NeWsPage.jsx
-import React, { lazy, Suspense, useCallback, useState } from "react";
+import React, { lazy, Suspense, useCallback, useState, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -11,8 +11,9 @@ import NewsCard from "./NewsCard";
 import { useTheme } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined"; 
+import SearchOffOutlinedIcon from "@mui/icons-material/SearchOffOutlined";
 import { white } from "../../../style/color-main/color";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAnnouncement } from "../../../backend/slice/announcement/fetchAll";
 import { Spin } from "antd"; 
@@ -27,11 +28,24 @@ export default function NeWsPage() {
   const navigate = useNavigate();
   const theme = useTheme();
 
-  // جلب بيانات الأخبار الحقيقية وحالة التحميل والخطأ من الريدوكس
+  // جلب البيانات الحقيقية وحالة التحميل والخطأ من الريدوكس
   const { data: announcementResponse, isLoading, error } = useSelector((state) => state.fetchAnnouncement);
+  const { searchTerm } = useOutletContext() || {};
 
   // استخراج مصفوفة البيانات الحقيقية
   const actualCardsData = announcementResponse || [];
+
+  // فلترة الأخبار بناءً على نص البحث
+  const filteredCardsData = useMemo(() => {
+    if (!searchTerm || !searchTerm.trim()) return actualCardsData;
+    
+    const query = searchTerm.toLowerCase().trim();
+    return actualCardsData.filter((card) => {
+      const titleMatch = card.title?.toLowerCase().includes(query);
+      const descriptionMatch = card.description?.toLowerCase().includes(query) || card.content?.toLowerCase().includes(query);
+      return titleMatch || descriptionMatch;
+    });
+  }, [actualCardsData, searchTerm]);
 
   // دالة جلب البيانات معزولة لتكرار استخدامها عند الإضافة أو الحذف
   const loadAnnouncements = useCallback(() => {
@@ -138,7 +152,7 @@ export default function NeWsPage() {
           </Alert>
         </Box>
       ) : actualCardsData.length === 0 ? (
-        /* 3. معالجة حالة الفراغ */
+        /* 3. معالجة حالة سجل الأخبار فارغ كلياً */
         <Box 
           sx={{ 
             display: "flex", 
@@ -195,10 +209,66 @@ export default function NeWsPage() {
             لم يتم نشر أي أخبار أو إعلانات جديدة بالنظام. يمكنك البدء بإضافة أول خبر من خلال الزر في الأعلى.
           </Typography>
         </Box>
+      ) : filteredCardsData.length === 0 ? (
+        /* 4. معالجة حالة لا توجد نتائج للبحث */
+        <Box 
+          sx={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            alignItems: "center", 
+            justifyContent: "center", 
+            minHeight: "40vh", 
+            width: "100%",
+            textAlign: "center",
+            py: 4
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "80px",
+              height: "80px",
+              borderRadius: "50%",
+              backgroundColor: theme.palette.primary.inputt || "rgba(0, 0, 0, 0.03)",
+              mb: 2
+            }}
+          >
+            <SearchOffOutlinedIcon 
+              sx={{ 
+                fontSize: "42px", 
+                color: theme.palette.primary.text4,
+                opacity: 0.7
+              }} 
+            />
+          </Box>
+
+          <Typography 
+            sx={{ 
+              color: theme.palette.primary.text3, 
+              fontSize: { xs: "16px", sm: "18px" }, 
+              fontWeight: 700,
+              mb: 1
+            }}
+          >
+            لا توجد نتائج تطابق "{searchTerm}"
+          </Typography>
+          
+          <Typography 
+            sx={{ 
+              color: theme.palette.primary.text4, 
+              fontSize: { xs: "13px", sm: "14px" }, 
+              fontWeight: 500,
+            }}
+          >
+            تأكد من كتابة الكلمات بشكل صحيح أو جرب البحث عن كلمات أخرى.
+          </Typography>
+        </Box>
       ) : (
-        /* 4. عرض الكاردات بالبيانات الحقيقية */
+        /* 5. عرض الكروت المفلترة بالبيانات الحقيقية */
         <Grid container spacing={3}>
-          {actualCardsData.map((card) => (
+          {filteredCardsData.map((card) => (
             <NewsCard
               key={card.id}
               card={card}
@@ -213,7 +283,6 @@ export default function NeWsPage() {
 
       {/* دعم النوافذ المنبثقة بالليزي لودينغ */}
       <Suspense fallback={null}>
-        {/* 👈 تم تمرير onSuccess هنا لإعادة جلب البيانات تلقائياً */}
         {open && <AddNews open={open} onClose={() => setOpen(false)} onSuccess={loadAnnouncements} />}
         {opendelet && <DeletNews open={opendelet} onClose={() => setOpendelet(false)} selectedCard={selectedCard} onSuccess={loadAnnouncements} />}
         {openEdit && <EditNews open={openEdit} onClose={() => setOpenEdit(false)} selectedCard={selectedCard} onSuccess={loadAnnouncements} />}

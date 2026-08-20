@@ -61,6 +61,7 @@ import ShowEvaloutionDetailsReducer from '../slice/volnteers/evalaution/showDeta
 import editEvaluationReducer from '../slice/volnteers/evalaution/editeEvaltion'
 import ShowProfileReducer from '../slice/profile/showProfile'
 import Edit_ProfileReducer from '../slice/profile/editeProfile'
+import ApproveEvaloutionReducer from '../slice/volnteers/evalaution/approve'
 const store = configureStore({
   reducer: {
  Log_in: Log_inReducer,
@@ -125,6 +126,7 @@ ShowEvaloutionDetails:ShowEvaloutionDetailsReducer,
 editEvaluation:editEvaluationReducer,
 ShowProfile:ShowProfileReducer,
 Edit_Profile:Edit_ProfileReducer,
+ApproveEvaloution:ApproveEvaloutionReducer,
 }})
 
 export default store

@@ -32,7 +32,7 @@ export default function ProfileSection() {
       <Stack direction="row" spacing={2} alignItems="center" textAlign="right">
         <Box>
           <Typography variant="body1" sx={{ color: white }}>
-            {userInfo?.full_name || "أسماء الحامدة"}
+            {userInfo?.full_name || ""}
           </Typography>
           <Typography variant="caption" sx={{ color: gray2 }}>
             {userInfo?.role === "admin"

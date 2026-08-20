@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import DeletList from "./retrayFreezen";
 import Swal from "sweetalert2";
 import { Desetion_frazzing } from "../../../backend/slice/frazzring/desetion";
+import { fetchBlack_list } from "../../../backend/slice/blakList/fetchAll";
 const FrazzenPage = () => {
     const { status, Loading, Error } = useSelector((state) => state.Desetion_frazzing);
 console.log(status)
@@ -24,11 +25,11 @@ console.log(status)
   const [selectedCard, setSelectedCard] = useState(null);
 
   // جلب البيانات وحالة التحميل والخطأ من الـ Store
-  const { data: rawData, isLoading, error } = useSelector((state) => state.fetchvolunteer_freeze);
+  const { data: rawData, isLoading, error } = useSelector((state) => state.fetchBlack_list);
 console.log(rawData)
   // استدعاء البيانات عند تحميل الصفحة
   React.useEffect(() => {
-    dispatch(fetchvolunteer_freeze());
+    dispatch(fetchBlack_list());
   }, [dispatch]);
 
   // استخراج المصفوفة الفعلية ديناميكياً
@@ -38,7 +39,7 @@ console.log(rawData)
 
   // دالة لتحديث الجدول بعد إتمام العملية بنجاح
   const handleSuccessRefresh = () => {
-    dispatch(fetchvolunteer_freeze());
+    dispatch(fetchBlack_list());
   };
 
  const handleApprove = async (record) => {
@@ -94,12 +95,18 @@ const handleReject = async (record) => {
         </Space>
       ),
     },
-    {
-      title: "تاريخ التجميد",
-      dataIndex: "added_at",
-      key: "added_at",
-      width: 140,
-    },
+   {
+  title: "تاريخ التجميد",
+  dataIndex: "started_at",
+  key: "started_at",
+  width: 140,
+  render: (date) => {
+    if (!date) return <span>غير محدد</span>;
+    // فصل التاريخ عن الوقت وأخذ الجزء الأول فقط (السنة-الشهر-اليوم)
+    const dateOnly = date.split(" ")[0]; 
+    return <span>{dateOnly}</span>;
+  },
+},
     {
       title: "بواسطة",
       dataIndex: "admin_name",

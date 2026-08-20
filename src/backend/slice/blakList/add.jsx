@@ -1,16 +1,17 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { BaseUrl, BLACK_LIST, Procedures } from '../../Api';
+import { BaseUrl, Procedures } from '../../Api';
 import { postData } from '../../ApiServecies';
 
 const initialState = {
   formInfo: {
     volunteer_id: '',
     reason: '',
+    type: 'حظر', // القيمة الافتراضية
   },
   isLoading: false,
   error: null,
   success: false,
-  message: null, // 🌟 لإستقبال رسالة النجاح القادمة من الباك إند
+  message: null,
 };
 
 export const Add_black_List = createAsyncThunk(
@@ -18,20 +19,23 @@ export const Add_black_List = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     try {
       const state = getState();
-      const { volunteer_id, reason } = state.Add_black_List.formInfo;
+      const { volunteer_id, reason, type } = state.Add_black_List.formInfo;
       
-      const formData = new FormData();
-      formData.append('volunteer_id', volunteer_id);
-      formData.append('reason', reason);
+      // إرسال البيانات كـ JSON Object يتطابق مع ما يطلبه الـ API
+      const payload = {
+        volunteer_id,
+        type: type || 'حظر',
+        reason,
+      };
 
       const response = await postData(
-        `${BaseUrl}${Procedures}${BLACK_LIST}`,
-        formData,
+        `${BaseUrl}${Procedures}`,
+        payload,
         {},
         true
       );
 
-      return response; // 🌟 يحتوي عادة على { success: true, message: "..." }
+      return response;
     } catch (error) {
       const serverMessage = error?.response?.data?.message || error?.message || 'حدث خطأ ما أثناء التعديل';
       return rejectWithValue(serverMessage);

@@ -16,26 +16,28 @@ import AddIcon from "@mui/icons-material/Add";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined"; 
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded"; 
 import { white } from "../../../style/color-main/color";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom"; // 👈 استيراد useOutletContext
 import { fetchEvents } from "../../../backend/slice/events/fetchAll";
 import { fetchstatus } from "../../../backend/slice/events/fetchstatus"; 
 import { transfer_to_public } from "../../../backend/slice/events/transfer-to-public"; 
 import { useDispatch, useSelector } from "react-redux";
 import { Spin, message } from "antd"; 
+import Swal from "sweetalert2";
 import { fetchDepartment } from "../../../backend/slice/department/fetchAll";
 
-// الاستدعاء العادي أو الكسول للمودالات
+// الاستدعاء الكسول للمودالات
 const EditeEventModal = lazy(() => import("./EditeEvents"));
-
 const DeletEvents = lazy(() => import("./deletEvents"));
 const AddEventModal = lazy(() => import("./AddEveents"));
 const TransferModal = lazy(() => import("./TransferConfirmModal"));
-
 const TransferSuccessModal = lazy(() => import("./TransferModal"));
+
 export default function EventsPage() {
-  const userRole = useSelector(
-  (state) => state.user?.userInfo?.role
-);
+  // 1️⃣ استلام قيمة البحث الممررة من Layout بواسطة useOutletContext
+  const context = useOutletContext();
+  const searchTerm = context?.searchTerm || "";
+
+  const userRole = useSelector((state) => state.user?.userInfo?.role);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -43,16 +45,15 @@ export default function EventsPage() {
   
   const [open, setOpen] = useState(false);
   const [opendelet, setOpendelet] = useState(false);
-  const [openEdit,setOpenEdit]=useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
   const [openTransfer, setOpenTransfer] = useState(false);
-  const [openSuccess, setOpenSuccess] = useState(false); // 🌟 ستيت فتح مودال النجاح
+  const [openSuccess, setOpenSuccess] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
-const [selectedEvent,setSelectedEvent]=useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedDepartmentId, setSelectedDepartmentId] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
 
   const { data: departmentsData } = useSelector((state) => state.fetchDepartment);
-  console.log(departmentsData)
   const departmentsList = Array.isArray(departmentsData) ? departmentsData : departmentsData?.data || [];
   const { data: statusesData, isLoading: isStatusLoading } = useSelector((state) => state.fetchstatus);
   const { data: eventsResponse, isLoading, error } = useSelector((state) => state.fetchEvents);
@@ -62,6 +63,17 @@ const [selectedEvent,setSelectedEvent]=useState(null);
     if (!eventsResponse) return [];
     return Array.isArray(eventsResponse) ? eventsResponse : eventsResponse.data || [];
   }, [eventsResponse]);
+
+  // 2️⃣ فلترة الفعاليات بناءً على عنوان الفعالية أو وصفها بافتراض الفلترة بحسب نص البحث
+  const filteredEvents = useMemo(() => {
+    if (!searchTerm.trim()) return actualEventsData;
+    const query = searchTerm.toLowerCase().trim();
+    return actualEventsData.filter((eventItem) => {
+      const titleMatch = eventItem.title?.toLowerCase().includes(query) || eventItem.name?.toLowerCase().includes(query);
+      const descMatch = eventItem.description?.toLowerCase().includes(query);
+      return titleMatch || descMatch;
+    });
+  }, [actualEventsData, searchTerm]);
 
   const loadEvents = useCallback(() => {
     const deptParam = selectedDepartmentId === "all" ? "" : selectedDepartmentId;
@@ -85,10 +97,6 @@ const [selectedEvent,setSelectedEvent]=useState(null);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const primaryButtonColor = theme?.palette?.primary?.button1 || "#162d6b";
 
-  // const handleEdit = useCallback((eventItem) => {
-  //   console.log("تعديل الفعالية:", eventItem);
-  // }, []);
-
   const handleDelete = useCallback((eventItem) => {
     setSelectedCard(eventItem); 
     setOpendelet(true);
@@ -102,43 +110,28 @@ const [selectedEvent,setSelectedEvent]=useState(null);
     setSelectedCard(eventItem);
     setOpenTransfer(true);
   }, []);
-  const handleEdit=(event)=>{
 
+  const handleEdit = (event) => {
     setSelectedEvent(event);
-
     setOpenEdit(true);
+  };
 
-};
-const handleConfirmTransfer = async () => {
-
-    try{
-
-        await dispatch(
-            transfer_to_public(selectedCard.id)
-        ).unwrap();
-
-        setOpenTransfer(false);
-
-        setOpenSuccess(true);
-
-        dispatch(fetchEvents());
-
-    }catch(err){
- console.log("ERR:", err);
-  console.log("TYPE:", typeof err);
-
-  message.error(typeof err === "string" ? err : JSON.stringify(err));
-        Swal.fire({
+  const handleConfirmTransfer = async () => {
+    try {
+      await dispatch(transfer_to_public(selectedCard.id)).unwrap();
+      setOpenTransfer(false);
+      setOpenSuccess(true);
+      dispatch(fetchEvents());
+    } catch (err) {
+      console.log("ERR:", err);
+      message.error(typeof err === "string" ? err : JSON.stringify(err));
+      Swal.fire({
         icon: "error",
         title: "فشل العملية",
-        text: err,
-    });
-
+        text: typeof err === "string" ? err : "حدث خطأ غير متوقع",
+      });
     }
-
-};
-
-
+  };
 
   const selectStyles = {
     height: { xs: "40px", md: "48px" },
@@ -187,7 +180,7 @@ const handleConfirmTransfer = async () => {
             </Select>
           </FormControl>
 
-          <Button onClick={() => setOpen(true)} variant="contained" sx={{ width: { xs: "100%", sm: "160px", md: "177px" }, height: "40px", borderRadius: "10px", backgroundColor: primaryButtonColor, color: white || "#fff", boxShadow: "none", fontSize: { xs: "13px", sm: "14px" }, fontWeight: 600, textTransform: "none", display: "flex", alignItems: "center", justifyContent: "center", "& :hover": { backgroundColor: primaryButtonColor, opacity: 0.9, boxShadow: "none" } }}>
+          <Button onClick={() => setOpen(true)} variant="contained" sx={{ width: { xs: "100%", sm: "160px", md: "177px" }, height: "40px", borderRadius: "10px", backgroundColor: primaryButtonColor, color: white || "#fff", boxShadow: "none", fontSize: { xs: "13px", sm: "14px" }, fontWeight: 600, textTransform: "none", display: "flex", alignItems: "center", justifyContent: "center", "&:hover": { backgroundColor: primaryButtonColor, opacity: 0.9, boxShadow: "none" } }}>
             إضافة فعالية
             <AddIcon sx={{ width: "18px", height: "18px", mr: 1 }} />
           </Button>
@@ -205,65 +198,66 @@ const handleConfirmTransfer = async () => {
             {typeof error === "string" ? error : "حدث خطأ أثناء تحميل بيانات الفعاليات من الخادم."}
           </Alert>
         </Box>
-      ) : actualEventsData.length === 0 ? (
+      ) : filteredEvents.length === 0 ? (
+        /* 3️⃣ التعامل مع حالة البحث عن نتيجة غير موجودة أو فارغة */
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "45vh", textAlign: "center", py: 4, width: "100%" }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100px", height: "100px", borderRadius: "50%", backgroundColor: "rgba(0,0,0,0.03)", mb: 2.5 }}>
             <CalendarMonthOutlinedIcon sx={{ fontSize: "52px", color: theme?.palette?.primary?.text4 || "#666", opacity: 0.7 }} />
           </Box>
-          <Typography sx={{ color: theme?.palette?.primary?.text3 || "#000", fontSize: "18px", fontWeight: 700, mb: 1 }}>لا توجد فعاليات في الوقت الحالي</Typography>
+          <Typography sx={{ color: theme?.palette?.primary?.text3 || "#000", fontSize: "18px", fontWeight: 700, mb: 1 }}>
+            {searchTerm ? "لا توجد نتائج تطابق بحثك" : "لا توجد فعاليات في الوقت الحالي"}
+          </Typography>
+          {searchTerm && (
+            <Typography sx={{ color: theme?.palette?.primary?.text4 || "#666", fontSize: "14px", fontWeight: 500, maxWidth: "340px", lineHeight: 1.6 }}>
+              لم نجد أي فعالية تتطابق مع كلمة "{searchTerm}". جرب البحث بكلمة مفتاحية أخرى.
+            </Typography>
+          )}
         </Box>
       ) : (
+        /* 4️⃣ عرض القائمة المفلترة */
         <Grid container spacing={3}>
-          {actualEventsData.map((eventItem) => (
-<EventCard
-      key={eventItem.id}
-      card={eventItem}
-      theme={theme}
-      onEdit={handleEdit}
-      onView={handleView}
-      userRole={userRole} // 🌟 هذا السطر هو المفتاح لتمرير القيمة "hr_general" للكارد
-      onDelete={userRole !== "hr_general" ? handleDelete : undefined}
-      onTransfer={userRole !== "hr_general" ? handleTransferClick : undefined}
-    /> 
-                 ))}
+          {filteredEvents.map((eventItem) => (
+            <EventCard
+              key={eventItem.id}
+              card={eventItem}
+              theme={theme}
+              onEdit={handleEdit}
+              onView={handleView}
+              userRole={userRole}
+              onDelete={userRole !== "hr_general" ? handleDelete : undefined}
+              onTransfer={userRole !== "hr_general" ? handleTransferClick : undefined}
+            /> 
+          ))}
         </Grid>
       )}
 
+      {/* المودالات */}
       <Suspense fallback={null}>
         {opendelet && <DeletEvents open={opendelet} onClose={() => setOpendelet(false)} selectedCard={selectedCard} onSuccess={loadEvents} />}
         {open && <AddEventModal open={open} onClose={() => setOpen(false)} onSuccess={loadEvents} />}
         
         {openTransfer && (
-<TransferModal
-    open={openTransfer}
-    onClose={() => setOpenTransfer(false)}
-    onConfirm={handleConfirmTransfer}
-    event={selectedCard}
-    isLoading={isTransferLoading}
-/>        )}
+          <TransferModal
+            open={openTransfer}
+            onClose={() => setOpenTransfer(false)}
+            onConfirm={handleConfirmTransfer}
+            event={selectedCard}
+            isLoading={isTransferLoading}
+          />
+        )}
 
-        {/* 🌟 رندرة مودال النجاح المتناسق في واجهتكِ البرمجية */}
         {openSuccess && (
           <TransferSuccessModal open={openSuccess} onClose={() => setOpenSuccess(false)} />
         )}
-          {
-        openEdit && (
 
-            <EditeEventModal
-
-                open={openEdit}
-
-                onClose={()=>setOpenEdit(false)}
-
-                eventData={selectedEvent}
-
-                onSuccess={loadEvents}
-
-            />
-
-        )
-
-    }
+        {openEdit && (
+          <EditeEventModal
+            open={openEdit}
+            onClose={() => setOpenEdit(false)}
+            eventData={selectedEvent}
+            onSuccess={loadEvents}
+          />
+        )}
       </Suspense>
     </Box>
   );

@@ -55,11 +55,14 @@ export default function AddBlack_ListModal({ open, onClose, selectedCard, onSucc
   }, [open, dispatch]);
 
   // عند فتح المودال والتأكد من وجود المتطوع المحدد، نقوم بتحديث الـ id بالـ Store
-  useEffect(() => {
-    if (open && selectedCard?.id) {
-      dispatch(setformInfo({ volunteer_id: selectedCard.id }));
-    }
-  }, [open, selectedCard, dispatch]);
+ useEffect(() => {
+  if (open && selectedCard?.id) {
+    dispatch(setformInfo({ 
+      volunteer_id: selectedCard.id,
+      type: "حظر" 
+    }));
+  }
+}, [open, selectedCard, dispatch]);
 
   const handleCloseToast = (event, reason) => {
     if (reason === "clickaway") return;
