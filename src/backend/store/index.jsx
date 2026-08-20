@@ -62,6 +62,7 @@ import editEvaluationReducer from '../slice/volnteers/evalaution/editeEvaltion'
 import ShowProfileReducer from '../slice/profile/showProfile'
 import Edit_ProfileReducer from '../slice/profile/editeProfile'
 import ApproveEvaloutionReducer from '../slice/volnteers/evalaution/approve'
+import creteriaListReducer from '../slice/Criteria/list'
 const store = configureStore({
   reducer: {
  Log_in: Log_inReducer,
@@ -127,6 +128,7 @@ editEvaluation:editEvaluationReducer,
 ShowProfile:ShowProfileReducer,
 Edit_Profile:Edit_ProfileReducer,
 ApproveEvaloution:ApproveEvaloutionReducer,
+creteriaList:creteriaListReducer,
 }})
 
 export default store

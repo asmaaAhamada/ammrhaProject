@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { BaseUrl, EVALUTION } from '../../../Api';
-import { putData } from '../../../ApiServecies';
+import { postData, putData } from '../../../ApiServecies';
 
 
 const initialState = {
@@ -12,10 +12,11 @@ const initialState = {
 // الـ Thunk الخاص بتعديل تقييم متطوع محدد في فعالية
 export const editVolunteerEvaluation = createAsyncThunk(
   "evaluation/editVolunteerEvaluation",
-  async ({ eventId, evaluationData }, { rejectWithValue }) => {
+  async ({  evaluationData }, { rejectWithValue }) => {
     try {
       // تعديل مسار الـ API حسب ما هو معتمد لديك، هنا أرسلنا الـ body المطلوب مباشرة
-      const response = await putData(`${BaseUrl}${EVALUTION}${eventId}`, evaluationData);
+      const response = await postData(`${BaseUrl}${EVALUTION}`, evaluationData);
+      console.log(response)
       return response.data;
     } catch (error) {
       const serverError = error.response?.data?.message || error?.message || "حدث خطأ أثناء تعديل التقييم";

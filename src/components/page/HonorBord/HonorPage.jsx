@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchHonor } from "../../../backend/slice/honor/fetchAll";
 
-// استيراد المكونات المنفصلة الجديدة
 import HonorPlatform from "./HonorPlatform";
 import HonorBoardTable from "./HonorBoardTable";
 import { useNavigate } from "react-router-dom";
@@ -18,9 +17,10 @@ const MotionTypography = motion.create(Typography);
 export default function RankingSection() {
   const navigate = useNavigate();
 
-const handleView = (volunteer) => {
-   navigate(`/volunteers/${volunteer.id}`);
-};
+  const handleView = (volunteer) => {
+    navigate(`/volunteers/${volunteer.id}`);
+  };
+
   const dispatch = useDispatch();
   const theme = useTheme();
   
@@ -30,7 +30,6 @@ const handleView = (volunteer) => {
     dispatch(fetchHonor());
   }, [dispatch]);
 
-  // اللودر الكلي للصفحة
   if (isLoading && (!rawData || rawData.length === 0)) {
     return (
       <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: "450px", width: "100%", position: "relative" }}>
@@ -65,9 +64,10 @@ const handleView = (volunteer) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-        pt: { xs: 4, md: 6 }, 
+        pt: { xs: 3, md: 6 }, 
         pb: { xs: 4, md: 8 },
-        px: { xs: 2, md: 4 },
+        px: { xs: 1.5, sm: 3, md: 4 },
+        boxSizing: "border-box"
       }}
     >
       <Box 
@@ -76,21 +76,19 @@ const handleView = (volunteer) => {
           maxWidth: "1200px",
           display: "flex",
           flexDirection: "column",
-          gap: 6 // مسافة عمودية ممتازة ومريحة تفصل المنصة عن الجدول بالأسفل
+          gap: { xs: 4, md: 6 }
         }}
       >
-        {/* 1. استدعاء منصة الكروت (تمرير الداتا كـ Props) */}
+        {/* 1. منصة الكروت */}
         <HonorPlatform rawData={rawData} />
 
-        {/* 2. استدعاء جدول لوحة الشرف (تمرير الداتا والـ Loading كـ Props) */}
-        <Box sx={{ width: "100%" }}>
-          <HonorBoardTable 
-            rawData={rawData} 
-            isLoading={isLoading} 
-            error={error} 
-              onView={handleView}
-          />
-        </Box>
+        {/* 2. جدول لوحة الشرف */}
+        <HonorBoardTable 
+          rawData={rawData} 
+          isLoading={isLoading} 
+          error={error} 
+          onView={handleView}
+        />
       </Box>
     </Box>
   );

@@ -30,7 +30,7 @@ export default function SectionPage() {
 
   const { data, isLoading, error } = useSelector((state) => state.fetchDepartmentList);
   const departmentsList = Array.isArray(data) ? data : data?.data || [];
-
+console.log(data)
   // 1️⃣ حالة البحث
   const [searchTerm, setSearchTerm] = useState("");
 

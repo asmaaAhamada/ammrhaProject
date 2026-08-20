@@ -59,10 +59,11 @@ function RankCard({ item }) {
         transition: { duration: 0.2 }
       }}
       sx={{
-        width: '245px',
+        width: { xs: "50%", sm: "200px", md: "245px" },
+        maxWidth: "100%",
         minHeight: {
-          xs: '320px',
-          md: rankDetails.isWinner ? '380px' : '330px'
+          xs: "auto",
+          md: rankDetails.isWinner ? "380px" : "330px"
         },
         borderRadius: "24px",
         display: "flex",
@@ -118,7 +119,7 @@ function RankCard({ item }) {
 
         <Typography
           variant="h4" fontWeight={900}
-          sx={{ mb: 2, mt: 'auto', color: yallow || "#FFCC00" }}
+          sx={{ mb: 2, mt: "auto", color: yallow || "#FFCC00" }}
         >
           {item.points}
         </Typography>
@@ -154,8 +155,8 @@ const HonorPlatform = ({ rawData }) => {
       viewport={{ once: true, amount: 0.1 }}
       sx={{
         display: "flex",
-        flexDirection: { xs: "column", md: "row" },
-        gap: { xs: "24px", md: "24px" },
+        flexDirection: { xs: "column", md: "row" }, // تحت بعض بالجوال، بجانب بعض باللابتوب
+        gap: { xs: 3, md: 3 },
         justifyContent: "center",
         alignItems: { xs: "center", md: "flex-end" },
         width: "100%",

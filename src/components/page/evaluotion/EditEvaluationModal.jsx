@@ -11,8 +11,7 @@ import {
   ListItemAvatar, 
   ListItemText, 
   Avatar, 
-  Paper, 
-  Chip
+  Paper 
 } from "@mui/material";
 import { 
   AccessTime as TimeIcon,
@@ -21,39 +20,38 @@ import {
 } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCriteria } from "../../../backend/slice/Criteria/fetchAll";
-import axios from "axios"; // أو استدعاء الأكشن الخاص بك من Redux
+import { creteriaList } from "../../../backend/slice/Criteria/list";
+import { editVolunteerEvaluation, resetEditStatus } from "../../../backend/slice/volnteers/evalaution/editeEvaltion";
 
 export const EditEvaluationModal = ({ open, onClose, eventData, volunteersList = [] }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
 
-  // جلب معايير التقييم من Redux وتأمين الوصول للمصفوفة
-const criteriaState = useSelector((state) =>  state.fetchCriteria);
-
-console.log(criteriaState)
-
-const rawCriteria = criteriaState?.data?.data || criteriaState?.data || criteriaState || [];
-const criteriaList = Array.isArray(criteriaState) 
+  // جلب معايير التقييم من Redux
+  const criteriaState = useSelector((state) => state.creteriaList);
+  const criteriaList = Array.isArray(criteriaState) 
     ? criteriaState 
     : Array.isArray(criteriaState?.data?.data) 
     ? criteriaState.data.data 
     : Array.isArray(criteriaState?.data) 
     ? criteriaState.data 
     : [];
+
+  // جلب حالة التحميل من Redux Slice
+  const { isLoading } = useSelector((state) => state.editEvaluation || {});
+
   const [selectedVolunteerIndex, setSelectedVolunteerIndex] = useState(0);
   const [evaluations, setEvaluations] = useState({});
-  const [loading, setLoading] = useState(false);
 
   // 1. طلب المعايير عند فتح المودال
   useEffect(() => {
     if (open) {
-      dispatch(fetchCriteria());
+      dispatch(creteriaList());
     }
   }, [dispatch, open]);
 
-  // 2. تهيئة حالة التقييمات عند فتح المودال أو تغير البيانات
- useEffect(() => {
+  // 2. تهيئة حالة التقييمات عند فتح المودال
+  useEffect(() => {
     if (open && volunteersList.length > 0 && criteriaList.length > 0) {
       const initialStore = {};
       volunteersList.forEach((vol) => {
@@ -61,7 +59,7 @@ const criteriaList = Array.isArray(criteriaState)
         initialStore[volId] = {
           event_id: Number(eventData?.id),
           volunteer_id: Number(volId),
-          left_at: "12:00",
+          left_at: null,
           criteria: criteriaList.map((c) => ({
             criterion_id: Number(c.id),
             achieved: false
@@ -75,12 +73,10 @@ const criteriaList = Array.isArray(criteriaState)
 
   const currentVolunteer = volunteersList[selectedVolunteerIndex];
   const currentVolId = currentVolunteer?.volunteer_id || currentVolunteer?.id;
-  const currentEvalData = evaluations[currentVolId] || { criteria: [], left_at: "12:00" };
+  const currentEvalData = evaluations[currentVolId] || { criteria: [], left_at: null };
 
-  // 3. التبديل في حالة المعيار
   const handleToggleCriterion = (criterionId) => {
     if (!currentVolId) return;
-
     setEvaluations((prev) => {
       const volData = prev[currentVolId];
       if (!volData) return prev;
@@ -99,7 +95,6 @@ const criteriaList = Array.isArray(criteriaState)
     });
   };
 
-  // تغيير وقت المغادرة
   const handleTimeChange = (time, timeString) => {
     if (!currentVolId) return;
     setEvaluations((prev) => {
@@ -108,20 +103,9 @@ const criteriaList = Array.isArray(criteriaState)
 
       return {
         ...prev,
-        [currentVolId]: { ...volData, left_at: timeString }
+        [currentVolId]: { ...volData, left_at: timeString || null }
       };
     });
-  };
-
-  // حساب محصلة النقاط ديناميكياً
-  const calculateTotalPoints = () => {
-    if (!currentEvalData?.criteria) return 0;
-    return currentEvalData.criteria.reduce((total, item) => {
-      if (!item.achieved) return total;
-      const criterionObj = criteriaList.find((c) => Number(c.id) === Number(item.criterion_id));
-      if (!criterionObj) return total;
-      return total + Number(criterionObj.points || 0);
-    }, 0);
   };
 
   const handleNextVolunteer = () => {
@@ -130,26 +114,33 @@ const criteriaList = Array.isArray(criteriaState)
     }
   };
 
-  // 4. الحفظ وإرسال الطلبات إلى API الباك إند
+  // 3. الحفظ وإظهار الرسالة المطلوبة عند النجاح، أو الخطأ القادم من الباك إند
   const handleSaveAll = async () => {
-    setLoading(true);
+    const payloadList = Object.values(evaluations);
+
+    const promises = payloadList.map((payload) =>
+      dispatch(
+        editVolunteerEvaluation({
+          eventId: eventData?.id,
+          evaluationData: payload
+        })
+      ).unwrap()
+    );
+
     try {
-      const payloadList = Object.values(evaluations);
-
-      // إرسال طلب لكل متطوع بناءً على شكل الـ Payload المطلوب في البوست مان
-      const requests = payloadList.map((payload) => 
-        axios.post("/v1/evaluations", payload)
-      );
-
-      await Promise.all(requests);
-
-      antMessage.success("تم حفظ جميع التقييمات بنجاح");
+      await Promise.all(promises);
+      // عرض الرسالة المحددة للنجاح مرة واحدة فقط
+      antMessage.success("تم إنشاء تقييم المتطوع بنجاح");
+      dispatch(resetEditStatus());
       onClose();
-    } catch (error) {
-      antMessage.error("حدث خطأ أثناء حفظ التقييمات");
-      console.error(error);
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      // إظهار نص الخطأ القادم من الباك إند مرة واحدة فقط
+      const errorMsg = typeof err === 'string' 
+        ? err 
+        : err?.message || err?.error || "حدث خطأ أثناء حفظ التقييمات";
+
+      antMessage.error(errorMsg);
+      dispatch(resetEditStatus());
     }
   };
 
@@ -182,7 +173,7 @@ const criteriaList = Array.isArray(criteriaState)
       <Divider style={{ margin: "10px 0 20px 0", borderColor: "rgba(161, 169, 195, 0.15)" }} />
 
       <Box sx={{ display: "flex", gap: 2, minHeight: 400 }}>
-        {/* الشريط الجانبي */}
+        {/* الشريط الجانبي للمتطوعين */}
         <Paper
           elevation={0}
           sx={{
@@ -233,7 +224,6 @@ const criteriaList = Array.isArray(criteriaState)
         {/* المساحة الرئيسية */}
         <Box sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
           <Box>
-            {/* الهيدر الخاص بالمتطوع المختار */}
             <Paper
               elevation={0}
               sx={{
@@ -260,28 +250,18 @@ const criteriaList = Array.isArray(criteriaState)
                 </Box>
               </Box>
 
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <TimeIcon sx={{ fontSize: 18, color: theme.palette.primary.chip }} />
-                  <TimePicker
-                    format="HH:mm"
-                    value={currentEvalData.left_at ? dayjs(currentEvalData.left_at, "HH:mm") : null}
-                    onChange={handleTimeChange}
-                    placeholder="وقت الانصراف"
-                    style={{ width: 100 }}
-                  />
-                </Box>
-
-                <Chip
-                  label={`محصلة النقاط: ${calculateTotalPoints() > 0 ? `+${calculateTotalPoints()}` : calculateTotalPoints()}`}
-                  color={calculateTotalPoints() >= 0 ? "success" : "error"}
-                  variant="outlined"
-                  sx={{ fontWeight: 700 }}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <TimeIcon sx={{ fontSize: 18, color: theme.palette.primary.chip }} />
+                <TimePicker
+                  format="HH:mm"
+                  value={currentEvalData.left_at ? dayjs(currentEvalData.left_at, "HH:mm") : null}
+                  onChange={handleTimeChange}
+                  placeholder="وقت الانصراف"
+                  style={{ width: 110 }}
                 />
               </Box>
             </Paper>
 
-            {/* قائمة المعايير الديناميكية */}
             <Typography variant="body2" sx={{ fontWeight: 700, mb: 1, color: theme.palette.primary.chip }}>
               معايير التقييم:
             </Typography>
@@ -291,9 +271,7 @@ const criteriaList = Array.isArray(criteriaState)
                 const matchedCriterion = currentEvalData.criteria?.find(
                   (c) => Number(c.criterion_id) === Number(criterion.id)
                 );
-
                 const isAchieved = Boolean(matchedCriterion?.achieved);
-                const isNegative = Number(criterion.points) < 0;
 
                 return (
                   <Paper
@@ -310,27 +288,13 @@ const criteriaList = Array.isArray(criteriaState)
                       borderRadius: "8px"
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.primary.text3 }}>
-                        {criterion.name}
-                      </Typography>
-                      <Chip
-                        size="small"
-                        label={criterion.formatted_points || `${criterion.points}`}
-                        sx={{
-                          height: 20,
-                          fontSize: "11px",
-                          fontWeight: 700,
-                          backgroundColor: isNegative ? "#ff4d4f22" : "#05df7222",
-                          color: isNegative ? "#ff4d4f" : "#05df72"
-                        }}
-                      />
-                    </Box>
-
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: theme.palette.primary.text3 }}>
+                      {criterion.name}
+                    </Typography>
                     <Switch
                       checked={isAchieved}
                       onChange={() => handleToggleCriterion(criterion.id)}
-                      color={isNegative ? "error" : "success"}
+                      color="success"
                     />
                   </Paper>
                 );
@@ -358,7 +322,7 @@ const criteriaList = Array.isArray(criteriaState)
                 variant="contained"
                 startIcon={<SaveIcon />}
                 onClick={handleSaveAll}
-                loading={loading}
+                loading={isLoading}
                 sx={{
                   bgcolor: theme.palette.primary.button1,
                   color: "#fff",
